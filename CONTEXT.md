@@ -48,7 +48,7 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
    var_equals, etc.) de façon agnostique au contenu.
 6. ✅ FAIT — `app/js/core/ErrorTranslator.js` + `app/js/i18n/errors.{fr,en}.json` — traduit les tracebacks Python en messages simples fr/en
    (cf. ton de l'exemple 2 du brief).
-7. `app/js/core/ProgressStore.js` — IndexedDB (XP, badges, streaks, niveaux complétés) + export/import.
+7. ✅ FAIT (IndexedDB non testé en navigateur) — `app/js/core/ProgressStore.js` + `KeyValueStores.js` — IndexedDB (XP, badges, streaks, niveaux complétés) + export/import.
 8. `app/js/core/AudioEngine.js` + `app/js/core/VoiceEngine.js` — effets sonores et
    `speechSynthesis`, déblocage uniquement sur geste utilisateur (contrainte iOS autoplay).
 9. `app/js/ui/*` — `NotebookView`, `CellManager`, `CellView`, `HintPanel`, `ProgressMap`,

@@ -1,0 +1,54 @@
+# Exemple de vhost PyQuest (à adapter : domaine, chemins, certificats).
+# Les en-têtes COOP/COEP sont indispensables à l'interruption propre des boucles infinies
+# (SharedArrayBuffer). HTTPS obligatoire (service worker + isolation cross-origin).
+# Voir docs/design/01-pyodide-choice.md.
+
+server {
+    listen 443 ssl http2;
+    server_name pyquest.example.org;
+
+    ssl_certificate     /etc/letsencrypt/live/pyquest.example.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pyquest.example.org/privkey.pem;
+
+    # Contenu produit par `make build`
+    root /var/www/pyquest/dist;
+    index index.html;
+
+    add_header Cross-Origin-Opener-Policy "same-origin" always;
+    add_header Cross-Origin-Embedder-Policy "require-corp" always;
+    add_header Cross-Origin-Resource-Policy "same-origin" always;
+    add_header X-Content-Type-Options "nosniff" always;
+
+    types {
+        text/javascript mjs;
+        application/manifest+json webmanifest;
+        application/wasm wasm;
+    }
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    # Le service worker ne doit jamais être mis en cache longtemps par le navigateur.
+    location = /service-worker.js {
+        add_header Cache-Control "no-cache" always;
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        add_header Cross-Origin-Resource-Policy "same-origin" always;
+    }
+
+    # Pyodide est versionné et immuable.
+    location /vendor/pyodide/ {
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        add_header Cross-Origin-Resource-Policy "same-origin" always;
+    }
+
+    # API de synchronisation Django (optionnelle), sur le même domaine.
+    location /api/ {
+        proxy_pass http://127.0.0.1:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

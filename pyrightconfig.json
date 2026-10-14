@@ -1,0 +1,22 @@
+{
+    "include": [
+        "app/python",
+        "scripts",
+        "tests/python",
+        "backend"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        "vendor",
+        ".venv",
+        "dist"
+    ],
+    "pythonVersion": "3.12",
+    "typeCheckingMode": "standard",
+    "venvPath": ".",
+    "venv": ".venv",
+    "extraPaths": [
+        "app/python"
+    ]
+}

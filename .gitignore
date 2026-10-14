@@ -16,6 +16,9 @@ backend/staticfiles/
 backend/.venv/
 backend/venv/
 
+# Environnement virtuel Python de développement
+.venv/
+
 # Dépendances JS (si un outillage de build/test est ajouté plus tard)
 node_modules/
 

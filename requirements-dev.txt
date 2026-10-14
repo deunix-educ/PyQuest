@@ -1,0 +1,4 @@
+# Outils de développement (validation des niveaux, typage)
+PyYAML>=6.0
+jsonschema>=4.21
+pyright>=1.1.380

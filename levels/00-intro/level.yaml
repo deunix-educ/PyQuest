@@ -1,0 +1,36 @@
+id: 00-intro
+title:
+    fr: Qu'est-ce qu'un programme ?
+    en: What is a program?
+difficulty: 0
+xp: 10
+requires: []
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: Un programme est une liste d'instructions. L'ordinateur les lit une par une, de haut en bas.
+          en: A program is a list of instructions. The computer reads them one by one, from top to bottom.
+    - type: explain
+      voice: true
+      text:
+          fr: "Comme une recette : 1. Casser les œufs. 2. Battre les œufs. 3. Cuire l'omelette. Si tu changes l'ordre, le résultat change."
+          en: "Like a recipe: 1. Crack the eggs. 2. Beat the eggs. 3. Cook the omelette. Change the order and the result changes."
+    - type: explain
+      voice: true
+      text:
+          fr: L'ordinateur ne devine rien. Il fait exactement ce que tu écris, rien de plus. C'est pour ça qu'on doit être précis.
+          en: The computer guesses nothing. It does exactly what you write, nothing more. That is why we must be precise.
+    - type: explain
+      voice: true
+      text:
+          fr: "Python est un langage pour écrire ces instructions. Dans le prochain niveau, tu écris ta première ligne."
+          en: "Python is a language for writing these instructions. In the next level, you write your first line."
+mission:
+    title:
+        fr: Je comprends
+        en: I understand
+    goal:
+        fr: Clique sur « Je comprends » quand tu es prêt·e à écrire ton premier programme.
+        en: Click "I understand" when you are ready to write your first program.
+    reward_sound: level_unlocked

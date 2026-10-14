@@ -36,15 +36,15 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
 
 Écrire, dans cet ordre (chaque composant doit rester petit et testable isolément) :
 
-1. `levels/manifest.json` + `levels/00-intro/level.yaml`, `levels/01-hello/level.yaml`,
+1. ✅ FAIT — `levels/manifest.json` + `levels/00-intro/level.yaml`, `levels/01-hello/level.yaml`,
    `levels/02-variables/level.yaml` — contenu conforme à `levels/schema/level.schema.json`, en
    suivant le tableau de `docs/design/05-curriculum.md` pour les notions/missions exactes.
-2. `app/js/workers/python-worker.js` — charge Pyodide vendorisé, redirige stdout/stderr, expose un
+2. ✅ FAIT (non testé dans un navigateur : Pyodide pas encore vendorisé) — `app/js/workers/python-worker.js` + `app/python/pyquest_runner.py` — charge Pyodide vendorisé, redirige stdout/stderr, expose un
    protocole `postMessage` (`run_code`, `interrupt`, résultats), utilise l'interrupt buffer
    `SharedArrayBuffer`.
-3. `app/js/core/PyodideWorkerClient.js` — wrapper côté thread principal du protocole ci-dessus.
-4. `app/js/core/LessonEngine.js` — charge `manifest.json` + `level.yaml`, expose les steps.
-5. `app/js/core/ValidationEngine.js` — interprète les `tests[].kind` du schéma (stdout_equals,
+3. ✅ FAIT (testé avec un Worker simulé) — `app/js/core/PyodideWorkerClient.js` — wrapper côté thread principal du protocole ci-dessus.
+4. ✅ FAIT — `app/js/core/LessonEngine.js` + `LevelSession.js` + `app/js/lib/js-yaml` — charge `manifest.json` + `level.yaml`, expose les steps.
+5. ✅ FAIT — `app/js/core/ValidationEngine.js` — interprète les `tests[].kind` du schéma (stdout_equals,
    var_equals, etc.) de façon agnostique au contenu.
 6. `app/js/core/ErrorTranslator.js` — traduit les tracebacks Python en messages simples fr/en
    (cf. ton de l'exemple 2 du brief).
@@ -65,13 +65,13 @@ déjà spécifiés dans `docs/design/01-pyodide-choice.md`), squelette `backend/
 1. Copier/cloner tout le dossier `PyQuest/` (`prompt-pyquest.md` + ce fichier + `CLAUDE.md` +
    `docs/design/` + `levels/schema/` suffisent à reconstituer tout le contexte, même sans
    historique de conversation).
-2. Le dépôt n'est **pas encore un repo git** (décision à prendre : l'utilisateur a été consulté
-   sur l'init/commit, voir en bas de ce fichier si une réponse a été donnée).
+2. Le dépôt est un repo git (branche `master`, premier commit `83c3c24` « Initial design
+   scaffold for PyQuest »). Aucun remote configuré à ce jour.
 3. Relire `CLAUDE.md` puis ce fichier, puis directement attaquer le point 7 ci-dessus — aucune
    des décisions d'architecture n'a besoin d'être rediscutée.
 
 ## Git
 
-Pas encore initialisé au moment de la rédaction de ce fichier. Si tu veux pousser/tirer entre
-postes, le plus simple est `git init` + premier commit (sur demande explicite, pas fait
-automatiquement) puis un remote (dépôt perso, VPS, ou plateforme externe au choix).
+Dépôt initialisé, branche `master`, un commit initial. Pour pousser/tirer entre postes, il reste
+à ajouter un remote (dépôt perso, VPS, ou plateforme externe au choix). Les commits ne sont faits
+que sur demande explicite.

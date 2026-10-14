@@ -1,0 +1,87 @@
+id: 01-hello
+title:
+    fr: Ton premier programme
+    en: Your first program
+difficulty: 0
+xp: 20
+requires:
+    - 00-intro
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "`print()` affiche du texte à l'écran. Le texte va entre guillemets, dans les parenthèses."
+          en: "`print()` shows text on the screen. The text goes between quotes, inside the parentheses."
+    - type: code
+      starter: |
+          # Ceci est un commentaire : Python l'ignore.
+          print("Bonjour")
+      instruction:
+          fr: Clique sur « Exécuter » pour voir ce que fait ce code.
+          en: Click "Run" to see what this code does.
+      tests:
+          - kind: no_syntax_error
+          - kind: stdout_equals
+            value: "Bonjour\n"
+      solution: |
+          print("Bonjour")
+    - type: code
+      starter: |
+          print("Bonjour")
+      instruction:
+          fr: Change le texte pour afficher exactement « Bonjour le monde ».
+          en: Change the text to show exactly "Hello world".
+      tests:
+          - kind: stdout_equals
+            value: "Bonjour le monde\n"
+            message:
+                fr: Vérifie les majuscules et les espaces.
+                en: Check the capital letters and the spaces.
+      hints:
+          fr:
+              - Ne change que ce qui est entre les guillemets.
+              - Écris Bonjour le monde avec une majuscule à Bonjour seulement.
+          en:
+              - Only change what is between the quotes.
+              - Write Hello world with a capital H only.
+      solution: |
+          print("Bonjour le monde")
+    - type: explain
+      voice: true
+      text:
+          fr: "Un texte entre guillemets s'appelle une chaîne de caractères. Chaque `print()` écrit sur une nouvelle ligne."
+          en: "Text between quotes is called a string. Each `print()` writes on a new line."
+    - type: code
+      starter: |
+          print("Première ligne")
+      instruction:
+          fr: Ajoute un deuxième print() pour afficher « Deuxième ligne » sous la première.
+          en: Add a second print() to show "Deuxième ligne" below the first one.
+      tests:
+          - kind: stdout_equals
+            value: "Première ligne\nDeuxième ligne\n"
+      hints:
+          fr:
+              - Écris un nouveau print() sur la ligne suivante.
+          en:
+              - Write a new print() on the next line.
+      solution: |
+          print("Première ligne")
+          print("Deuxième ligne")
+mission:
+    title:
+        fr: Carte de visite
+        en: Business card
+    goal:
+        fr: Avec trois print(), affiche ton prénom, ta ville et un loisir, un par ligne.
+        en: With three print() calls, show your first name, your city and a hobby, one per line.
+    starter: |
+        # Écris tes trois print() ci-dessous
+    tests:
+        - kind: no_syntax_error
+        - kind: stdout_matches_regex
+          value: "^[^\\n]+\\n[^\\n]+\\n[^\\n]+\\n?$"
+          message:
+              fr: Il faut exactement trois lignes affichées, non vides.
+              en: Exactly three non-empty lines must be shown.
+    reward_sound: success_small

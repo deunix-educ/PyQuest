@@ -1,0 +1,136 @@
+id: 02-variables
+title:
+    fr: Variables et types
+    en: Variables and types
+difficulty: 1
+xp: 30
+requires:
+    - 01-hello
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Une variable est une boîte avec un nom. Tu y ranges une valeur : `age = 12`. Le signe `=` range la valeur dans la boîte."
+          en: "A variable is a box with a name. You put a value in it: `age = 12`. The `=` sign stores the value in the box."
+    - type: code
+      starter: |
+          name = "Alice"
+          print(name)
+      instruction:
+          fr: Exécute le code, puis remplace "Alice" par ton prénom.
+          en: Run the code, then replace "Alice" with your first name.
+      tests:
+          - kind: var_type_is
+            name: name
+            value: str
+          - kind: stdout_matches_regex
+            value: "^[^\\n]+\\n$"
+      solution: |
+          name = "Alice"
+          print(name)
+    - type: explain
+      voice: true
+      text:
+          fr: "Il existe plusieurs types. `str` : du texte (\"chat\"). `int` : un nombre entier (7). `float` : un nombre à virgule (3.14, avec un point)."
+          en: "There are several types. `str`: text (\"cat\"). `int`: a whole number (7). `float`: a decimal number (3.14, with a dot)."
+    - type: code
+      starter: |
+          age = 10
+          print(age)
+      instruction:
+          fr: Change la variable age pour qu'elle vaille 12.
+          en: Change the variable age so that it equals 12.
+      tests:
+          - kind: var_equals
+            name: age
+            value: 12
+          - kind: var_type_is
+            name: age
+            value: int
+      hints:
+          fr:
+              - Ne change que le nombre à droite du signe égal.
+          en:
+              - Only change the number on the right of the equals sign.
+      solution: |
+          age = 12
+          print(age)
+    - type: code
+      starter: |
+          price = 2
+          print(price)
+      instruction:
+          fr: Fais de price un nombre à virgule qui vaut 2.5.
+          en: Make price a decimal number equal to 2.5.
+      tests:
+          - kind: var_equals
+            name: price
+            value: 2.5
+          - kind: var_type_is
+            name: price
+            value: float
+      hints:
+          fr:
+              - Écris 2.5 avec un point, pas une virgule.
+          en:
+              - Write 2.5 with a dot, not a comma.
+      solution: |
+          price = 2.5
+          print(price)
+    - type: explain
+      voice: true
+      text:
+          fr: "Tu peux calculer avec des variables : `total = price * 3`. Une variable peut aussi être réaffectée plus tard."
+          en: "You can calculate with variables: `total = price * 3`. A variable can also be reassigned later."
+    - type: code
+      starter: |
+          price = 2.5
+          quantity = 4
+      instruction:
+          fr: Crée une variable total qui vaut price multiplié par quantity, puis affiche-la.
+          en: Create a variable total equal to price multiplied by quantity, then print it.
+      tests:
+          - kind: var_equals
+            name: total
+            value: 10.0
+          - kind: stdout_equals
+            value: "10.0\n"
+      hints:
+          fr:
+              - "Le signe de la multiplication est `*`."
+              - "Écris `total = price * quantity` puis `print(total)`."
+          en:
+              - "The multiplication sign is `*`."
+              - "Write `total = price * quantity` then `print(total)`."
+      solution: |
+          price = 2.5
+          quantity = 4
+          total = price * quantity
+          print(total)
+mission:
+    title:
+        fr: Calculatrice de pourboire
+        en: Tip calculator
+    goal:
+        fr: "L'addition est de 50 et le pourboire de 15 % (0.15). Calcule le pourboire dans `tip`, le total dans `total`, puis affiche le total."
+        en: "The bill is 50 and the tip is 15% (0.15). Compute the tip in `tip`, the total in `total`, then print the total."
+    starter: |
+        bill = 50
+        rate = 0.15
+        # Calcule tip et total ci-dessous
+    tests:
+        - kind: var_equals
+          name: tip
+          value: 7.5
+          message:
+              fr: "tip doit valoir bill * rate."
+              en: "tip must equal bill * rate."
+        - kind: var_equals
+          name: total
+          value: 57.5
+          message:
+              fr: "total doit valoir bill + tip."
+              en: "total must equal bill + tip."
+        - kind: stdout_equals
+          value: "57.5\n"
+    reward_sound: success_small

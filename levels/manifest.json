@@ -1,0 +1,8 @@
+{
+    "version": 1,
+    "levels": [
+        { "id": "00-intro", "requires": [] },
+        { "id": "01-hello", "requires": ["00-intro"] },
+        { "id": "02-variables", "requires": ["01-hello"] }
+    ]
+}

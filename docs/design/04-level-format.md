@@ -2,9 +2,25 @@
 
 Schéma complet et à jour : [`levels/schema/level.schema.json`](../../levels/schema/level.schema.json).
 
-**Un exemple complet de niveau conforme à ce schéma reste à écrire** (fait partie du point 7 du
-brief, en même temps que le code du socle — voir `CONTEXT.md`). Le brief fournit un extrait de
-style à respecter (ton, structure YAML), repris dans `00-brief-summary.md`.
+Exemples complets conformes au schéma : `levels/00-intro`, `levels/01-hello`,
+`levels/02-variables` (validés avec `jsonschema`).
+
+## Forme des tests (`tests[]`) utilisée par les niveaux
+
+Le schéma laisse `additionalProperties: true` ; les champs ci-dessous sont la convention que le
+`ValidationEngine` doit interpréter :
+
+| `kind` | Champs | Sens |
+|---|---|---|
+| `no_syntax_error` | — | le code s'exécute sans `SyntaxError` |
+| `stdout_equals` | `value` (str) | sortie standard exactement égale (retour à la ligne final inclus) |
+| `stdout_contains` | `value` (str) | sous-chaîne présente dans la sortie |
+| `stdout_matches_regex` | `value` (regex) | la sortie complète correspond à la regex |
+| `var_equals` | `name`, `value` | variable globale égale à la valeur (`10.0` = float, `10` = int) |
+| `var_type_is` | `name`, `value` (`str`/`int`/`float`…) | type de la variable |
+
+`stdout_contains_any_name` et `function_called_with` : forme à fixer quand un niveau en aura
+besoin. Un niveau sans test de mission (ex. `00-intro`) se valide par un simple bouton dans l'UI.
 
 ## Organisation des fichiers
 

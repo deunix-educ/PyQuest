@@ -36,7 +36,7 @@ PyQuest/
 │   │       ├── fr.json
 │   │       └── en.json
 │   └── assets/
-│       ├── sounds/                   # success_small.mp3, success_big.mp3, level_unlocked.mp3
+│       ├── sounds/                   # (inutilisé : AudioEngine synthétise les sons via Web Audio, pas de mp3)
 │       └── icons/                    # icônes PWA (plusieurs résolutions)
 │
 ├── vendor/

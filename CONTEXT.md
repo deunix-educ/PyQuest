@@ -15,8 +15,8 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
 | 4 | Spécification du format de niveau (JSON Schema + exemple) | ✅ Schéma fait (`levels/schema/level.schema.json`) — **exemple complet de niveau encore à écrire** |
 | 5 | Parcours pédagogique (tableau des niveaux) | ✅ Fait — `docs/design/05-curriculum.md` |
 | 6 | Stratégie anti-abandon | ✅ Fait — `docs/design/06-anti-dropout.md` |
-| 7 | Code du socle + 3 premiers niveaux | ❌ **Pas commencé — prochaine action** |
-| 8 | Outillage (Makefile, README fr/en, CONTRIBUTING, etc.) | ❌ Pas commencé |
+| 7 | Code du socle + 3 premiers niveaux | ✅ Fait (sauf test en vrai navigateur) |
+| 8 | Outillage (Makefile, README fr/en, CONTRIBUTING, etc.) | ✅ Fait (MkDocs bilingue pas encore écrit) |
 
 ## Décisions actées pendant la discussion (ne pas redemander)
 
@@ -32,33 +32,21 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
 - Outil de test JS : **pas encore choisi** (Vitest ou web-test-runner), à trancher au moment d'écrire
   `tests/js/`.
 
-## Prochaine action concrète (point 7 du brief)
+## Reste à faire
 
-Écrire, dans cet ordre (chaque composant doit rester petit et testable isolément) :
-
-1. ✅ FAIT — `levels/manifest.json` + `levels/00-intro/level.yaml`, `levels/01-hello/level.yaml`,
-   `levels/02-variables/level.yaml` — contenu conforme à `levels/schema/level.schema.json`, en
-   suivant le tableau de `docs/design/05-curriculum.md` pour les notions/missions exactes.
-2. ✅ FAIT (non testé dans un navigateur : Pyodide pas encore vendorisé) — `app/js/workers/python-worker.js` + `app/python/pyquest_runner.py` — charge Pyodide vendorisé, redirige stdout/stderr, expose un
-   protocole `postMessage` (`run_code`, `interrupt`, résultats), utilise l'interrupt buffer
-   `SharedArrayBuffer`.
-3. ✅ FAIT (testé avec un Worker simulé) — `app/js/core/PyodideWorkerClient.js` — wrapper côté thread principal du protocole ci-dessus.
-4. ✅ FAIT — `app/js/core/LessonEngine.js` + `LevelSession.js` + `app/js/lib/js-yaml` — charge `manifest.json` + `level.yaml`, expose les steps.
-5. ✅ FAIT — `app/js/core/ValidationEngine.js` — interprète les `tests[].kind` du schéma (stdout_equals,
-   var_equals, etc.) de façon agnostique au contenu.
-6. ✅ FAIT — `app/js/core/ErrorTranslator.js` + `app/js/i18n/errors.{fr,en}.json` — traduit les tracebacks Python en messages simples fr/en
-   (cf. ton de l'exemple 2 du brief).
-7. ✅ FAIT (IndexedDB non testé en navigateur) — `app/js/core/ProgressStore.js` + `KeyValueStores.js` — IndexedDB (XP, badges, streaks, niveaux complétés) + export/import.
-8. ✅ FAIT (testé avec des doubles ; sons synthétisés, pas de fichiers mp3) — `app/js/core/AudioEngine.js` + `app/js/core/VoiceEngine.js` — effets sonores et
-   `speechSynthesis`, déblocage uniquement sur geste utilisateur (contrainte iOS autoplay).
-9. ✅ FAIT (testé sur DOM simulé linkedom, pas dans un vrai navigateur) — `app/js/ui/*` + `app/css/app.css`, `i18n.js`, `SettingsStore.js` — `NotebookView`, `CellManager`, `CellView`, `HintPanel`, `ProgressMap`,
-   `BadgeToast`, `SettingsPanel`.
-10. ✅ FAIT (non testé dans un navigateur) — `app/index.html`, `app/manifest.webmanifest`, `app/service-worker.js` — app shell PWA,
-    cache des assets Pyodide vendorisés + des fichiers de niveaux pour le hors-ligne.
-
-Puis point 8 : `Makefile`, `pyrightconfig.json`, `README.md`/`README-EN.md`,
-`CONTRIBUTING.md`, `.gitattributes`/`.gitignore`, `nginx/pyquest.conf.example` (en-têtes COOP/COEP
-déjà spécifiés dans `docs/design/01-pyodide-choice.md`), squelette `backend/` Django.
+1. **Tester dans un vrai navigateur** (`make dev`) : aucun test n'a encore tourné dans Chrome/Firefox/
+   Safari. Le worker, le client et Pyodide sont validés ensemble sous Node
+   (`tests/js/pyodide-worker.integration.test.mjs`), mais pas l'UI réelle, le service worker, ni
+   IndexedDB. Prévoir un test sur iOS Safari (mémoire WASM, autoplay audio).
+2. Icônes PNG (iOS) en plus de `app/icons/icon.svg`.
+3. Branchement du client de synchronisation (jeton Bearer + `ProgressStore.export/import`) :
+   le backend (`backend/sync`) existe, pas encore le côté client ni l'UI.
+4. Documentation MkDocs bilingue (`docs/mkdocs/`).
+5. Niveaux 03 à 14 (voir `docs/design/05-curriculum.md`). `input()` doit d'abord être tranché :
+   actuellement `EOFError` (pas de saisie synchrone dans le worker).
+6. Audit accessibilité réel (lecteur d'écran, axe) et compilation des traductions Django
+   (`compilemessages`, gettext absent sur le poste actuel).
+7. Kinds de test non encore définis : `stdout_contains_any_name`, `function_called_with`.
 
 ## Pour reprendre sur un autre poste
 

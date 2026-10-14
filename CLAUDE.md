@@ -62,8 +62,8 @@ lire en premier en reprenant une session sur ce projet.
 - `levels/schema/level.schema.json` — schéma JSON Schema validé du format de niveau (déjà écrit).
 - Arborescence cible complète du projet : `docs/design/03-project-tree.md`.
 
-## Ce qu'il reste à produire (dans l'ordre du brief)
+## État d'avancement
 
-7. Code du socle (console à cellules, worker Pyodide, chargeur de niveaux, validateur, audio/voix,
-   progression) + les 3 premiers niveaux (00, 01, 02). **Pas encore commencé.**
-8. Outillage (Makefile, config, README fr/en, procédure d'ajout de niveau). **Pas encore commencé.**
+Livrables 1 à 8 du brief écrits (voir [CONTEXT.md](CONTEXT.md) pour le détail et le reste à faire).
+Tests : `make test` (JS `node:test`, Python `unittest`, backend Django, validation des niveaux).
+Types : `make typecheck`. Pyodide épinglé 314.0.7 (Python 3.14.2) via `make vendor-pyodide`.

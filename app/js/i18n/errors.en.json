@@ -1,0 +1,152 @@
+{
+    "NameError": {
+        "title": "Python doesn't know \"{name}\"",
+        "explanation": "You are using the name {name}, but it has not been created yet at this point.",
+        "tip": "Check the spelling (capital letters count) and make sure you wrote {name} = ... before using it. To show text, put it between quotes."
+    },
+    "UnboundLocalError": {
+        "title": "The variable \"{name}\" is used too early",
+        "explanation": "Python found {name} in a function before it was given a value.",
+        "tip": "Give {name} a value before reading it."
+    },
+    "SyntaxError": {
+        "title": "Python doesn't understand this line",
+        "explanation": "The sentence is badly written: a symbol is missing or there is one too many.",
+        "tip": "Reread the line shown, and the one before it too: quotes, parentheses and colons are the usual causes."
+    },
+    "SyntaxError.unterminated_string": {
+        "title": "A text is not closed",
+        "explanation": "You opened a quote but never closed it.",
+        "tip": "Add the missing quote at the end of the text."
+    },
+    "SyntaxError.never_closed": {
+        "title": "A closing \"{char}\" is missing",
+        "explanation": "You opened a \"{char}\" that is never closed.",
+        "tip": "Count the opening and closing symbols: there must be as many of each."
+    },
+    "SyntaxError.unmatched": {
+        "title": "An extra \"{char}\"",
+        "explanation": "You close a \"{char}\" that was never opened.",
+        "tip": "Remove it, or add the matching opening symbol."
+    },
+    "SyntaxError.expected_colon": {
+        "title": "A colon \":\" is missing",
+        "explanation": "This line must end with \":\" to announce the block that follows.",
+        "tip": "Add \":\" at the end of the line."
+    },
+    "SyntaxError.print_parens": {
+        "title": "print() is written with parentheses",
+        "explanation": "In Python 3, the text to show goes between parentheses.",
+        "tip": "Write print(\"your text\")."
+    },
+    "SyntaxError.forgot_comma": {
+        "title": "A comma may be missing",
+        "explanation": "Two items follow each other without a separator.",
+        "tip": "Add a comma between the items of a list or a call."
+    },
+    "SyntaxError.invalid_number": {
+        "title": "This number is badly written",
+        "explanation": "A number cannot be directly followed by letters.",
+        "tip": "To multiply, write 2 * x. For text, use quotes."
+    },
+    "IndentationError": {
+        "title": "The indentation of this line is wrong",
+        "explanation": "In Python, the spaces at the start of a line matter: they show which block it belongs to.",
+        "tip": "Align this line with the others of the same block, using 4 spaces."
+    },
+    "IndentationError.expected_block": {
+        "title": "An indented block is missing",
+        "explanation": "After a line ending with \":\", the next line must be shifted by 4 spaces.",
+        "tip": "Add 4 spaces at the start of the following line."
+    },
+    "TypeError": {
+        "title": "These values don't go together",
+        "explanation": "You are trying an operation on types that are not compatible.",
+        "tip": "Check each value's type with type(), and convert if needed with int(), float() or str()."
+    },
+    "TypeError.operand": {
+        "title": "Cannot do \"{op}\" between {left} and {right}",
+        "explanation": "A {left} and a {right} cannot be combined with \"{op}\".",
+        "tip": "Convert one of the values: int() or float() for a number, str() for text."
+    },
+    "TypeError.concat": {
+        "title": "You cannot glue text and a {other} together",
+        "explanation": "\"+\" glues texts together, but one of the values here is a {other}.",
+        "tip": "Turn it into text with str(), or separate the values with commas in print()."
+    },
+    "TypeError.not_callable": {
+        "title": "A {type} is not called like a function",
+        "explanation": "Parentheses right after a name mean \"call a function\", but this name holds a {type}.",
+        "tip": "Remove the parentheses, or check that you did not reuse a function's name for a variable."
+    },
+    "TypeError.arg_count": {
+        "title": "{fn}() did not get the right number of values",
+        "explanation": "{fn}() expects {expected}, and you gave {given}.",
+        "tip": "Count the values between the parentheses of the call."
+    },
+    "TypeError.missing_arg": {
+        "title": "{fn}() got too few values",
+        "explanation": "{count} required value(s) are missing in the call to {fn}().",
+        "tip": "Compare the call with the function's definition: each parameter expects a value."
+    },
+    "ValueError": {
+        "title": "This value is not acceptable here",
+        "explanation": "The type is right, but the content does not suit this operation.",
+        "tip": "Check what the value contains with print()."
+    },
+    "ValueError.invalid_int": {
+        "title": "{value} is not a whole number",
+        "explanation": "int() can only convert text that looks like a whole number, such as \"42\".",
+        "tip": "Check there are no letters, comma or spaces in the text."
+    },
+    "ValueError.invalid_float": {
+        "title": "{value} is not a number",
+        "explanation": "float() can only convert text such as \"3.14\".",
+        "tip": "Use a dot, not a comma, for decimals."
+    },
+    "ZeroDivisionError": {
+        "title": "You cannot divide by zero",
+        "explanation": "A division whose divisor is 0 has no result.",
+        "tip": "Check the value you divide by."
+    },
+    "IndexError": {
+        "title": "This position does not exist in the list",
+        "explanation": "You ask for an item beyond the end of the list. Positions start at 0.",
+        "tip": "A list of 3 items has positions 0, 1 and 2. Check with len()."
+    },
+    "KeyError": {
+        "title": "The key {key} does not exist",
+        "explanation": "The dictionary does not contain this key.",
+        "tip": "Check the key's spelling, or test it with \"in\" before reading it."
+    },
+    "AttributeError": {
+        "title": "A {type} has no \"{attr}\"",
+        "explanation": "You ask a {type} for something it cannot do or does not have.",
+        "tip": "Check the spelling of {attr}, and the type of the value."
+    },
+    "ModuleNotFoundError": {
+        "title": "The module \"{module}\" cannot be found",
+        "explanation": "Python finds no module with this name.",
+        "tip": "Check the spelling of the import. Some modules are not available in the browser."
+    },
+    "KeyboardInterrupt": {
+        "title": "Execution stopped",
+        "explanation": "The program was interrupted before it finished.",
+        "tip": "If it was an endless loop, check that its condition becomes false at some point."
+    },
+    "EOFError": {
+        "title": "The program is waiting for input",
+        "explanation": "input() asks the user for a value, which is not possible in this cell.",
+        "tip": "Replace input() with a value written directly in the code."
+    },
+    "RecursionError": {
+        "title": "A function calls itself endlessly",
+        "explanation": "Python stopped the program because the function calls itself too many times.",
+        "tip": "Add a stopping condition to the function."
+    },
+    "Unknown": {
+        "title": "An error occurred: {type}",
+        "explanation": "Message from Python: {message}",
+        "tip": "Reread the line shown and compare it with the level's examples."
+    }
+}

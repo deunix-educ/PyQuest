@@ -46,7 +46,7 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
 4. ✅ FAIT — `app/js/core/LessonEngine.js` + `LevelSession.js` + `app/js/lib/js-yaml` — charge `manifest.json` + `level.yaml`, expose les steps.
 5. ✅ FAIT — `app/js/core/ValidationEngine.js` — interprète les `tests[].kind` du schéma (stdout_equals,
    var_equals, etc.) de façon agnostique au contenu.
-6. `app/js/core/ErrorTranslator.js` — traduit les tracebacks Python en messages simples fr/en
+6. ✅ FAIT — `app/js/core/ErrorTranslator.js` + `app/js/i18n/errors.{fr,en}.json` — traduit les tracebacks Python en messages simples fr/en
    (cf. ton de l'exemple 2 du brief).
 7. `app/js/core/ProgressStore.js` — IndexedDB (XP, badges, streaks, niveaux complétés) + export/import.
 8. `app/js/core/AudioEngine.js` + `app/js/core/VoiceEngine.js` — effets sonores et

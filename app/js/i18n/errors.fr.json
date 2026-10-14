@@ -1,0 +1,152 @@
+{
+    "NameError": {
+        "title": "Python ne connaît pas « {name} »",
+        "explanation": "Tu utilises le nom {name}, mais il n'a pas encore été créé à cet endroit.",
+        "tip": "Vérifie l'orthographe (majuscules comprises) et assure-toi d'avoir écrit {name} = ... avant de l'utiliser. Pour afficher du texte, mets-le entre guillemets."
+    },
+    "UnboundLocalError": {
+        "title": "La variable « {name} » est utilisée trop tôt",
+        "explanation": "Python a trouvé {name} dans une fonction avant qu'une valeur ne lui soit donnée.",
+        "tip": "Donne une valeur à {name} avant de la lire."
+    },
+    "SyntaxError": {
+        "title": "Python ne comprend pas cette ligne",
+        "explanation": "La phrase est mal écrite : il manque ou il y a en trop un symbole.",
+        "tip": "Relis la ligne indiquée, et regarde aussi celle d'avant : guillemets, parenthèses et deux-points sont les causes habituelles."
+    },
+    "SyntaxError.unterminated_string": {
+        "title": "Un texte n'est pas fermé",
+        "explanation": "Tu as ouvert un guillemet mais tu ne l'as pas refermé.",
+        "tip": "Ajoute le guillemet manquant à la fin du texte."
+    },
+    "SyntaxError.never_closed": {
+        "title": "Il manque un « {char} » fermant",
+        "explanation": "Tu as ouvert un « {char} » qui n'est jamais refermé.",
+        "tip": "Compte les ouvrants et les fermants : il doit y en avoir autant."
+    },
+    "SyntaxError.unmatched": {
+        "title": "Un « {char} » est en trop",
+        "explanation": "Tu fermes un « {char} » qui n'a jamais été ouvert.",
+        "tip": "Supprime-le, ou ajoute le symbole ouvrant correspondant."
+    },
+    "SyntaxError.expected_colon": {
+        "title": "Il manque un deux-points « : »",
+        "explanation": "Cette ligne doit se terminer par « : » pour annoncer le bloc qui suit.",
+        "tip": "Ajoute « : » à la fin de la ligne."
+    },
+    "SyntaxError.print_parens": {
+        "title": "print() s'écrit avec des parenthèses",
+        "explanation": "En Python 3, le texte à afficher se place entre parenthèses.",
+        "tip": "Écris print(\"ton texte\")."
+    },
+    "SyntaxError.forgot_comma": {
+        "title": "Il manque peut-être une virgule",
+        "explanation": "Deux éléments se suivent sans séparateur.",
+        "tip": "Ajoute une virgule entre les éléments d'une liste ou d'un appel."
+    },
+    "SyntaxError.invalid_number": {
+        "title": "Ce nombre est mal écrit",
+        "explanation": "Un nombre ne peut pas être directement suivi de lettres.",
+        "tip": "Pour multiplier, écris 2 * x. Pour du texte, utilise des guillemets."
+    },
+    "IndentationError": {
+        "title": "Le décalage de cette ligne est incorrect",
+        "explanation": "En Python, les espaces au début d'une ligne comptent : ils indiquent quel bloc elle appartient.",
+        "tip": "Aligne cette ligne avec les autres du même bloc, avec 4 espaces."
+    },
+    "IndentationError.expected_block": {
+        "title": "Il manque un bloc indenté",
+        "explanation": "Après la ligne qui se termine par « : », la ligne suivante doit être décalée de 4 espaces.",
+        "tip": "Ajoute 4 espaces au début de la ligne qui suit."
+    },
+    "TypeError": {
+        "title": "Ces valeurs ne vont pas ensemble",
+        "explanation": "Tu essaies de faire une opération sur des types qui ne sont pas compatibles.",
+        "tip": "Vérifie le type de chaque valeur avec type(), et convertis si besoin avec int(), float() ou str()."
+    },
+    "TypeError.operand": {
+        "title": "Impossible de faire « {op} » entre {left} et {right}",
+        "explanation": "Un {left} et un {right} ne peuvent pas être combinés avec « {op} ».",
+        "tip": "Convertis l'une des valeurs : int(), float() pour un nombre, str() pour du texte."
+    },
+    "TypeError.concat": {
+        "title": "On ne peut pas coller un texte et un {other}",
+        "explanation": "Le « + » colle des textes entre eux, mais là une des valeurs est de type {other}.",
+        "tip": "Transforme-la en texte avec str(), ou sépare les valeurs par des virgules dans print()."
+    },
+    "TypeError.not_callable": {
+        "title": "Un {type} ne s'appelle pas comme une fonction",
+        "explanation": "Les parenthèses juste après un nom signifient « appeler une fonction », mais ce nom contient un {type}.",
+        "tip": "Retire les parenthèses, ou vérifie que tu n'as pas réutilisé le nom d'une fonction pour une variable."
+    },
+    "TypeError.arg_count": {
+        "title": "{fn}() n'a pas reçu le bon nombre de valeurs",
+        "explanation": "{fn}() en attend {expected}, et tu en as donné {given}.",
+        "tip": "Compte les valeurs entre les parenthèses de l'appel."
+    },
+    "TypeError.missing_arg": {
+        "title": "{fn}() a reçu trop peu de valeurs",
+        "explanation": "Il manque {count} valeur(s) obligatoire(s) dans l'appel de {fn}().",
+        "tip": "Compare l'appel avec la définition de la fonction : chaque paramètre attend une valeur."
+    },
+    "ValueError": {
+        "title": "La valeur n'est pas acceptable ici",
+        "explanation": "Le type est bon, mais le contenu ne convient pas à cette opération.",
+        "tip": "Vérifie ce que contient la valeur avec print()."
+    },
+    "ValueError.invalid_int": {
+        "title": "{value} n'est pas un nombre entier",
+        "explanation": "int() ne sait convertir que du texte qui ressemble à un nombre entier, comme \"42\".",
+        "tip": "Vérifie qu'il n'y a ni lettres, ni virgule, ni espace dans le texte."
+    },
+    "ValueError.invalid_float": {
+        "title": "{value} n'est pas un nombre",
+        "explanation": "float() ne sait convertir que du texte comme \"3.14\".",
+        "tip": "Utilise un point et non une virgule pour les décimales."
+    },
+    "ZeroDivisionError": {
+        "title": "On ne peut pas diviser par zéro",
+        "explanation": "Une division dont le diviseur vaut 0 n'a pas de résultat.",
+        "tip": "Vérifie la valeur par laquelle tu divises."
+    },
+    "IndexError": {
+        "title": "Cette position n'existe pas dans la liste",
+        "explanation": "Tu demandes un élément plus loin que la fin de la liste. Les positions commencent à 0.",
+        "tip": "Une liste de 3 éléments a les positions 0, 1 et 2. Vérifie avec len()."
+    },
+    "KeyError": {
+        "title": "La clé {key} n'existe pas",
+        "explanation": "Le dictionnaire ne contient pas cette clé.",
+        "tip": "Vérifie l'orthographe de la clé, ou teste-la avec « in » avant de la lire."
+    },
+    "AttributeError": {
+        "title": "Un {type} n'a pas de « {attr} »",
+        "explanation": "Tu demandes à un {type} quelque chose qu'il ne sait pas faire ou ne possède pas.",
+        "tip": "Vérifie l'orthographe de {attr}, ainsi que le type de la valeur."
+    },
+    "ModuleNotFoundError": {
+        "title": "Le module « {module} » est introuvable",
+        "explanation": "Python ne trouve pas de module de ce nom.",
+        "tip": "Vérifie l'orthographe de l'import. Certains modules ne sont pas disponibles dans le navigateur."
+    },
+    "KeyboardInterrupt": {
+        "title": "Exécution arrêtée",
+        "explanation": "Le programme a été interrompu avant d'être terminé.",
+        "tip": "Si c'était une boucle sans fin, vérifie que sa condition devient fausse à un moment."
+    },
+    "EOFError": {
+        "title": "Le programme attend une saisie",
+        "explanation": "input() demande une valeur à l'utilisateur, ce qui n'est pas possible dans cette cellule.",
+        "tip": "Remplace input() par une valeur écrite directement dans le code."
+    },
+    "RecursionError": {
+        "title": "Une fonction s'appelle elle-même sans fin",
+        "explanation": "Python a arrêté le programme car la fonction se rappelle trop de fois.",
+        "tip": "Ajoute une condition d'arrêt à la fonction."
+    },
+    "Unknown": {
+        "title": "Une erreur est survenue : {type}",
+        "explanation": "Message de Python : {message}",
+        "tip": "Relis la ligne indiquée et compare-la avec les exemples du niveau."
+    }
+}

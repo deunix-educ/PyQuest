@@ -64,6 +64,23 @@ lire en premier en reprenant une session sur ce projet.
 
 ## État d'avancement
 
-Livrables 1 à 8 du brief écrits (voir [CONTEXT.md](CONTEXT.md) pour le détail et le reste à faire).
-Tests : `make test` (JS `node:test`, Python `unittest`, backend Django, validation des niveaux).
-Types : `make typecheck`. Pyodide épinglé 314.0.7 (Python 3.14.2) via `make vendor-pyodide`.
+Livrables 1 à 8 du brief écrits ; l'app tourne dans Chromium (4 niveaux : 00 à 03). Détail,
+architecture du code, priorités et pièges : [CONTEXT.md](CONTEXT.md).
+
+Commandes : `make test` (JS `node:test`, Python `unittest`, backend Django, validation des
+niveaux), `make test-e2e` (Chromium), `make typecheck` (pyright), `make dev`, `make build`.
+Pyodide épinglé 314.0.7 (Python 3.14.2) via `make vendor-pyodide`.
+
+**À traiter en premier à la reprise** : améliorer le son (jugé « inaudible et de mauvaise
+qualité » par l'utilisateur) — pistes dans CONTEXT.md ; puis niveaux 04 et suivants.
+
+## Règles de travail apprises
+
+- Chaque niveau ajouté : `fr` **et** `en`, `make validate-levels`, entrée dans
+  `levels/manifest.json`, parcours e2e si le niveau introduit un comportement nouveau.
+- Tester dans un vrai navigateur dès qu'un comportement dépend d'API navigateur : des écarts
+  Node/Chromium (ex. `encodeInto` sur `SharedArrayBuffer`) ne se voient qu'ainsi.
+- Les commits sont autorisés « quand nécessaire » : un commit par composant cohérent, message en
+  anglais, avec le trailer Co-Authored-By.
+- Ne jamais exécuter de code venant d'un fichier de niveau côté application : tout passe par les
+  `tests[].kind` du moteur.

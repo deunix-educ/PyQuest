@@ -51,7 +51,7 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
 7. ✅ FAIT (IndexedDB non testé en navigateur) — `app/js/core/ProgressStore.js` + `KeyValueStores.js` — IndexedDB (XP, badges, streaks, niveaux complétés) + export/import.
 8. ✅ FAIT (testé avec des doubles ; sons synthétisés, pas de fichiers mp3) — `app/js/core/AudioEngine.js` + `app/js/core/VoiceEngine.js` — effets sonores et
    `speechSynthesis`, déblocage uniquement sur geste utilisateur (contrainte iOS autoplay).
-9. `app/js/ui/*` — `NotebookView`, `CellManager`, `CellView`, `HintPanel`, `ProgressMap`,
+9. ✅ FAIT (testé sur DOM simulé linkedom, pas dans un vrai navigateur) — `app/js/ui/*` + `app/css/app.css`, `i18n.js`, `SettingsStore.js` — `NotebookView`, `CellManager`, `CellView`, `HintPanel`, `ProgressMap`,
    `BadgeToast`, `SettingsPanel`.
 10. `app/index.html`, `app/manifest.webmanifest`, `app/service-worker.js` — app shell PWA,
     cache des assets Pyodide vendorisés + des fichiers de niveaux pour le hors-ligne.

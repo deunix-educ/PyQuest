@@ -39,6 +39,12 @@ Français d'abord, English below.
 | `var_equals` | `name`, `value` | variable égale à la valeur |
 | `var_type_is` | `name`, `value` | type de la variable (`str`, `int`, `float`…) |
 
+Tout test accepte un champ optionnel `inputs` (liste de chaînes). Pour un code qui appelle
+`input()`, le test est alors évalué sur un **rejeu** du code (sur une copie de l'état) où chaque
+`input()` reçoit la valeur suivante de la liste : la validation est déterministe, quelle que soit
+la saisie réelle de l'apprenant. Les tests sans `inputs` portent sur l'exécution de l'apprenant.
+L'invite de `input()` est écrite dans la sortie standard (comme en Python), pas la réponse.
+
 Un niveau ne contient **jamais de code exécutable** autre que le code de départ et la solution
 affichés à l'apprenant : toute nouvelle sorte de validation passe par le moteur
 (`app/js/core/ValidationEngine.js`), pas par un fichier de niveau.

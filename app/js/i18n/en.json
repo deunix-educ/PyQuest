@@ -16,6 +16,8 @@
     "cell.solution": "Show the solution",
     "cell.output": "Output",
     "cell.output_empty": "(nothing printed)",
+    "cell.input_label": "Answer requested by the program",
+    "cell.input_send": "Send",
     "cell.shortcut": "Ctrl/Cmd + Enter to run",
     "cell.passed": "Well done, that's correct!",
     "cell.failed": "Not yet. Here is what is wrong:",

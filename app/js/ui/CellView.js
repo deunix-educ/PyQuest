@@ -14,6 +14,9 @@ export class CellView extends EventTarget {
     #runButton;
     #stopButton;
     #busy = false;
+    #inputForm;
+    #inputField;
+    #resolveInput = null;
 
     /**
      * @param {import('../i18n/i18n.js').I18n} i18n
@@ -44,7 +47,7 @@ export class CellView extends EventTarget {
         });
         this.#editor.value = starter;
 
-        this.#runButton = el('button', { type: 'button', class: 'btn btn-primary', text: i18n.t('cell.run'), onclick: () => this.#emitRun() });
+        this.#runButton = el('button', { type: 'button', class: 'btn btn-primary cell-run', text: i18n.t('cell.run'), onclick: () => this.#emitRun() });
         this.#stopButton = el('button', {
             type: 'button',
             class: 'btn',
@@ -56,6 +59,17 @@ export class CellView extends EventTarget {
 
         this.#output = el('pre', { id: outputId, class: 'cell-output', 'aria-live': 'polite', 'aria-label': i18n.t('cell.output') });
         this.#feedback = el('div', { class: 'cell-feedback', role: 'status' });
+
+        // Saisie demandée par input() : formulaire affiché seulement pendant l'attente.
+        const inputId = uniqueId('input');
+        this.#inputField = el('input', { id: inputId, type: 'text', class: 'cell-input-field', autocomplete: 'off', spellcheck: 'false' });
+        this.#inputForm = el(
+            'form',
+            { class: 'cell-input', hidden: true, onsubmit: (event) => this.#submitInput(event) },
+            el('label', { for: inputId, text: i18n.t('cell.input_label') }),
+            this.#inputField,
+            el('button', { type: 'submit', class: 'btn btn-primary', text: i18n.t('cell.input_send') }),
+        );
 
         const solutionBlock = solution
             ? el('details', { class: 'solution' }, el('summary', { text: i18n.t('cell.solution') }), el('pre', {}, el('code', { text: solution })))
@@ -69,6 +83,7 @@ export class CellView extends EventTarget {
             el('p', { id: `${editorId}-hint`, class: 'cell-shortcut', text: i18n.t('cell.shortcut') }),
             el('div', { class: 'cell-actions' }, this.#runButton, this.#stopButton, resetButton, new HintPanel(i18n, hints).element),
             this.#output,
+            this.#inputForm,
             this.#feedback,
             solutionBlock,
         );
@@ -101,6 +116,40 @@ export class CellView extends EventTarget {
 
     appendOutput(text) {
         this.#output.append(document.createTextNode(text));
+    }
+
+    /**
+     * Demande une saisie à l'apprenant (appelé par input()). Résout avec le texte saisi, ou null
+     * si la saisie est annulée (arrêt de la cellule).
+     * @param {string} prompt  Invite déjà affichée dans la sortie par Python ; sert de repère pour les lecteurs d'écran.
+     * @returns {Promise<string|null>}
+     */
+    requestInput(prompt) {
+        this.cancelInput();
+        this.#inputField.value = '';
+        this.#inputField.setAttribute('aria-description', prompt);
+        this.#inputForm.hidden = false;
+        this.#inputField.focus();
+        return new Promise((resolve) => {
+            this.#resolveInput = resolve;
+        });
+    }
+
+    /** Annule une saisie en attente (la promesse résout null). */
+    cancelInput() {
+        this.#inputForm.hidden = true;
+        this.#resolveInput?.(null);
+        this.#resolveInput = null;
+    }
+
+    #submitInput(event) {
+        event.preventDefault();
+        const answer = this.#inputField.value;
+        this.#inputForm.hidden = true;
+        // L'écho n'est que de l'affichage : il n'entre pas dans la sortie standard validée.
+        this.appendOutput(`${answer}\n`);
+        this.#resolveInput?.(answer);
+        this.#resolveInput = null;
     }
 
     /** Remet le code de départ et vide la sortie. */

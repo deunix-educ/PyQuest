@@ -3,7 +3,7 @@
 Schéma complet et à jour : [`levels/schema/level.schema.json`](../../levels/schema/level.schema.json).
 
 Exemples complets conformes au schéma : `levels/00-intro`, `levels/01-hello`,
-`levels/02-variables` (validés avec `jsonschema`).
+`levels/02-variables` (validés avec `jsonschema`) ainsi que `levels/03-input`.
 
 ## Forme des tests (`tests[]`) utilisée par les niveaux
 
@@ -18,6 +18,11 @@ Le schéma laisse `additionalProperties: true` ; les champs ci-dessous sont la c
 | `stdout_matches_regex` | `value` (regex) | la sortie complète correspond à la regex |
 | `var_equals` | `name`, `value` | variable globale égale à la valeur (`10.0` = float, `10` = int) |
 | `var_type_is` | `name`, `value` (`str`/`int`/`float`…) | type de la variable |
+
+**`inputs` (optionnel, tout test)** : liste de saisies scriptées pour `input()`. Le test est évalué
+sur un rejeu isolé du code (copie de l'état d'avant l'exécution) ; sans `inputs`, sur l'exécution
+interactive de l'apprenant. Décision de conception du niveau 03 (saisie réelle bloquante via
+`Atomics.wait` + SharedArrayBuffer ; sans isolation cross-origin, `input()` lève `EOFError`).
 
 `stdout_contains_any_name` et `function_called_with` : forme à fixer quand un niveau en aura
 besoin. Un niveau sans test de mission (ex. `00-intro`) se valide par un simple bouton dans l'UI.

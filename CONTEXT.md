@@ -42,8 +42,9 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
 3. Branchement du client de synchronisation (jeton Bearer + `ProgressStore.export/import`) :
    le backend (`backend/sync`) existe, pas encore le côté client ni l'UI.
 4. Documentation MkDocs bilingue (`docs/mkdocs/`).
-5. Niveaux 03 à 14 (voir `docs/design/05-curriculum.md`). `input()` doit d'abord être tranché :
-   actuellement `EOFError` (pas de saisie synchrone dans le worker).
+5. Niveaux 04 à 14 (voir `docs/design/05-curriculum.md`). Niveau 03 fait ; `input()` est réel
+   (option b : `Atomics.wait` + SharedArrayBuffer, formulaire dans la cellule, tests à `inputs`
+   scriptés rejoués en isolation). Sans isolation cross-origin : `EOFError`.
 6. Audit accessibilité réel (lecteur d'écran, axe) et compilation des traductions Django
    (`compilemessages`, gettext absent sur le poste actuel).
 7. Kinds de test non encore définis : `stdout_contains_any_name`, `function_called_with`.

@@ -127,6 +127,11 @@
                 "message": {
                     "$ref": "#/$defs/i18nString",
                     "description": "Message affiché si le test échoue, en complément de la traduction d'erreur générique."
+                },
+                "inputs": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Saisies scriptées pour input(). Si présent, le test est évalué sur un rejeu du code (état isolé) où chaque input() reçoit la valeur suivante de la liste ; sinon il porte sur l'exécution de l'apprenant."
                 }
             },
             "additionalProperties": true

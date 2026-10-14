@@ -76,7 +76,7 @@ export class CellManager extends EventTarget {
         const cell = new CellView(i18n, step);
         notebook.add(cell.element);
         cell.focus();
-        cell.addEventListener('stop', () => this.#deps.client.interrupt());
+        cell.addEventListener('stop', () => this.#stop(cell));
         let continueShown = false;
         cell.addEventListener('run', async (event) => {
             const passed = await this.#execute(cell, event.detail.code, step.tests);
@@ -100,7 +100,7 @@ export class CellManager extends EventTarget {
         const cell = new CellView(i18n, { starter: mission.starter, instruction: mission.goal });
         notebook.add(cell.element);
         cell.focus();
-        cell.addEventListener('stop', () => this.#deps.client.interrupt());
+        cell.addEventListener('stop', () => this.#stop(cell));
         cell.addEventListener('run', async (event) => {
             if (await this.#execute(cell, event.detail.code, mission.tests)) {
                 await this.#completeLevel(mission);
@@ -108,7 +108,17 @@ export class CellManager extends EventTarget {
         });
     }
 
-    /** Exécute le code d'une cellule et valide. Renvoie vrai si tous les tests passent. */
+    #stop(cell) {
+        // Ordre important : l'interruption doit être posée avant d'annuler la saisie en attente,
+        // pour que Python reçoive KeyboardInterrupt plutôt qu'une fin de fichier.
+        this.#deps.client.interrupt();
+        cell.cancelInput();
+    }
+
+    /**
+     * Exécute le code d'une cellule et valide. Renvoie vrai si tous les tests passent.
+     * Les tests qui déclarent `inputs` rejouent le code, en isolation, avec ces saisies scriptées.
+     */
     async #execute(cell, code, tests) {
         const { client, validator, translator, audio, i18n } = this.#deps;
         await audio.unlock(); // le clic sur « Exécuter » est le geste utilisateur requis
@@ -123,18 +133,60 @@ export class CellManager extends EventTarget {
             collect: ValidationEngine.variablesToCollect(tests),
             onStdout: onOutput,
             onStderr: onOutput,
+            onInput: (prompt) => cell.requestInput(prompt),
         });
-        cell.setBusy(false);
 
         if (result.error) {
+            cell.setBusy(false);
             cell.showError(translator.translate(result.error, i18n.lang));
             audio.play('error');
             return false;
         }
-        const validation = validator.validate(tests, { stdout, result });
+        const validation = await this.#validate(code, tests, { stdout, result });
+        cell.setBusy(false);
         cell.showValidation(validation);
         audio.play(validation.passed ? 'success_small' : 'error');
         return validation.passed;
+    }
+
+    /** Valide : tests sans `inputs` sur l'exécution de l'apprenant, les autres sur des rejeux scriptés. */
+    async #validate(code, tests, interactive) {
+        const { validator, client } = this.#deps;
+        const groups = new Map();
+        tests.forEach((test, index) => {
+            const key = JSON.stringify(test.inputs ?? null);
+            groups.set(key, [...(groups.get(key) ?? []), { test, index }]);
+        });
+
+        const results = new Array(tests.length);
+        for (const [key, members] of groups) {
+            const inputs = JSON.parse(key);
+            let execution = interactive;
+            if (inputs !== null) {
+                execution = await this.#replay(code, inputs, ValidationEngine.variablesToCollect(members.map((m) => m.test)), client);
+            }
+            const { results: partial } = validator.validate(
+                members.map((m) => m.test),
+                execution,
+            );
+            partial.forEach((entry, i) => (results[members[i].index] = entry));
+        }
+        const passed = interactive.result.ok && results.every((entry) => entry.passed);
+        return { passed, results };
+    }
+
+    /** Rejoue le code sur une copie de l'état, en répondant aux input() avec `inputs`. */
+    async #replay(code, inputs, collect, client) {
+        let stdout = '';
+        const queue = [...inputs];
+        const result = await client.run(code, {
+            collect,
+            isolated: true,
+            onStdout: (text) => (stdout += text),
+            onStderr: (text) => (stdout += text),
+            onInput: async () => (queue.length > 0 ? queue.shift() : null),
+        });
+        return { stdout, result };
     }
 
     async #completeLevel(mission) {

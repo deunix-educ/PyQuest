@@ -1,0 +1,146 @@
+id: 03-input
+title:
+    fr: Demander à l'utilisateur
+    en: Asking the user
+difficulty: 1
+xp: 40
+requires:
+    - 02-variables
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "`input()` pose une question et attend une réponse. Ce que tu tapes est rangé dans une variable."
+          en: "`input()` asks a question and waits for an answer. What you type is stored in a variable."
+    - type: code
+      starter: |
+          name = input("Ton prénom ? ")
+          print("Bonjour", name)
+      instruction:
+          fr: Exécute le code, tape ton prénom dans le champ qui apparaît, puis valide.
+          en: Run the code, type your first name in the field that appears, then submit.
+      tests:
+          - kind: stdout_contains
+            value: "Bonjour Léa"
+            inputs:
+                - Léa
+            message:
+                fr: Le programme doit afficher « Bonjour » suivi du prénom saisi.
+                en: The program must show "Bonjour" followed by the name entered.
+      solution: |
+          name = input("Ton prénom ? ")
+          print("Bonjour", name)
+    - type: explain
+      voice: true
+      text:
+          fr: "Attention : `input()` renvoie toujours du texte (`str`), même si tu tapes un nombre. Pour calculer, convertis avec `int()` pour un entier."
+          en: "Careful: `input()` always returns text (`str`), even if you type a number. To calculate, convert with `int()` for a whole number."
+    - type: code
+      starter: |
+          text = input("Un nombre entier ? ")
+          number = text
+          print(number * 2)
+      instruction:
+          fr: "Avec 21, ce code affiche 2121 au lieu de 42. Convertis `text` avec `int()` pour que `number` soit un entier."
+          en: "With 21, this code shows 2121 instead of 42. Convert `text` with `int()` so that `number` is a whole number."
+      tests:
+          - kind: var_type_is
+            name: number
+            value: int
+            inputs:
+                - "21"
+          - kind: stdout_contains
+            value: "42"
+            inputs:
+                - "21"
+            message:
+                fr: Avec la saisie 21, le programme doit afficher 42.
+                en: With the input 21, the program must show 42.
+      hints:
+          fr:
+              - "`int()` se place autour de la valeur à convertir."
+              - "Écris `number = int(text)`."
+          en:
+              - "`int()` goes around the value to convert."
+              - "Write `number = int(text)`."
+      solution: |
+          text = input("Un nombre entier ? ")
+          number = int(text)
+          print(number * 2)
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour un nombre à virgule, utilise `float()`. Écris le nombre avec un point : 2.5."
+          en: "For a decimal number, use `float()`. Write the number with a dot: 2.5."
+    - type: code
+      starter: |
+          text = input("Un prix ? ")
+          price = text
+          print(price)
+      instruction:
+          fr: "Convertis `text` avec `float()` dans `price`, puis affiche `price + 0.5`."
+          en: "Convert `text` with `float()` into `price`, then print `price + 0.5`."
+      tests:
+          - kind: var_type_is
+            name: price
+            value: float
+            inputs:
+                - "2.5"
+          - kind: stdout_contains
+            value: "3.0"
+            inputs:
+                - "2.5"
+            message:
+                fr: Avec la saisie 2.5, le programme doit afficher 3.0.
+                en: With the input 2.5, the program must show 3.0.
+      hints:
+          fr:
+              - "Utilise `float(text)` pour obtenir un nombre à virgule."
+              - "Change aussi la dernière ligne : `print(price + 0.5)`."
+          en:
+              - "Use `float(text)` to get a decimal number."
+              - "Also change the last line: `print(price + 0.5)`."
+      solution: |
+          text = input("Un prix ? ")
+          price = float(text)
+          print(price + 0.5)
+mission:
+    title:
+        fr: Combien de bougies ?
+        en: How many candles?
+    goal:
+        fr: "Demande l'année de naissance avec `input()`, convertis-la en entier, puis calcule `age` (l'année courante est déjà dans `current_year`) et affiche-le."
+        en: "Ask for the birth year with `input()`, convert it to a whole number, then compute `age` (the current year is already in `current_year`) and print it."
+    starter: |
+        current_year = 2025
+        # Demande l'année de naissance, puis calcule age
+    tests:
+        - kind: var_equals
+          name: age
+          value: 15
+          inputs:
+              - "2010"
+          message:
+              fr: "Avec la naissance en 2010, `age` doit valoir 15."
+              en: "With a birth year of 2010, `age` must be 15."
+        - kind: var_equals
+          name: age
+          value: 25
+          inputs:
+              - "2000"
+          message:
+              fr: "Avec la naissance en 2000, `age` doit valoir 25."
+              en: "With a birth year of 2000, `age` must be 25."
+        - kind: var_type_is
+          name: age
+          value: int
+          inputs:
+              - "2010"
+        - kind: stdout_contains
+          value: "15"
+          inputs:
+              - "2010"
+          message:
+              fr: Le programme doit afficher l'âge.
+              en: The program must print the age.
+    reward_sound: success_small

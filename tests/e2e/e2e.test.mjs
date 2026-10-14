@@ -40,7 +40,7 @@ test('parcours complet des niveaux 00 et 01', { skip, timeout: 180000 }, async (
     const run = async (code) => {
         const cell = page.locator('.cell').last();
         await cell.locator('textarea').fill(code);
-        await cell.locator('.btn-primary').click();
+        await cell.locator('.cell-run').click();
         await page.waitForFunction(() => document.querySelector('.cell:last-of-type')?.getAttribute('aria-busy') !== 'true');
         await page.waitForTimeout(150);
         return (await cell.locator('.cell-feedback').textContent()).trim();
@@ -65,7 +65,7 @@ test('parcours complet des niveaux 00 et 01', { skip, timeout: 180000 }, async (
     // Boucle infinie interrompue, puis cellule réutilisable.
     const cell = page.locator('.cell').last();
     await cell.locator('textarea').fill('while True:\n    pass');
-    await cell.locator('.btn-primary').click();
+    await cell.locator('.cell-run').click();
     await page.waitForTimeout(500);
     await cell.locator('.btn', { hasText: 'Arrêter' }).click();
     await page.waitForFunction(() => document.querySelector('.cell:last-of-type')?.getAttribute('aria-busy') !== 'true', null, { timeout: 15000 });
@@ -76,6 +76,72 @@ test('parcours complet des niveaux 00 et 01', { skip, timeout: 180000 }, async (
     await page.reload();
     await page.waitForSelector('.progress-map .level-button', { timeout: 60000 });
     assert.match(await page.textContent('.progress-map'), /10 XP/);
+
+    assert.deepEqual(errors, []);
+});
+
+test('niveau 03 : saisie interactive et validation par rejeu scripté', { skip, timeout: 180000 }, async () => {
+    const page = await (await browser.newContext()).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(base);
+    await page.waitForSelector('.progress-map .level-button', { timeout: 60000 });
+    await page.locator('.level-button', { hasText: 'Demander à l\'utilisateur' }).click();
+    await page.waitForSelector('.explain');
+
+    const next = () => page.locator('.notebook-action button').last().click();
+    const idle = () => page.waitForFunction(() => document.querySelector('.cell:last-of-type')?.getAttribute('aria-busy') !== 'true', null, { timeout: 30000 });
+    // Lance le code puis répond aux input() dans l'ordre ; renvoie sortie et retour de validation.
+    const run = async (code, answers = []) => {
+        const cell = page.locator('.cell').last();
+        await cell.locator('textarea').fill(code);
+        await cell.locator('.cell-run').click();
+        for (const answer of answers) {
+            await cell.locator('.cell-input-field').waitFor({ state: 'visible', timeout: 15000 });
+            await cell.locator('.cell-input-field').fill(answer);
+            await cell.locator('.cell-input-field').press('Enter');
+        }
+        await idle();
+        await page.waitForTimeout(150);
+        return {
+            output: await cell.locator('.cell-output').textContent(),
+            feedback: (await cell.locator('.cell-feedback').textContent()).trim(),
+        };
+    };
+
+    await next();
+    let result = await run('name = input("Ton prénom ? ")\nprint("Bonjour", name)', ['Zoé']);
+    assert.equal(result.output, 'Ton prénom ? Bonjour Zoé\n'.replace('Bonjour', 'Zoé\nBonjour'));
+    assert.match(result.feedback, /correct/);
+
+    await next();
+    await next();
+    result = await run('text = input("Un nombre entier ? ")\nnumber = text\nprint(number * 2)', ['21']);
+    assert.match(result.output, /2121/);
+    assert.match(result.feedback, /Pas encore/);
+    result = await run('text = input("Un nombre entier ? ")\nnumber = int(text)\nprint(number * 2)', ['21']);
+    assert.match(result.feedback, /correct/);
+
+    // Une saisie en attente peut être abandonnée avec « Arrêter ».
+    const cell = page.locator('.cell').last();
+    await cell.locator('textarea').fill('input("?")');
+    await cell.locator('.cell-run').click();
+    await cell.locator('.cell-input-field').waitFor({ state: 'visible' });
+    await cell.locator('.btn', { hasText: 'Arrêter' }).click();
+    await idle();
+    assert.match(await cell.locator('.cell-feedback').textContent(), /Exécution arrêtée/);
+    assert.equal(await cell.locator('.cell-input-field').isVisible(), false);
+
+    // Étape float, puis mission avec plusieurs rejeux scriptés (2010 -> 15, 2000 -> 25).
+    await next();
+    await next();
+    result = await run('text = input("Un prix ? ")\nprice = float(text)\nprint(price + 0.5)', ['2.5']);
+    assert.match(result.feedback, /correct/);
+    await next();
+    result = await run('current_year = 2025\nyear = int(input("Année ? "))\nage = current_year - year\nprint(age)', ['2010']);
+    assert.match(result.feedback, /correct/);
+    await page.waitForSelector('.toast');
+    assert.match(await page.textContent('.toast-region'), /\+40 XP/);
 
     assert.deepEqual(errors, []);
 });

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import builtins
 import json
 import sys
 import unittest
@@ -40,6 +41,24 @@ class RunnerTest(unittest.TestCase):
     def test_syntax_error(self) -> None:
         error = run("def f(:\n    pass")["error"]
         self.assertEqual((error["type"], error["lineno"]), ("SyntaxError", 1))
+
+    def test_isolated_run_does_not_touch_namespace(self) -> None:
+        run("n = 1")
+        isolated = json.loads(runner.run_cell("n = 99", json.dumps(["n"]), True))
+        self.assertEqual(isolated["variables"]["n"]["value"], 99)
+        self.assertEqual(run("pass", ["n"])["variables"]["n"]["value"], 1)
+
+    def test_input_uses_bridge_and_reports_eof(self) -> None:
+        original = builtins.input
+        try:
+            runner.set_input_bridge(lambda prompt: json.dumps({"status": "ok", "text": "7"}))
+            self.assertEqual(run("v = input('?')", ["v"])["variables"]["v"]["value"], "7")
+            runner.set_input_bridge(lambda prompt: json.dumps({"status": "eof"}))
+            self.assertEqual(run("input()")["error"]["type"], "EOFError")
+            runner.set_input_bridge(lambda prompt: json.dumps({"status": "interrupted"}))
+            self.assertEqual(run("input()")["error"]["type"], "KeyboardInterrupt")
+        finally:
+            builtins.input = original
 
     def test_non_finite_float_has_no_json_value(self) -> None:
         self.assertIsNone(run("x = float('inf')", ["x"])["variables"]["x"]["value"])

@@ -1,0 +1,30 @@
+# Assets Pyodide vendorisés — régénérés par `make vendor-pyodide`, trop volumineux pour git
+vendor/
+
+# Secrets et configuration locale — jamais commités
+.env
+.env.*
+*.pem
+*.key
+secrets.*
+
+# Backend Django
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/db.sqlite3
+backend/staticfiles/
+backend/.venv/
+backend/venv/
+
+# Dépendances JS (si un outillage de build/test est ajouté plus tard)
+node_modules/
+
+# Build / artefacts
+dist/
+build/
+*.log
+
+# Éditeurs / OS
+.vscode/*
+!.vscode/extensions.json
+.DS_Store

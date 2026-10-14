@@ -1,0 +1,154 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://pyquest.dev/schemas/level.schema.json",
+    "title": "PyQuest Level",
+    "type": "object",
+    "required": ["id", "title", "difficulty", "xp", "steps", "mission"],
+    "additionalProperties": false,
+    "properties": {
+        "id": {
+            "type": "string",
+            "pattern": "^[0-9]{2}-[a-z0-9-]+$",
+            "description": "Identifiant unique et ordonnable, ex. '01-hello'. Le préfixe numérique fixe l'ordre d'affichage par défaut (surchargé par manifest.json si besoin)."
+        },
+        "title": { "$ref": "#/$defs/i18nString" },
+        "difficulty": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "description": "0 = aucun prérequis (grand débutant). Sert de filtre d'affichage, pas de verrou strict."
+        },
+        "xp": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "XP accordés à la complétion de la mission finale (pas par étape)."
+        },
+        "requires": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Liste d'id de niveaux prérequis. Purement informatif pour le moteur de progression ; ne bloque pas l'accès."
+        },
+        "steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/step" },
+            "description": "Micro-étapes : une seule notion nouvelle par étape, alternant explication et code."
+        },
+        "mission": { "$ref": "#/$defs/mission" }
+    },
+    "$defs": {
+        "i18nString": {
+            "type": "object",
+            "required": ["fr"],
+            "properties": {
+                "fr": { "type": "string" },
+                "en": { "type": "string" }
+            },
+            "additionalProperties": false,
+            "description": "fr obligatoire (langue par défaut) ; en optionnel au niveau du schéma mais requis en pratique pour toute PR open source (vérifié par la CI de contribution, pas par ce schéma)."
+        },
+        "step": {
+            "type": "object",
+            "required": ["type"],
+            "oneOf": [
+                { "$ref": "#/$defs/stepExplain" },
+                { "$ref": "#/$defs/stepCode" }
+            ]
+        },
+        "stepExplain": {
+            "type": "object",
+            "required": ["type", "text"],
+            "properties": {
+                "type": { "const": "explain" },
+                "text": { "$ref": "#/$defs/i18nString" },
+                "voice": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Si vrai, le bouton de narration vocale (speechSynthesis) est proposé pour ce texte. Jamais déclenché automatiquement (règle autoplay iOS)."
+                },
+                "image": {
+                    "type": "string",
+                    "description": "Chemin relatif vers une illustration optionnelle (dans le dossier du niveau)."
+                }
+            },
+            "additionalProperties": false
+        },
+        "stepCode": {
+            "type": "object",
+            "required": ["type", "starter", "instruction", "tests"],
+            "properties": {
+                "type": { "const": "code" },
+                "starter": {
+                    "type": "string",
+                    "description": "Code pré-rempli dans la cellule. Doit être exécutable tel quel (jamais de code cassé par défaut)."
+                },
+                "instruction": { "$ref": "#/$defs/i18nString" },
+                "tests": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "$ref": "#/$defs/test" }
+                },
+                "hints": {
+                    "type": "object",
+                    "properties": {
+                        "fr": { "type": "array", "items": { "type": "string" } },
+                        "en": { "type": "array", "items": { "type": "string" } }
+                    },
+                    "description": "Indices graduels affichés un par un sur demande (bouton 'Indice'), jamais tous à la fois."
+                },
+                "solution": {
+                    "type": "string",
+                    "description": "Code de référence affiché via 'Voir la solution'. Optionnel mais recommandé."
+                }
+            },
+            "additionalProperties": false
+        },
+        "test": {
+            "type": "object",
+            "required": ["kind"],
+            "description": "Déclaratif : le moteur de validation sait interpréter chaque 'kind' sans code spécifique au niveau (plug-in sans modification du moteur).",
+            "properties": {
+                "kind": {
+                    "type": "string",
+                    "enum": [
+                        "stdout_equals",
+                        "stdout_contains",
+                        "stdout_contains_any_name",
+                        "stdout_matches_regex",
+                        "var_equals",
+                        "var_type_is",
+                        "function_called_with",
+                        "no_syntax_error"
+                    ]
+                },
+                "value": {
+                    "description": "Valeur attendue, dont la forme dépend de 'kind' (string, regex, nom de variable + valeur...)."
+                },
+                "message": {
+                    "$ref": "#/$defs/i18nString",
+                    "description": "Message affiché si le test échoue, en complément de la traduction d'erreur générique."
+                }
+            },
+            "additionalProperties": true
+        },
+        "mission": {
+            "type": "object",
+            "required": ["title", "goal"],
+            "properties": {
+                "title": { "$ref": "#/$defs/i18nString" },
+                "goal": { "$ref": "#/$defs/i18nString" },
+                "starter": { "type": "string" },
+                "tests": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/test" }
+                },
+                "reward_sound": {
+                    "type": "string",
+                    "enum": ["success_small", "success_big", "level_unlocked"],
+                    "description": "Référence à un effet sonore prédéfini du moteur audio, jamais un fichier arbitraire importé par le niveau."
+                }
+            },
+            "additionalProperties": false
+        }
+    }
+}

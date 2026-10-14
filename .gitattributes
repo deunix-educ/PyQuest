@@ -1,0 +1,13 @@
+# Normalisation des fins de ligne : LF partout, même sous Windows
+* text=auto eol=lf
+
+# Fichiers binaires explicitement marqués (pas de normalisation, pas de diff texte)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.mp3 binary
+*.wav binary
+*.wasm binary
+*.woff binary
+*.woff2 binary

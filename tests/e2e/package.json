@@ -1,0 +1,9 @@
+{
+    "name": "pyquest-e2e",
+    "private": true,
+    "type": "module",
+    "description": "Tests de bout en bout dans un vrai navigateur (hors dépendances de l'application).",
+    "dependencies": {
+        "playwright-core": "1.49.1"
+    }
+}

@@ -34,10 +34,10 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
 
 ## Reste à faire
 
-1. **Tester dans un vrai navigateur** (`make dev`) : aucun test n'a encore tourné dans Chrome/Firefox/
-   Safari. Le worker, le client et Pyodide sont validés ensemble sous Node
-   (`tests/js/pyodide-worker.integration.test.mjs`), mais pas l'UI réelle, le service worker, ni
-   IndexedDB. Prévoir un test sur iOS Safari (mémoire WASM, autoplay audio).
+1. **Navigateurs** : parcours validé dans Chromium 155 (`make test-e2e` : niveaux 00 et 01, erreurs
+   traduites, interruption de boucle infinie en ~50 ms, persistance IndexedDB, hors-ligne via
+   service worker, thèmes clair/sombre, mobile 375 px sans débordement). **Reste** : Firefox,
+   Safari desktop et surtout iOS Safari (mémoire WASM, autoplay audio, `SharedArrayBuffer`).
 2. Icônes PNG (iOS) en plus de `app/icons/icon.svg`.
 3. Branchement du client de synchronisation (jeton Bearer + `ProgressStore.export/import`) :
    le backend (`backend/sync`) existe, pas encore le côté client ni l'UI.

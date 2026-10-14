@@ -256,3 +256,22 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+.explain > :first-child,
+.cell > :first-child {
+    margin-top: 0;
+}
+
+.level-button {
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    text-align: left;
+}
+
+.level-title {
+    flex: 1 1 8rem;
+}
+
+.level-state {
+    white-space: nowrap;
+}

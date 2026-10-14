@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend typecheck clean
+.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend test-e2e typecheck clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -40,6 +40,10 @@ test-python: ## Tests Python du runner
 test-backend: $(VENV)/.installed ## Tests du backend Django (nécessite Django dans .venv)
 	$(VENV)/bin/pip install --quiet -r backend/requirements.txt
 	cd backend && ../$(VENV_PY) manage.py test
+
+test-e2e: ## Tests bout en bout dans Chromium (CHROMIUM=/chemin/navigateur)
+	npm --prefix tests/e2e install --silent
+	node --test tests/e2e/e2e.test.mjs
 
 typecheck: $(VENV)/.installed ## Vérifie les types Python avec pyright
 	$(VENV)/bin/pyright

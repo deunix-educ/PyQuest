@@ -1,0 +1,3 @@
+# Backend de synchronisation (optionnel). Django LTS.
+Django>=5.2,<5.3
+gunicorn>=22.0  # production uniquement

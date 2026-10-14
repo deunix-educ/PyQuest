@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python typecheck clean
+.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend typecheck clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -29,13 +29,17 @@ validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, t
 build: $(VENV)/.installed ## Construit dist/ pour la production
 	$(VENV_PY) scripts/build.py
 
-test: test-js test-python validate-levels ## Lance tous les tests
+test: test-js test-python test-backend validate-levels ## Lance tous les tests
 
 test-js: ## Tests JavaScript (node:test, aucune dépendance)
 	node --test tests/js/*.test.mjs
 
 test-python: ## Tests Python du runner
 	$(PYTHON) -m unittest discover -s tests/python -v
+
+test-backend: $(VENV)/.installed ## Tests du backend Django (nécessite Django dans .venv)
+	$(VENV)/bin/pip install --quiet -r backend/requirements.txt
+	cd backend && ../$(VENV_PY) manage.py test
 
 typecheck: $(VENV)/.installed ## Vérifie les types Python avec pyright
 	$(VENV)/bin/pyright

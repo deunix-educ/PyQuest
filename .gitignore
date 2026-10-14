@@ -12,6 +12,7 @@ secrets.*
 backend/**/__pycache__/
 backend/**/*.pyc
 backend/db.sqlite3
+backend/**/*.mo
 backend/staticfiles/
 backend/.venv/
 backend/venv/

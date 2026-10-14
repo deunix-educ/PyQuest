@@ -2,3 +2,4 @@
 PyYAML>=6.0
 jsonschema>=4.21
 pyright>=1.1.380
+django-stubs>=5.1  # types pour pyright (backend)

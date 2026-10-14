@@ -1,0 +1,29 @@
+# PyQuest sync API messages (en).
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en\n"
+
+#: sync/views.py
+msgid "Payload too large."
+msgstr ""
+
+#: sync/views.py
+msgid "Invalid JSON."
+msgstr ""
+
+#: sync/views.py
+msgid "Invalid progress payload."
+msgstr ""
+
+#: sync/views.py
+msgid "Missing or malformed token."
+msgstr ""
+
+#: sync/views.py
+msgid "No progress stored for this token."
+msgstr ""
+
+#: sync/views.py
+msgid "Invalid request."
+msgstr ""

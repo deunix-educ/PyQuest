@@ -1,0 +1,15 @@
+{
+    "name": "PyQuest",
+    "short_name": "PyQuest",
+    "description": "Apprendre Python par la pratique, directement dans le navigateur.",
+    "lang": "fr",
+    "start_url": "./",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#12151c",
+    "theme_color": "#1d4ed8",
+    "icons": [
+        { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+        { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    ]
+}

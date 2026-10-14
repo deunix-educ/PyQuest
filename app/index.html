@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#1d4ed8">
+        <title>PyQuest</title>
+        <link rel="manifest" href="manifest.webmanifest">
+        <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+        <link rel="stylesheet" href="css/app.css">
+    </head>
+    <body>
+        <a class="skip-link" href="#main">Aller au contenu / Skip to content</a>
+        <header class="app-header">
+            <h1 id="app-title">PyQuest</h1>
+            <button type="button" class="btn" id="settings-toggle" aria-expanded="false" aria-controls="settings-region"></button>
+        </header>
+        <div class="app-layout">
+            <aside id="progress-region"></aside>
+            <div id="notebook-region"></div>
+        </div>
+        <div id="settings-region" hidden></div>
+        <div id="toast-region"></div>
+        <noscript>PyQuest a besoin de JavaScript. / PyQuest needs JavaScript.</noscript>
+        <script type="module" src="js/main.js"></script>
+    </body>
+</html>

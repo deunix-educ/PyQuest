@@ -53,7 +53,7 @@ Le brief original est [`prompt-pyquest.md`](prompt-pyquest.md) (résumé fidèle
    `speechSynthesis`, déblocage uniquement sur geste utilisateur (contrainte iOS autoplay).
 9. ✅ FAIT (testé sur DOM simulé linkedom, pas dans un vrai navigateur) — `app/js/ui/*` + `app/css/app.css`, `i18n.js`, `SettingsStore.js` — `NotebookView`, `CellManager`, `CellView`, `HintPanel`, `ProgressMap`,
    `BadgeToast`, `SettingsPanel`.
-10. `app/index.html`, `app/manifest.webmanifest`, `app/service-worker.js` — app shell PWA,
+10. ✅ FAIT (non testé dans un navigateur) — `app/index.html`, `app/manifest.webmanifest`, `app/service-worker.js` — app shell PWA,
     cache des assets Pyodide vendorisés + des fichiers de niveaux pour le hors-ligne.
 
 Puis point 8 : `Makefile`, `pyrightconfig.json`, `README.md`/`README-EN.md`,

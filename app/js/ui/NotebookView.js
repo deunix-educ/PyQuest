@@ -54,10 +54,27 @@ export class NotebookView {
         if (image) {
             children.push(el('img', { src: image, alt: '' }));
         }
-        if (voice && this.#onSpeak && this.#canSpeak()) {
-            children.push(el('button', { type: 'button', class: 'btn', text: this.#i18n.t('voice.listen'), onclick: () => this.#onSpeak(text, step) }));
+        if (voice && this.#onSpeak) {
+            // Toujours rendu, affiché ou non selon le réglage (voir refreshVoiceButtons).
+            children.push(
+                el('button', {
+                    type: 'button',
+                    class: 'btn voice-button',
+                    hidden: !this.#canSpeak(),
+                    text: this.#i18n.t('voice.listen'),
+                    onclick: () => this.#onSpeak(text, step),
+                }),
+            );
         }
         return this.add(el('section', { class: 'explain', tabindex: '-1' }, ...children));
+    }
+
+    /** Réaffiche ou masque les boutons « Écouter » existants (réglage de la voix modifié). */
+    refreshVoiceButtons() {
+        const visible = this.#canSpeak();
+        for (const button of this.#root.querySelectorAll('.voice-button')) {
+            button.hidden = !visible;
+        }
     }
 
     /** Bouton « Continuer » ou équivalent ; retiré du DOM une fois cliqué. */

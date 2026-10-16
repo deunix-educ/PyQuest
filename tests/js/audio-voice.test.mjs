@@ -29,8 +29,12 @@ globalThis.URL.createObjectURL = () => 'blob:fake';
 globalThis.URL.revokeObjectURL = () => {};
 const played = [];
 class FakeAudio {
-    constructor(src) { this.src = src; played.push(this); }
-    play() { queueMicrotask(() => { this.onplaying?.(); this.onended?.(); }); return Promise.resolve(); }
+    constructor() { this.src = ''; }
+    play() {
+        // Le silence d'amorçage (data:) ne déclenche rien ; une vraie source blob se termine seule.
+        if (this.src.startsWith('blob:')) { played.push(this.src); queueMicrotask(() => { this.onplaying?.(); this.onended?.(); }); }
+        return Promise.resolve();
+    }
     pause() {}
 }
 const spoken2 = [];
@@ -40,8 +44,14 @@ const fetchFn = async (url) => (url.endsWith('/there.mp3') ? { ok: true, blob: a
 const v2 = new VoiceEngine({ synth: synth2, Utterance: U, AudioClass: FakeAudio, fetchFn });
 assert.equal(await v2.speak('Texte', 'fr', { audioUrl: '/a/there.mp3' }), true);
 assert.equal(played.length, 1); assert.deepEqual(spoken2, []);          // fichier lu, pas de voix système
+assert.equal(v2.lastFailure, null);
 assert.equal(await v2.speak('Repli `x`', 'fr', { audioUrl: '/a/absent.mp3' }), true);
 assert.equal(played.length, 1); assert.deepEqual(spoken2, ['Repli x']); // fichier absent : repli
+assert.equal(v2.lastFailure, null);
+// Rien ne peut jouer (ni fichier, ni voix système) : panne signalée, pas silence.
+const v3 = new VoiceEngine({ synth: null, Utterance: undefined, AudioClass: FakeAudio, fetchFn });
+assert.equal(await v3.speak('x', 'fr', { audioUrl: '/a/absent.mp3' }), false);
+assert.equal(v3.lastFailure, 'unavailable');
 v2.setRate(1.5); assert.equal(v2.rate, 1.5);
 const noAudioNoSynth = new VoiceEngine({ synth: null, Utterance: undefined, AudioClass: undefined });
 assert.equal(noAudioNoSynth.supported, false);

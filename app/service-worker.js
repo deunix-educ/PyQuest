@@ -3,7 +3,7 @@
 // - Pyodide vendorisé, niveaux, scripts : mis en cache à la première utilisation (hors ligne ensuite).
 // Les en-têtes COOP/COEP du document viennent du serveur ; ce worker ne les fabrique pas.
 
-const CACHE_VERSION = 'pyquest-v1';
+const CACHE_VERSION = 'pyquest-v2';
 
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'css/app.css', 'icons/icon.svg', 'js/main.js'];
 
@@ -27,10 +27,10 @@ self.addEventListener('fetch', (event) => {
     if (request.method !== 'GET' || url.origin !== self.location.origin) {
         return;
     }
-    // Niveaux : réseau d'abord (contenu qui évolue), cache en repli hors ligne.
-    // Le reste (code, Pyodide) : cache d'abord, rempli à la première requête.
-    const networkFirst = url.pathname.startsWith('/levels/') || request.mode === 'navigate';
-    event.respondWith(networkFirst ? fromNetwork(request) : fromCache(request));
+    // Pyodide (versionné, immuable, lourd) : cache d'abord. Tout le reste (code, niveaux, audio) :
+    // réseau d'abord, cache en repli hors ligne — jamais de code périmé servi en ligne.
+    const immutable = url.pathname.startsWith('/vendor/pyodide/');
+    event.respondWith(immutable ? fromCache(request) : fromNetwork(request));
 });
 
 async function fromCache(request) {

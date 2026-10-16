@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
     theme: 'auto', // 'auto' | 'light' | 'dark'
     soundEnabled: true,
     volume: 0.8,
-    voiceEnabled: false,
+    voiceEnabled: true, // le bouton « Écouter » ne lit jamais automatiquement : un clic à chaque fois
     voiceRate: 1,
 });
 

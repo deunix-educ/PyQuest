@@ -59,6 +59,7 @@
     "settings.sound": "Sound effects",
     "settings.volume": "Volume",
     "settings.voice": "Voice",
+    "voice.failed": "The voice cannot be played on this device. Check the volume and the browser's sound permission.",
     "voice.sample": "Hello, I am the voice of PyQuest. This is how I will read the explanations.",
     "settings.testSound": "Test the sound",
     "settings.testVoice": "Test the voice",

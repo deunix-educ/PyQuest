@@ -4,6 +4,8 @@
 // Aucun service tiers.
 
 const LANG_TAGS = { fr: 'fr-FR', en: 'en-US' };
+// WAV silencieux minimal : sert à « amorcer » l'élément audio pendant le clic (voir #prime).
+const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 
 export class VoiceEngine {
     #synth;
@@ -12,9 +14,10 @@ export class VoiceEngine {
     #fetch;
     #enabled;
     #rate;
-    #audio = null;
+    #player = null;
     #objectUrl = null;
     #session = 0;
+    #lastFailure = null;
 
     /**
      * @param {object} [options]
@@ -54,6 +57,11 @@ export class VoiceEngine {
         return this.#rate;
     }
 
+    /** null, ou 'unavailable' si la dernière lecture demandée n'a rien pu jouer (à signaler à l'apprenant). */
+    get lastFailure() {
+        return this.#lastFailure;
+    }
+
     setEnabled(enabled) {
         this.#enabled = enabled;
         if (!enabled) {
@@ -63,8 +71,8 @@ export class VoiceEngine {
 
     setRate(rate) {
         this.#rate = Math.min(2, Math.max(0.5, rate));
-        if (this.#audio) {
-            this.#audio.playbackRate = this.#rate;
+        if (this.#player) {
+            this.#player.playbackRate = this.#rate;
         }
     }
 
@@ -77,21 +85,45 @@ export class VoiceEngine {
      * @returns {Promise<boolean>}
      */
     async speak(text, lang = 'fr', { audioUrl = null } = {}) {
+        this.#lastFailure = null;
         if (!this.supported || !this.#enabled) {
             return false;
         }
         this.cancel();
+        // Doit s'exécuter de façon synchrone dans le gestionnaire de clic, avant tout await.
+        this.#prime();
         const session = this.#session;
+        // Une lecture interrompue (nouvelle demande, annulation) n'est pas une panne.
+        const finish = (ok) => {
+            if (!ok && session === this.#session) {
+                this.#lastFailure = 'unavailable';
+            }
+            return ok;
+        };
         if (audioUrl && this.#AudioClass) {
             const played = await this.#playFile(audioUrl, session);
             if (played !== null) {
-                return played;
+                return finish(played);
             }
         }
         if (session !== this.#session) {
             return false;
         }
-        return this.#speakWithSystemVoice(text, lang);
+        return finish(await this.#speakWithSystemVoice(text, lang));
+    }
+
+    /**
+     * Débloque l'élément audio pendant le geste utilisateur. Safari/iOS n'autorise la lecture
+     * que si l'élément a été démarré par un geste ; or le fichier n'arrive qu'après un fetch
+     * asynchrone. On joue donc un silence tout de suite, puis on change la source plus tard.
+     */
+    #prime() {
+        if (!this.#AudioClass) {
+            return;
+        }
+        this.#player ??= new this.#AudioClass();
+        this.#player.src = SILENT_WAV;
+        Promise.resolve(this.#player.play()).catch(() => {});
     }
 
     /** Interrompt toute lecture en cours (fichier ou synthèse). */
@@ -121,9 +153,9 @@ export class VoiceEngine {
         }
         // Lecture depuis un blob : pas de requêtes Range (exigées par iOS pour un flux direct).
         this.#objectUrl = URL.createObjectURL(blob);
-        const audio = new this.#AudioClass(this.#objectUrl);
+        const audio = this.#player;
+        audio.src = this.#objectUrl;
         audio.playbackRate = this.#rate;
-        this.#audio = audio;
         return new Promise((resolve) => {
             let started = false;
             audio.onplaying = () => {
@@ -146,10 +178,13 @@ export class VoiceEngine {
     }
 
     #releaseAudio() {
-        if (this.#audio) {
-            this.#audio.onpause = null;
-            this.#audio.pause?.();
-            this.#audio = null;
+        if (this.#player) {
+            // Handlers retirés d'abord : pause() ne doit pas être pris pour une interruption à signaler.
+            this.#player.onpause = null;
+            this.#player.onended = null;
+            this.#player.onerror = null;
+            this.#player.onplaying = null;
+            this.#player.pause?.();
         }
         if (this.#objectUrl) {
             URL.revokeObjectURL(this.#objectUrl);

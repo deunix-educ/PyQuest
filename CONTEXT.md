@@ -70,8 +70,9 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
      `levels/AUDIO-CREDITS.md`. `make check-voice` (dans `make test`) détecte un fichier manquant.
    - **À faire** : l'utilisateur doit écouter effets et voix (la qualité perçue ne se mesure pas) ;
      ajuster gain/timbre (`NOTE_PEAK`, `BELL`, compresseur) ou voix/débit (`VOICES`, `LENGTH_SCALE`
-     dans `scripts/generate_voice.py`) selon son retour. La voix est **désactivée par défaut**
-     (réglage « Voix ») : à reconsidérer. Piper = GPL-3.0 mais outil de build seulement.
+     dans `scripts/generate_voice.py`) selon son retour. La voix est **activée par défaut**
+     (le bouton « Écouter » ne lit jamais seul) ; le réglage « Voix » masque/affiche les boutons
+     immédiatement. Piper = GPL-3.0 mais outil de build seulement.
    - Whisper (dictée) et pyannote (diarisation) : écartés (hors besoin ; pyannote = modèles à accès
      restreint). Whisper reste une option d'accessibilité lointaine (dicter une réponse à `input()`).
 2. **Niveaux 04 à 14** (tableau dans `docs/design/05-curriculum.md`). Méthode : écrire le YAML
@@ -104,6 +105,16 @@ make dev                           # http://127.0.0.1:8000/
 Contrôle d'un son/UI à la main : `make dev` puis ouvrir l'URL dans un navigateur.
 
 ## Pièges rencontrés (à ne pas redécouvrir)
+
+- **Service worker et code périmé** (bug réel, 2026-10-16) : le SW servait le JS « cache d'abord »
+  avec un nom de cache constant → en dev, le navigateur gardait l'ancien code (l'utilisateur ne
+  voyait ni la nouvelle voix ni les correctifs). Désormais : réseau d'abord pour tout sauf
+  `/vendor/pyodide/`. En cas de doute chez un utilisateur : DevTools → Application → Service
+  Workers → Unregister + Clear site data, ou recharger deux fois. Bumper `CACHE_VERSION` purge
+  l'ancien cache à l'activation.
+- **Lecture audio et activation utilisateur** : `play()` après un `await fetch` peut être refusé
+  (Safari/iOS surtout). `VoiceEngine` « amorce » l'élément audio avec un silence dans le clic, puis
+  change la source. Les tests e2e tournent sans option d'autoplay pour rester réalistes.
 
 - Node lit un `.js` sans `package.json` en CommonJS : pour tester un fichier avec classes à champs
   privés, passer par une copie `.mjs` ou importer depuis un test `.mjs` (les imports ESM

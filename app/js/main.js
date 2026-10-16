@@ -58,6 +58,7 @@ class App {
     #voice;
     #manager;
     #toast;
+    #notebook;
     #map;
     #panel;
     #levelIds = [];
@@ -83,9 +84,10 @@ class App {
 
         const client = new PyodideWorkerClient({ indexURL: new URL('/vendor/pyodide/', location.href).href });
         const notebook = new NotebookView(this.#i18n, {
-            onSpeak: (text, step) => this.#voice.speak(text, this.#i18n.lang, { audioUrl: step.audioUrl }),
+            onSpeak: (text, step) => this.#speak(text, step.audioUrl),
             canSpeak: () => this.#voice.supported && this.#voice.enabled,
         });
+        this.#notebook = notebook;
         const toast = new BadgeToast(this.#i18n);
         this.#toast = toast;
         this.#manager = new CellManager({
@@ -163,6 +165,7 @@ class App {
         this.#audio.setEnabled(settings.soundEnabled);
         this.#audio.setVolume(settings.volume);
         this.#voice.setEnabled(settings.voiceEnabled);
+        this.#notebook.refreshVoiceButtons();
         this.#voice.setRate(settings.voiceRate);
         if (key === 'lang') {
             this.#i18n.setLang(value);
@@ -186,7 +189,15 @@ class App {
         const lang = this.#i18n.lang;
         const sample = this.#i18n.t('voice.sample');
         const audioUrl = new URL(`assets/voice/${lang}/${speechKey(lang, sample)}.mp3`, document.baseURI).href;
-        await this.#voice.speak(sample, lang, { audioUrl });
+        await this.#speak(sample, audioUrl);
+    }
+
+    /** Lit un texte ; si rien ne peut être joué, prévient l'apprenant au lieu de rester silencieux. */
+    async #speak(text, audioUrl) {
+        await this.#voice.speak(text, this.#i18n.lang, { audioUrl });
+        if (this.#voice.lastFailure) {
+            this.#toast.show(this.#i18n.t('voice.failed'));
+        }
     }
 
     #registerServiceWorker() {

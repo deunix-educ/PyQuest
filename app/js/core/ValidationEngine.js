@@ -1,12 +1,14 @@
 // Interprète les tests déclaratifs d'un niveau (enum fermé `tests[].kind`).
 // Agnostique du contenu : aucun code venant d'un fichier de niveau n'est exécuté ici.
 
+import { checkDrawing } from './drawingTests.js';
+
 const FLOAT_TOLERANCE = 1e-9;
 
 export class ValidationEngine {
     /** Kinds de test interprétés par le moteur (le schéma en autorise davantage : certains sont encore à définir). */
     static get supportedKinds() {
-        return ['no_syntax_error', 'stdout_equals', 'stdout_contains', 'stdout_matches_regex', 'code_contains', 'var_equals', 'var_type_is'];
+        return ['no_syntax_error', 'stdout_equals', 'stdout_contains', 'stdout_matches_regex', 'code_contains', 'var_equals', 'var_type_is', 'drawing_segments', 'drawing_has_line', 'drawing_colors'];
     }
 
     /** Noms de variables à relire côté Python (option `collect` de run_code) pour ces tests. */
@@ -20,7 +22,7 @@ export class ValidationEngine {
      * @param {object} execution
      * @param {string} execution.stdout  Sortie standard cumulée de la cellule.
      * @param {string} [execution.code]  Code exécuté (pour `code_contains`).
-     * @param {{ok: boolean, error: object|null, variables: object}} execution.result
+     * @param {{ok: boolean, error: object|null, variables: object, drawing?: Array}} execution.result
      * @returns {{passed: boolean, results: {kind: string, passed: boolean, reason: string|null, message: string|null}[]}}
      */
     validate(tests, { stdout, result, code = '' }) {
@@ -50,6 +52,10 @@ export class ValidationEngine {
                 return this.#varEquals(test, result.variables);
             case 'var_type_is':
                 return this.#varTypeIs(test, result.variables);
+            case 'drawing_segments':
+            case 'drawing_has_line':
+            case 'drawing_colors':
+                return checkDrawing(test, result.drawing);
             default:
                 // Kind connu du schéma mais pas encore interprété (ou inconnu).
                 return 'unsupported_kind';

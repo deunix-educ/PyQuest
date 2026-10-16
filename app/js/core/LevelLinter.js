@@ -4,6 +4,7 @@
 // les textes affichés viennent des catalogues (clé `lint.<code>`), jamais d'ici.
 
 import { Validator } from '../lib/json-schema/index.js';
+import { checkDrawing } from './drawingTests.js';
 import { ValidationEngine } from './ValidationEngine.js';
 
 const DRAFT = '2020-12';
@@ -226,6 +227,9 @@ export class LevelLinter {
             }
             if (test.kind === 'var_type_is' && !PYTHON_TYPES.includes(test.value)) {
                 add('warning', 'type_unusual', [...here, 'value'], { allowed: PYTHON_TYPES.join(', ') });
+            }
+            if (test.kind.startsWith('drawing_') && typeof test.value === 'string' && test.value !== '' && checkDrawing(test, []) === 'invalid_test') {
+                add('error', 'drawing_value_invalid', [...here, 'value']);
             }
             if (test.kind === 'stdout_matches_regex' && typeof test.value === 'string') {
                 try {

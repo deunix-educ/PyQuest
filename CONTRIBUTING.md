@@ -73,6 +73,9 @@ restent la référence. Voir `docs/design/08-author-editor.md`.
 | `var_equals` | `name`, `value` | variable égale à la valeur |
 | `var_type_is` | `name`, `value` | type de la variable (`str`, `int`, `float`…) |
 | `code_contains` | `value` | le code de l'apprenant contient cette chaîne (ex. `random.choice`, `while`) |
+| `drawing_segments` | `value` | nombre de traits de `canvas.line` : `"4"` (exactement) ou `"4+"` (au moins) |
+| `drawing_has_line` | `value` | un trait entre deux points : `"0,0 100,0"` ou avec couleur `"0,0 100,0 red"` |
+| `drawing_colors` | `value` | couleurs présentes dans le dessin : `"red,blue"` |
 
 Tout test accepte un champ optionnel `inputs` (liste de chaînes). Pour un code qui appelle
 `input()`, le test est alors évalué sur un **rejeu** du code (sur une copie de l'état) où chaque

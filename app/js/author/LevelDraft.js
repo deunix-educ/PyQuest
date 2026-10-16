@@ -17,6 +17,9 @@ export const TEST_KINDS = {
     code_contains: { name: false, value: 'text' },
     var_equals: { name: true, value: 'typed' },
     var_type_is: { name: true, value: 'type' },
+    drawing_segments: { name: false, value: 'text' },
+    drawing_has_line: { name: false, value: 'text' },
+    drawing_colors: { name: false, value: 'text' },
 };
 
 const i18n = (fr = '', en = '') => ({ fr, en });

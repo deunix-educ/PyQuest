@@ -251,6 +251,64 @@ test('niveau 07 : boucle while avec plusieurs saisies successives dans l\'interf
     assert.deepEqual(errors, []);
 });
 
+test('niveau 13 : le dessin s\'affiche, se décrit en texte et repart d\'une feuille vierge à chaque exécution', { skip, timeout: 120000 }, async () => {
+    const page = await (await browser.newContext()).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(`${base}#/levels/13-classes`);
+    await page.waitForSelector('.explain', { timeout: 60000 });
+
+    const next = () => page.locator('.notebook-action button').last().click();
+    const run = async (code) => {
+        const cell = page.locator('.cell').last();
+        await cell.locator('textarea').fill(code);
+        await cell.locator('.cell-run').click();
+        await page.waitForFunction(() => document.querySelector('.cell:last-of-type')?.getAttribute('aria-busy') !== 'true');
+        await page.waitForTimeout(150);
+        return cell;
+    };
+
+    await next();
+    await run('class Dog:\n    def __init__(self, name):\n        self.name = name\n\n    def bark(self):\n        print(self.name, "aboie !")\n\nrex = Dog("Rex")\nrex.bark()');
+    await next();
+    await next();
+    await run('class Counter:\n    def __init__(self):\n        self.count = 0\n\n    def add(self):\n        self.count += 1\n\nc = Counter()\nc.add()\nc.add()\nc.add()\nprint(c.count)');
+    await next();
+    await next();
+
+    // Étape du dessin : un seul trait d'abord (échec explicite), puis la bonne réponse.
+    let cell = await run('import canvas\ncanvas.line(0, 0, 100, 0, "red")');
+    assert.match(await cell.locator('.cell-feedback').textContent(), /Il manque le trait bleu/);
+    assert.equal(await cell.locator('.cell-drawing canvas').getAttribute('aria-label'), 'Dessin de 1 trait(s). Couleurs : rouge.');
+
+    cell = await run('import canvas\ncanvas.line(0, 0, 100, 0, "red")\ncanvas.line(0, 0, 0, 100, "blue")');
+    assert.match(await cell.locator('.cell-feedback').textContent(), /correct/);
+    const canvas = cell.locator('.cell-drawing canvas');
+    assert.equal(await canvas.getAttribute('aria-label'), 'Dessin de 2 trait(s). Couleurs : rouge, bleu.');
+    assert.match(await cell.locator('.drawing-summary').textContent(), /2 trait/);
+    // Relancer la même cellule ne superpose pas les dessins.
+    await cell.locator('.cell-run').click();
+    await page.waitForTimeout(500);
+    assert.match(await cell.locator('.drawing-summary').textContent(), /2 trait/);
+
+    // Pixels réels : rouge à droite de l'origine (200 + 50, 200), bleu au-dessus (200, 200 - 50), blanc ailleurs.
+    const pixel = (x, y) => canvas.evaluate((node, [px, py]) => Array.from(node.getContext('2d').getImageData(px, py, 1, 1).data), [x, y]);
+    const [r1, g1, b1] = await pixel(250, 200);
+    assert.ok(r1 > 150 && g1 < 80 && b1 < 80, `rouge attendu, obtenu ${[r1, g1, b1]}`);
+    const [r2, g2, b2] = await pixel(200, 150);
+    assert.ok(b2 > 150 && r2 < 60, `bleu attendu, obtenu ${[r2, g2, b2]}`);
+    assert.deepEqual(await pixel(320, 320), [255, 255, 255, 255]);
+
+    // La liste textuelle des traits est disponible.
+    await cell.locator('.cell-drawing summary').click();
+    assert.match(await cell.locator('.drawing-list').textContent(), /De \(0, 0\) à \(100, 0\), rouge/);
+
+    // Une erreur de couleur est expliquée, sans casser l'application.
+    cell = await run('import canvas\ncanvas.line(0, 0, 10, 10, "rose")');
+    assert.match(await cell.locator('.cell-feedback').textContent(), /couleur inconnue/);
+    assert.deepEqual(errors, []);
+});
+
 test('navigation : lien direct vers un niveau, tiroirs accessibles, précédent/suivant', { skip, timeout: 120000 }, async () => {
     const page = await (await browser.newContext()).newPage();
     const errors = [];

@@ -64,7 +64,7 @@ lire en premier en reprenant une session sur ce projet.
 
 ## État d'avancement
 
-Livrables 1 à 8 du brief écrits ; l'app tourne dans Chromium (8 niveaux : 00 à 07). Détail,
+Livrables 1 à 8 du brief écrits ; l'app tourne dans Chromium (15 niveaux : 00 à 14). Détail,
 architecture du code, priorités et pièges : [CONTEXT.md](CONTEXT.md).
 
 Éditeur de niveaux (mode auteur, `app/author.html`) : voir `docs/design/08-author-editor.md`. Un nouveau

@@ -118,12 +118,15 @@
                         "var_equals",
                         "var_type_is",
                         "code_contains",
+                        "drawing_segments",
+                        "drawing_has_line",
+                        "drawing_colors",
                         "function_called_with",
                         "no_syntax_error"
                     ]
                 },
                 "value": {
-                    "description": "Valeur attendue, dont la forme dépend de 'kind' (string, regex, nom de variable + valeur...)."
+                    "description": "Valeur attendue, dont la forme dépend de 'kind' (string, regex, nom de variable + valeur...). Dessin (canvas.line) : drawing_segments '4' (exactement) ou '4+' (au moins) ; drawing_has_line '0,0 100,0' ou '0,0 100,0 red' (sens libre, tolérance 0,5) ; drawing_colors 'red,blue'."
                 },
                 "message": {
                     "$ref": "#/$defs/i18nString",

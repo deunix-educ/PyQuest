@@ -1,0 +1,344 @@
+id: 14-project
+title:
+    fr: Projet - mes dessins sauvegardés
+    en: Project - my saved drawings
+difficulty: 6
+xp: 150
+requires:
+    - 13-classes
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Dernier niveau : un vrai petit projet qui réunit tout. Ton crayon va se souvenir de ses mouvements. Tu les enregistreras dans un fichier du dossier `data/`, puis tu les rechargeras pour refaire le même dessin, même après avoir fermé la page. Trois ingrédients : une classe, des fichiers, et des fonctions."
+          en: "Last level: a real little project that brings everything together. Your pencil will remember its moves. You will save them in a file in the `data/` folder, then reload them to redraw the same picture, even after closing the page. Three ingredients: a class, files, and functions."
+    - type: code
+      starter: |
+          import math
+          import canvas
+
+
+          class Pencil:
+              def __init__(self):
+                  self.x = 0
+                  self.y = 0
+                  self.angle = 0
+                  self.moves = []
+
+              def turn(self, degrees):
+                  self.angle += degrees
+                  # À compléter : mémorise ("turn", degrees) dans self.moves
+
+              def forward(self, distance):
+                  new_x = self.x + distance * math.cos(math.radians(self.angle))
+                  new_y = self.y + distance * math.sin(math.radians(self.angle))
+                  canvas.line(self.x, self.y, new_x, new_y)
+                  self.x = new_x
+                  self.y = new_y
+                  # À compléter : mémorise ("forward", distance) dans self.moves
+
+
+          pencil = Pencil()
+          pencil.forward(100)
+          pencil.turn(90)
+          pencil.forward(50)
+          print(pencil.moves)
+      instruction:
+          fr: "Dans `turn` et `forward`, ajoute chaque mouvement à `self.moves` sous forme de tuple. Le programme doit afficher la liste des trois mouvements."
+          en: "In `turn` and `forward`, add each move to `self.moves` as a tuple. The program must show the list of the three moves."
+      tests:
+          - kind: stdout_equals
+            value: "[('forward', 100), ('turn', 90), ('forward', 50)]\n"
+            message:
+                fr: "La liste doit être [('forward', 100), ('turn', 90), ('forward', 50)]."
+                en: "The list must be [('forward', 100), ('turn', 90), ('forward', 50)]."
+          - kind: drawing_segments
+            value: "2"
+            message:
+                fr: "Le crayon doit toujours dessiner ses deux traits."
+                en: "The pencil must still draw its two lines."
+      hints:
+          fr:
+              - "Une liste se complète avec `append`. Le mouvement est un tuple : `(\"turn\", degrees)`."
+              - "Dans `turn` : `self.moves.append((\"turn\", degrees))` ; dans `forward` : `self.moves.append((\"forward\", distance))`."
+          en:
+              - "A list grows with `append`. The move is a tuple: `(\"turn\", degrees)`."
+              - "In `turn`: `self.moves.append((\"turn\", degrees))`; in `forward`: `self.moves.append((\"forward\", distance))`."
+      solution: |
+          import math
+          import canvas
+
+
+          class Pencil:
+              def __init__(self):
+                  self.x = 0
+                  self.y = 0
+                  self.angle = 0
+                  self.moves = []
+
+              def turn(self, degrees):
+                  self.angle += degrees
+                  self.moves.append(("turn", degrees))
+
+              def forward(self, distance):
+                  new_x = self.x + distance * math.cos(math.radians(self.angle))
+                  new_y = self.y + distance * math.sin(math.radians(self.angle))
+                  canvas.line(self.x, self.y, new_x, new_y)
+                  self.x = new_x
+                  self.y = new_y
+                  self.moves.append(("forward", distance))
+
+
+          pencil = Pencil()
+          pencil.forward(100)
+          pencil.turn(90)
+          pencil.forward(50)
+          print(pencil.moves)
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour sauvegarder, on écrit un mouvement par ligne dans un fichier texte, par exemple `forward 100` puis `turn 90`. Souviens-toi : seul le dossier `data/` est conservé quand tu fermes la page. Une fonction qui reçoit la liste et le chemin du fichier rend le code réutilisable."
+          en: "To save, we write one move per line in a text file, for example `forward 100` then `turn 90`. Remember: only the `data/` folder is kept when you close the page. A function that receives the list and the file path makes the code reusable."
+    - type: code
+      starter: |
+          moves = [("forward", 100), ("turn", 90), ("forward", 50)]
+
+
+          def save_moves(moves, path):
+              # Écris un mouvement par ligne : « forward 100 », « turn 90 »…
+              pass
+
+
+          save_moves(moves, "data/pattern.txt")
+          with open("data/pattern.txt") as file:
+              print(file.read(), end="")
+      instruction:
+          fr: "Complète `save_moves` : elle écrit chaque mouvement sous la forme `nom valeur` sur sa propre ligne."
+          en: "Complete `save_moves`: it writes each move as `name value` on its own line."
+      tests:
+          - kind: stdout_equals
+            value: "forward 100\nturn 90\nforward 50\n"
+            message:
+                fr: "Le fichier doit contenir forward 100, turn 90 et forward 50, un par ligne."
+                en: "The file must contain forward 100, turn 90 and forward 50, one per line."
+      hints:
+          fr:
+              - "Ouvre le fichier en écriture avec `with open(path, \"w\") as file:` puis parcours `moves`."
+              - "Pour chaque `name, value` de `moves`, écris `file.write(f\"{name} {value}\\n\")`."
+          en:
+              - "Open the file for writing with `with open(path, \"w\") as file:` then loop over `moves`."
+              - "For each `name, value` in `moves`, write `file.write(f\"{name} {value}\\n\")`."
+      solution: |
+          moves = [("forward", 100), ("turn", 90), ("forward", 50)]
+
+
+          def save_moves(moves, path):
+              with open(path, "w") as file:
+                  for name, value in moves:
+                      file.write(f"{name} {value}\n")
+
+
+          save_moves(moves, "data/pattern.txt")
+          with open("data/pattern.txt") as file:
+              print(file.read(), end="")
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour recharger, on fait l'inverse : on lit chaque ligne, on la coupe en deux avec `split`, et on convertit la valeur en nombre avec `int`. La fonction renvoie la liste des mouvements, prête à être rejouée sur un crayon neuf."
+          en: "To reload, we do the opposite: read each line, cut it in two with `split`, and convert the value to a number with `int`. The function returns the list of moves, ready to be replayed on a new pencil."
+    - type: code
+      starter: |
+          def load_moves(path):
+              # Lis le fichier et renvoie une liste de tuples (nom, valeur),
+              # comme [("forward", 100), ("turn", 90)]
+              pass
+
+
+          with open("data/pattern.txt", "w") as file:
+              file.write("forward 100\nturn 90\nforward 50\n")
+
+          print(load_moves("data/pattern.txt"))
+      instruction:
+          fr: "Complète `load_moves` : chaque ligne `nom valeur` devient un tuple `(nom, valeur)` avec la valeur convertie en entier."
+          en: "Complete `load_moves`: each `name value` line becomes a `(name, value)` tuple with the value converted to an integer."
+      tests:
+          - kind: stdout_equals
+            value: "[('forward', 100), ('turn', 90), ('forward', 50)]\n"
+            message:
+                fr: "La fonction doit renvoyer [('forward', 100), ('turn', 90), ('forward', 50)]."
+                en: "The function must return [('forward', 100), ('turn', 90), ('forward', 50)]."
+      hints:
+          fr:
+              - "Commence par `moves = []`, parcours `for line in file:` et ajoute chaque tuple avec `append`."
+              - "`name, value = line.split()` coupe la ligne ; ajoute `(name, int(value))`. N'oublie pas `return moves`."
+          en:
+              - "Start with `moves = []`, loop with `for line in file:` and add each tuple with `append`."
+              - "`name, value = line.split()` cuts the line; add `(name, int(value))`. Don't forget `return moves`."
+      solution: |
+          def load_moves(path):
+              moves = []
+              with open(path) as file:
+                  for line in file:
+                      name, value = line.split()
+                      moves.append((name, int(value)))
+              return moves
+
+
+          with open("data/pattern.txt", "w") as file:
+              file.write("forward 100\nturn 90\nforward 50\n")
+
+          print(load_moves("data/pattern.txt"))
+mission:
+    title:
+        fr: Le triangle qui revient
+        en: The triangle that comes back
+    goal:
+        fr: "Termine le projet : écris `replay(moves, pencil)`, qui applique chaque mouvement de la liste au crayon (`forward` ou `turn`). Le programme dessine un triangle bleu, le sauvegarde, efface la feuille, recharge le fichier et le redessine. À la fin, affiche « 6 mouvements rechargés » (le nombre vient de `len`) et la feuille ne doit montrer que 3 traits."
+        en: "Finish the project: write `replay(moves, pencil)`, which applies each move in the list to the pencil (`forward` or `turn`). The program draws a blue triangle, saves it, clears the sheet, reloads the file and draws it again. At the end, show \"6 mouvements rechargés\" (the number comes from `len`) and the sheet must show only 3 lines."
+    starter: |
+        import math
+        import canvas
+
+
+        class Pencil:
+            def __init__(self, color="black"):
+                self.x = 0
+                self.y = 0
+                self.angle = 0
+                self.color = color
+                self.moves = []
+
+            def turn(self, degrees):
+                self.angle += degrees
+                self.moves.append(("turn", degrees))
+
+            def forward(self, distance):
+                new_x = self.x + distance * math.cos(math.radians(self.angle))
+                new_y = self.y + distance * math.sin(math.radians(self.angle))
+                canvas.line(self.x, self.y, new_x, new_y, self.color)
+                self.x = new_x
+                self.y = new_y
+                self.moves.append(("forward", distance))
+
+
+        def save_moves(moves, path):
+            with open(path, "w") as file:
+                for name, value in moves:
+                    file.write(f"{name} {value}\n")
+
+
+        def load_moves(path):
+            moves = []
+            with open(path) as file:
+                for line in file:
+                    name, value = line.split()
+                    moves.append((name, int(value)))
+            return moves
+
+
+        def replay(moves, pencil):
+            # À compléter : pour chaque (name, value), appelle forward ou turn
+            pass
+
+
+        # 1. Dessine un triangle bleu et sauvegarde-le
+        pencil = Pencil("blue")
+        for _ in range(3):
+            pencil.forward(100)
+            pencil.turn(120)
+        save_moves(pencil.moves, "data/triangle.txt")
+
+        # 2. Efface la feuille, recharge le fichier et redessine
+        canvas.clear()
+        moves = load_moves("data/triangle.txt")
+        new_pencil = Pencil("blue")
+        # À compléter : rejoue les mouvements, puis affiche le nombre rechargé
+    tests:
+        - kind: drawing_segments
+          value: "3"
+          message:
+              fr: "La feuille doit montrer exactement 3 traits : efface-la avant de redessiner (canvas.clear) et rejoue les mouvements."
+              en: "The sheet must show exactly 3 lines: clear it before redrawing (canvas.clear) and replay the moves."
+        - kind: drawing_has_line
+          value: "0,0 100,0 blue"
+          message:
+              fr: "Le premier côté du triangle bleu doit être redessiné de (0, 0) à (100, 0)."
+              en: "The first side of the blue triangle must be redrawn from (0, 0) to (100, 0)."
+        - kind: drawing_has_line
+          value: "100,0 50,86.6 blue"
+        - kind: drawing_has_line
+          value: "50,86.6 0,0 blue"
+          message:
+              fr: "Le triangle doit se refermer sur le point de départ."
+              en: "The triangle must close back on the starting point."
+        - kind: stdout_equals
+          value: "6 mouvements rechargés\n"
+          message:
+              fr: "Il faut afficher exactement 6 mouvements rechargés."
+              en: "It must show exactly 6 mouvements rechargés."
+        - kind: code_contains
+          value: len(moves)
+          message:
+              fr: "Compte les mouvements avec len(moves)."
+              en: "Count the moves with len(moves)."
+    solution: |
+        import math
+        import canvas
+
+
+        class Pencil:
+            def __init__(self, color="black"):
+                self.x = 0
+                self.y = 0
+                self.angle = 0
+                self.color = color
+                self.moves = []
+
+            def turn(self, degrees):
+                self.angle += degrees
+                self.moves.append(("turn", degrees))
+
+            def forward(self, distance):
+                new_x = self.x + distance * math.cos(math.radians(self.angle))
+                new_y = self.y + distance * math.sin(math.radians(self.angle))
+                canvas.line(self.x, self.y, new_x, new_y, self.color)
+                self.x = new_x
+                self.y = new_y
+                self.moves.append(("forward", distance))
+
+
+        def save_moves(moves, path):
+            with open(path, "w") as file:
+                for name, value in moves:
+                    file.write(f"{name} {value}\n")
+
+
+        def load_moves(path):
+            moves = []
+            with open(path) as file:
+                for line in file:
+                    name, value = line.split()
+                    moves.append((name, int(value)))
+            return moves
+
+
+        def replay(moves, pencil):
+            for name, value in moves:
+                if name == "forward":
+                    pencil.forward(value)
+                else:
+                    pencil.turn(value)
+
+
+        pencil = Pencil("blue")
+        for _ in range(3):
+            pencil.forward(100)
+            pencil.turn(120)
+        save_moves(pencil.moves, "data/triangle.txt")
+
+        canvas.clear()
+        moves = load_moves("data/triangle.txt")
+        new_pencil = Pencil("blue")
+        replay(moves, new_pencil)
+        print(len(moves), "mouvements rechargés")
+    reward_sound: level_unlocked

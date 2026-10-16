@@ -143,5 +143,12 @@
     "lint.solution_error": "La solution plante : {type} — {message}{line}",
     "lint.solution_fails": "La solution ne passe pas ses tests : {failures}.",
     "lint.starter_passes": "Le code de départ passe déjà les tests : l'exercice serait déjà résolu.",
-    "lint.starter_error": "Le code de départ ne s'exécute pas : {type} — {message}{line}"
+    "lint.starter_error": "Le code de départ ne s'exécute pas : {type} — {message}{line}",
+    "author.kind.drawing_segments": "Dessin : nombre de traits",
+    "author.kind.drawing_segments.help": "Nombre de traits tracés par canvas.line : « 4 » (exactement) ou « 4+ » (au moins).",
+    "author.kind.drawing_has_line": "Dessin : un trait précis",
+    "author.kind.drawing_has_line.help": "Un trait entre deux points, dans un sens ou dans l'autre : « 0,0 100,0 » ou avec couleur « 0,0 100,0 red ». Tolérance 0,5.",
+    "author.kind.drawing_colors": "Dessin : couleurs utilisées",
+    "author.kind.drawing_colors.help": "Couleurs qui doivent toutes apparaître, séparées par des virgules : « red,blue ».",
+    "lint.drawing_value_invalid": "Valeur de test de dessin mal formée (voir l'aide du type de test ; couleurs : black, red, green, blue, orange, purple, gray)."
 }

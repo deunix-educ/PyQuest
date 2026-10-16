@@ -30,5 +30,5 @@ Les missions nommées dans le brief sont toutes couvertes : calculatrice de pour
 jeu du nombre mystère (05, 07), générateur de mots de passe (06, 11), mini-agenda (08–10), jeu de
 dessin (13–14).
 
-**État** : niveaux 00 à 12 écrits (voir `levels/`). Les niveaux 13 et 14 (POO et dessin) attendent un canvas de
-dessin dans le moteur — cf. `CONTEXT.md`. Le niveau 10 s'appuie sur le dossier persistant `data/` (IDBFS).
+**État** : niveaux 00 à 14 écrits (voir `levels/`). Les niveaux 13 et 14 (POO et dessin) utilisent le module `canvas`
+(voir `04-level-format.md`) ; la classe s'appelle `Pencil` (identifiants en anglais). Le niveau 10 s'appuie sur le dossier persistant `data/` (IDBFS).

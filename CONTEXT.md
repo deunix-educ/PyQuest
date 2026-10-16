@@ -107,14 +107,14 @@ Flux de contribution documenté (`CONTRIBUTING.md`, `docs/MAINTAINERS.md`, `docs
    l'éditeur, carte de progression graphique, personnage-guide aux messages variés fr/en,
    badges illustrés, feedback coloré (vert/rouge, toujours doublé d'un texte). Procéder en 3
    temps avec validation à chaque étape (propositions → CSS/éditeur → carte + personnage).
-3. **Niveaux 08 à 14** (tableau dans `docs/design/05-curriculum.md`). Méthode : écrire le YAML
-   (fr + en obligatoires), `make validate-levels`, ajouter au manifeste, parcours e2e. Niveaux **00 à 12 faits**
-   (cœur impératif + structuration + robustesse), solutions vérifiées par `make test`, narration générée.
-   Prochain : **13 et 14** (POO + dessin) : ils exigent une **fonctionnalité de moteur nouvelle**, un canvas de
-   dessin façon `turtle` (module Python `pyquest` ou similaire qui poste des commandes de dessin du worker
-   vers un canvas de l'interface, + un kind de test déclaratif pour valider le dessin). À concevoir avec
-   l'utilisateur avant de coder. Voir aussi 05-curriculum.md (13 `Crayon`, 14 motifs sauvegardés).
-3. **Navigateurs** : validé dans Chromium 155 seulement. Reste Firefox, Safari desktop et surtout
+3. ~~Niveaux 08 à 14~~ **tous faits** (00 à 14), solutions vérifiées par `make test`, narration générée. Les niveaux 13
+   (classes, `Pencil`) et 14 (projet : motifs sauvegardés dans `data/`) reposent sur le module Python `canvas`
+   (`canvas.line`, `canvas.clear`, défini dans `pyquest_runner.py`), affiché par `ui/DrawingView.js` et validé par les
+   kinds `drawing_*` (`core/drawingTests.js`). Choix : chaque exécution repart d'une feuille vierge (relancer ne
+   superpose pas), repère centré y vers le haut (-200..200), 7 couleurs nommées, valeurs de test en chaînes (éditables
+   dans l'éditeur auteur). Pas de galerie de motifs : le niveau 14 sauvegarde et recharge via `data/`.
+   `LevelChecker` repart d'un état vierge (variables + `data/`) à chaque essai.
+3. **Navigateurs** : validé dans Chromium 155 ; Firefox testé par l'utilisateur (OK, 2026-10-16). Reste Safari desktop et surtout
    **iOS Safari** (mémoire WASM, autoplay audio, `SharedArrayBuffer` + `Atomics.wait`).
 4. Icônes PNG (iOS) en plus de `app/icons/icon.svg`.
 5. ~~Client de synchronisation~~ fait (export/import fichier + sync complète, e2e avec vrai Django). Reste : QR code du jeton (dépendance), URL serveur configurable (CORS).

@@ -13,6 +13,8 @@
         { "id": "09-dicts", "requires": ["08-functions"] },
         { "id": "10-files", "requires": ["09-dicts"] },
         { "id": "11-libraries", "requires": ["10-files"] },
-        { "id": "12-errors", "requires": ["11-libraries"] }
+        { "id": "12-errors", "requires": ["11-libraries"] },
+        { "id": "13-classes", "requires": ["12-errors"] },
+        { "id": "14-project", "requires": ["13-classes"] }
     ]
 }

@@ -3,6 +3,7 @@
 
 import { el, renderInline, uniqueId } from './dom.js';
 import { CodeEditor } from './CodeEditor.js';
+import { DrawingView } from './DrawingView.js';
 import { GuideBubble } from './GuideBubble.js';
 import { HintPanel } from './HintPanel.js';
 
@@ -12,6 +13,7 @@ export class CellView extends EventTarget {
     #root;
     #editor;
     #output;
+    #drawing;
     #feedback;
     #guideSlot;
     #hintPanel;
@@ -59,6 +61,7 @@ export class CellView extends EventTarget {
         const resetButton = el('button', { type: 'button', class: 'btn', text: i18n.t('cell.reset'), onclick: () => this.reset() });
 
         this.#output = el('pre', { id: outputId, class: 'cell-output', 'aria-live': 'polite', 'aria-label': i18n.t('cell.output') });
+        this.#drawing = new DrawingView(i18n);
         this.#feedback = el('div', { class: 'cell-feedback', role: 'status' });
         this.#guideSlot = el('div', { class: 'cell-guide' });
         this.#hintPanel = new HintPanel(i18n, hints, { onReveal: () => this.dispatchEvent(new CustomEvent('hint')) });
@@ -86,6 +89,7 @@ export class CellView extends EventTarget {
             el('p', { id: `${editorId}-hint`, class: 'cell-shortcut', text: i18n.t('cell.shortcut') }),
             el('div', { class: 'cell-actions' }, this.#runButton, this.#stopButton, resetButton, this.#hintPanel.element),
             this.#output,
+            this.#drawing.element,
             this.#inputForm,
             this.#feedback,
             this.#guideSlot,
@@ -115,6 +119,7 @@ export class CellView extends EventTarget {
 
     clearOutput() {
         this.#output.textContent = '';
+        this.#drawing.clear();
         this.#feedback.replaceChildren();
         this.#guideSlot.replaceChildren();
     }
@@ -127,6 +132,11 @@ export class CellView extends EventTarget {
     /** Affiche un message du personnage-guide sous le retour de validation. */
     showGuide(message) {
         this.#guideSlot.replaceChildren(new GuideBubble(message).element);
+    }
+
+    /** Affiche le dessin produit par `canvas.line` (rien si aucun trait). */
+    showDrawing(segments) {
+        this.#drawing.render(segments ?? []);
     }
 
     appendOutput(text) {

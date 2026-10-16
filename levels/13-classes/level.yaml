@@ -1,0 +1,330 @@
+id: 13-classes
+title:
+    fr: Créer ses propres objets
+    en: Creating your own objects
+difficulty: 5
+xp: 120
+requires:
+    - 12-errors
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Jusqu'ici, tu as utilisé des objets déjà faits : une chaîne, une liste. Avec `class`, tu fabriques les tiens. Une classe est un plan de construction ; chaque objet créé avec ce plan s'appelle une instance. La méthode spéciale `__init__` prépare l'objet à sa naissance, et `self` désigne l'objet lui-même."
+          en: "So far you have used ready-made objects: a string, a list. With `class`, you build your own. A class is a blueprint; each object created from it is called an instance. The special method `__init__` prepares the object when it is born, and `self` means the object itself."
+    - type: code
+      starter: |
+          class Dog:
+              def __init__(self, name):
+                  self.name = name
+
+              def bark(self):
+                  # Affiche le nom du chien suivi de « aboie ! »
+                  pass
+
+
+          rex = Dog("Rex")
+          rex.bark()
+      instruction:
+          fr: "Complète la méthode `bark` pour qu'elle affiche Rex aboie ! (en utilisant `self.name`)."
+          en: "Complete the `bark` method so that it shows Rex aboie ! (using `self.name`)."
+      tests:
+          - kind: stdout_equals
+            value: "Rex aboie !\n"
+            message:
+                fr: "Il faut afficher exactement Rex aboie !"
+                en: "It must show exactly Rex aboie !"
+          - kind: code_contains
+            value: self.name
+            message:
+                fr: "Utilise self.name pour retrouver le nom de l'objet."
+                en: "Use self.name to get the object's name."
+      hints:
+          fr:
+              - "Dans une méthode, `self.name` donne le nom de l'objet sur lequel on appelle la méthode."
+              - "Écris `print(self.name, \"aboie !\")`."
+          en:
+              - "Inside a method, `self.name` gives the name of the object the method is called on."
+              - "Write `print(self.name, \"aboie !\")`."
+      solution: |
+          class Dog:
+              def __init__(self, name):
+                  self.name = name
+
+              def bark(self):
+                  print(self.name, "aboie !")
+
+
+          rex = Dog("Rex")
+          rex.bark()
+    - type: explain
+      voice: true
+      text:
+          fr: "Un objet garde des informations : ses attributs, comme `self.name`. Ses méthodes peuvent les lire, mais aussi les modifier. Chaque instance a ses propres valeurs : deux compteurs créés à partir de la même classe ne se mélangent pas."
+          en: "An object keeps information: its attributes, like `self.name`. Its methods can read them, but also change them. Each instance has its own values: two counters created from the same class do not mix."
+    - type: code
+      starter: |
+          class Counter:
+              def __init__(self):
+                  self.count = 0
+
+              def add(self):
+                  # Ajoute 1 au compteur
+                  pass
+
+
+          c = Counter()
+          c.add()
+          c.add()
+          c.add()
+          print(c.count)
+      instruction:
+          fr: "Complète la méthode `add` pour qu'elle augmente `self.count` de 1. Le programme doit afficher 3."
+          en: "Complete the `add` method so that it increases `self.count` by 1. The program must show 3."
+      tests:
+          - kind: stdout_equals
+            value: "3\n"
+            message:
+                fr: "Après trois appels à add, le compteur doit valoir 3."
+                en: "After three calls to add, the counter must be 3."
+          - kind: code_contains
+            value: self.count
+            message:
+                fr: "Modifie l'attribut self.count."
+                en: "Change the self.count attribute."
+      hints:
+          fr:
+              - "Une méthode modifie un attribut en lui réaffectant une valeur."
+              - "Écris `self.count += 1`."
+          en:
+              - "A method changes an attribute by assigning it a new value."
+              - "Write `self.count += 1`."
+      solution: |
+          class Counter:
+              def __init__(self):
+                  self.count = 0
+
+              def add(self):
+                  self.count += 1
+
+
+          c = Counter()
+          c.add()
+          c.add()
+          c.add()
+          print(c.count)
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour la suite, PyQuest te prête une feuille de dessin. Écris `import canvas`, puis `canvas.line(x1, y1, x2, y2, \"red\")` trace un trait du point 1 au point 2. Le point (0, 0) est au centre de la feuille, les nombres positifs vont vers la droite et vers le haut, jusqu'à 200. Les couleurs possibles sont black, red, green, blue, orange, purple et gray. Chaque exécution repart d'une feuille vierge."
+          en: "For what comes next, PyQuest lends you a drawing sheet. Write `import canvas`, then `canvas.line(x1, y1, x2, y2, \"red\")` draws a line from point 1 to point 2. The point (0, 0) is in the centre of the sheet, positive numbers go right and up, to 200. The possible colours are black, red, green, blue, orange, purple and gray. Each run starts from a blank sheet."
+    - type: code
+      starter: |
+          import canvas
+
+          # Trace un trait rouge de (0, 0) à (100, 0)
+          # puis un trait bleu de (0, 0) à (0, 100)
+      instruction:
+          fr: "Dessine un trait rouge horizontal et un trait bleu vertical, comme indiqué dans les commentaires."
+          en: "Draw a horizontal red line and a vertical blue line, as described in the comments."
+      tests:
+          - kind: drawing_has_line
+            value: "0,0 100,0 red"
+            message:
+                fr: "Il manque le trait rouge de (0, 0) à (100, 0)."
+                en: "The red line from (0, 0) to (100, 0) is missing."
+          - kind: drawing_has_line
+            value: "0,0 0,100 blue"
+            message:
+                fr: "Il manque le trait bleu de (0, 0) à (0, 100)."
+                en: "The blue line from (0, 0) to (0, 100) is missing."
+          - kind: drawing_segments
+            value: "2"
+            message:
+                fr: "Le dessin doit contenir exactement deux traits."
+                en: "The drawing must contain exactly two lines."
+      hints:
+          fr:
+              - "Un trait s'écrit `canvas.line(x1, y1, x2, y2, couleur)`, avec la couleur entre guillemets."
+              - "`canvas.line(0, 0, 100, 0, \"red\")` trace le premier trait."
+          en:
+              - "A line is written `canvas.line(x1, y1, x2, y2, colour)`, with the colour in quotes."
+              - "`canvas.line(0, 0, 100, 0, \"red\")` draws the first line."
+      solution: |
+          import canvas
+
+          canvas.line(0, 0, 100, 0, "red")
+          canvas.line(0, 0, 0, 100, "blue")
+    - type: explain
+      voice: true
+      text:
+          fr: "Maintenant, mets un objet derrière le stylo : un Pencil, un crayon qui sait où il est (`x`, `y`) et vers où il regarde (`angle`, en degrés, 0 vers la droite). La méthode `turn` change l'angle. La méthode `forward` calcule le point d'arrivée avec `math.cos` et `math.sin`, trace le trait, puis mémorise la nouvelle position."
+          en: "Now put an object behind the pen: a Pencil, a pencil that knows where it is (`x`, `y`) and where it faces (`angle`, in degrees, 0 is to the right). The `turn` method changes the angle. The `forward` method computes the end point with `math.cos` and `math.sin`, draws the line, then remembers the new position."
+    - type: code
+      starter: |
+          import math
+          import canvas
+
+
+          class Pencil:
+              def __init__(self):
+                  self.x = 0
+                  self.y = 0
+                  self.angle = 0  # en degrés ; 0 = vers la droite
+
+              def turn(self, degrees):
+                  self.angle += degrees
+
+              def forward(self, distance):
+                  # 1. Calcule le point d'arrivée : x + distance * cos(angle), y + distance * sin(angle)
+                  #    (math.radians convertit les degrés)
+                  # 2. Trace le trait de la position actuelle au point d'arrivée
+                  # 3. Mémorise le point d'arrivée comme nouvelle position
+                  pass
+
+
+          pencil = Pencil()
+          pencil.forward(100)
+          pencil.turn(90)
+          pencil.forward(50)
+      instruction:
+          fr: "Écris la méthode `forward` en suivant les trois étapes. Le dessin doit montrer un trait horizontal de 100, puis un trait vertical de 50."
+          en: "Write the `forward` method following the three steps. The drawing must show a horizontal line of 100, then a vertical line of 50."
+      tests:
+          - kind: drawing_has_line
+            value: "0,0 100,0"
+            message:
+                fr: "Le premier trait doit aller de (0, 0) à (100, 0)."
+                en: "The first line must go from (0, 0) to (100, 0)."
+          - kind: drawing_has_line
+            value: "100,0 100,50"
+            message:
+                fr: "Le second trait doit partir de (100, 0) vers le haut jusqu'à (100, 50) : mémorise la nouvelle position."
+                en: "The second line must start at (100, 0) and go up to (100, 50): remember the new position."
+          - kind: drawing_segments
+            value: "2"
+            message:
+                fr: "Le dessin doit contenir exactement deux traits."
+                en: "The drawing must contain exactly two lines."
+          - kind: code_contains
+            value: math.cos
+            message:
+                fr: "Utilise math.cos pour calculer la nouvelle abscisse."
+                en: "Use math.cos to compute the new x."
+      hints:
+          fr:
+              - "`new_x = self.x + distance * math.cos(math.radians(self.angle))`, et de même avec `math.sin` pour `new_y`."
+              - "Appelle `canvas.line(self.x, self.y, new_x, new_y)`, puis `self.x = new_x` et `self.y = new_y`."
+          en:
+              - "`new_x = self.x + distance * math.cos(math.radians(self.angle))`, and likewise with `math.sin` for `new_y`."
+              - "Call `canvas.line(self.x, self.y, new_x, new_y)`, then `self.x = new_x` and `self.y = new_y`."
+      solution: |
+          import math
+          import canvas
+
+
+          class Pencil:
+              def __init__(self):
+                  self.x = 0
+                  self.y = 0
+                  self.angle = 0
+
+              def turn(self, degrees):
+                  self.angle += degrees
+
+              def forward(self, distance):
+                  new_x = self.x + distance * math.cos(math.radians(self.angle))
+                  new_y = self.y + distance * math.sin(math.radians(self.angle))
+                  canvas.line(self.x, self.y, new_x, new_y)
+                  self.x = new_x
+                  self.y = new_y
+
+
+          pencil = Pencil()
+          pencil.forward(100)
+          pencil.turn(90)
+          pencil.forward(50)
+mission:
+    title:
+        fr: Le carré rouge
+        en: The red square
+    goal:
+        fr: "Donne une couleur au crayon : `Pencil` reçoit une `color` à sa création, la mémorise dans `self.color` et s'en sert pour tracer. Puis, avec une boucle, dessine un carré rouge de 100 de côté : avancer de 100, tourner de 90, quatre fois."
+        en: "Give the pencil a colour: `Pencil` receives a `color` when created, stores it in `self.color` and uses it to draw. Then, with a loop, draw a red square with sides of 100: move forward 100, turn 90, four times."
+    starter: |
+        import math
+        import canvas
+
+
+        class Pencil:
+            def __init__(self):
+                self.x = 0
+                self.y = 0
+                self.angle = 0
+
+            def turn(self, degrees):
+                self.angle += degrees
+
+            def forward(self, distance):
+                new_x = self.x + distance * math.cos(math.radians(self.angle))
+                new_y = self.y + distance * math.sin(math.radians(self.angle))
+                canvas.line(self.x, self.y, new_x, new_y)
+                self.x = new_x
+                self.y = new_y
+
+
+        pencil = Pencil()
+        # Dessine le carré rouge ici
+    tests:
+        - kind: drawing_segments
+          value: "4"
+          message:
+              fr: "Un carré a exactement quatre côtés."
+              en: "A square has exactly four sides."
+        - kind: drawing_has_line
+          value: "0,0 100,0 red"
+          message:
+              fr: "Le premier côté (rouge) doit aller de (0, 0) à (100, 0)."
+              en: "The first (red) side must go from (0, 0) to (100, 0)."
+        - kind: drawing_has_line
+          value: "100,0 100,100 red"
+        - kind: drawing_has_line
+          value: "100,100 0,100 red"
+        - kind: drawing_has_line
+          value: "0,100 0,0 red"
+          message:
+              fr: "Le carré doit se refermer sur le point de départ."
+              en: "The square must close back on the starting point."
+        - kind: code_contains
+          value: self.color
+          message:
+              fr: "Le crayon doit mémoriser sa couleur dans self.color."
+              en: "The pencil must store its colour in self.color."
+    solution: |
+        import math
+        import canvas
+
+
+        class Pencil:
+            def __init__(self, color):
+                self.x = 0
+                self.y = 0
+                self.angle = 0
+                self.color = color
+
+            def turn(self, degrees):
+                self.angle += degrees
+
+            def forward(self, distance):
+                new_x = self.x + distance * math.cos(math.radians(self.angle))
+                new_y = self.y + distance * math.sin(math.radians(self.angle))
+                canvas.line(self.x, self.y, new_x, new_y, self.color)
+                self.x = new_x
+                self.y = new_y
+
+
+        pencil = Pencil("red")
+        for _ in range(4):
+            pencil.forward(100)
+            pencil.turn(90)
+    reward_sound: success_big

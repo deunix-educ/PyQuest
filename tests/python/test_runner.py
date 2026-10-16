@@ -64,5 +64,38 @@ class RunnerTest(unittest.TestCase):
         self.assertIsNone(run("x = float('inf')", ["x"])["variables"]["x"]["value"])
 
 
+class CanvasTest(unittest.TestCase):
+    def setUp(self) -> None:
+        runner.reset_namespace()
+
+    def test_segments_are_returned_and_rounded(self) -> None:
+        result = run("import canvas\ncanvas.line(0, 0, 100.123456, 0, 'red')\ncanvas.line(0, 0, 0, 50)")
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["drawing"], [[0.0, 0.0, 100.12, 0.0, "red"], [0.0, 0.0, 0.0, 50.0, "black"]])
+
+    def test_each_run_starts_from_a_blank_sheet(self) -> None:
+        run("import canvas\ncanvas.line(0, 0, 1, 1)")
+        self.assertEqual(len(run("import canvas\ncanvas.line(0, 0, 2, 2)")["drawing"]), 1)
+
+    def test_clear_empties_the_drawing(self) -> None:
+        self.assertEqual(run("import canvas\ncanvas.line(0, 0, 1, 1)\ncanvas.clear()")["drawing"], [])
+
+    def test_invalid_arguments_raise_clear_errors(self) -> None:
+        self.assertEqual(run("import canvas\ncanvas.line('a', 0, 1, 1)")["error"]["type"], "TypeError")
+        self.assertEqual(run("import canvas\ncanvas.line(0, 0, 1, 1, 'pink')")["error"]["type"], "ValueError")
+        self.assertEqual(run("import canvas, math\ncanvas.line(0, 0, math.inf, 1)")["error"]["type"], "ValueError")
+        self.assertEqual(run("import canvas\ncanvas.line(True, 0, 1, 1)")["error"]["type"], "TypeError")
+
+    def test_segment_limit(self) -> None:
+        result = run("import canvas\nfor i in range(6000):\n    canvas.line(0, 0, i, 0)")
+        self.assertEqual(result["error"]["type"], "RuntimeError")
+        self.assertEqual(len(result["drawing"]), runner.CANVAS_MAX_SEGMENTS)
+
+    def test_isolated_replay_does_not_touch_learner_state(self) -> None:
+        run("import canvas\nx = 1\ncanvas.line(0, 0, 1, 1)")
+        replay = json.loads(runner.run_cell("import canvas\ncanvas.line(5, 5, 6, 6)", "[]", True))
+        self.assertEqual(replay["drawing"], [[5.0, 5.0, 6.0, 6.0, "black"]])
+
+
 if __name__ == "__main__":
     unittest.main()

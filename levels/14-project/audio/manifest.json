@@ -1,0 +1,30 @@
+{
+    "en": {
+        "26cc48e9619ce42f": {
+            "text": "Last level: a real little project that brings everything together. Your pencil will remember its moves. You will save them in a file in the data/ folder, then reload them to redraw the same picture, even after closing the page. Three ingredients: a class, files, and functions.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "b7a3b7e04d0225be": {
+            "text": "To reload, we do the opposite: read each line, cut it in two with split, and convert the value to a number with int. The function returns the list of moves, ready to be replayed on a new pencil.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "df6e85defae7c570": {
+            "text": "To save, we write one move per line in a text file, for example forward 100 then turn 90. Remember: only the data/ folder is kept when you close the page. A function that receives the list and the file path makes the code reusable.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "4177d99641662c78": {
+            "text": "Pour recharger, on fait l'inverse : on lit chaque ligne, on la coupe en deux avec split, et on convertit la valeur en nombre avec int. La fonction renvoie la liste des mouvements, prête à être rejouée sur un crayon neuf.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "6d7e943c94209ae3": {
+            "text": "Dernier niveau : un vrai petit projet qui réunit tout. Ton crayon va se souvenir de ses mouvements. Tu les enregistreras dans un fichier du dossier data/, puis tu les rechargeras pour refaire le même dessin, même après avoir fermé la page. Trois ingrédients : une classe, des fichiers, et des fonctions.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "d11efca07a83cd02": {
+            "text": "Pour sauvegarder, on écrit un mouvement par ligne dans un fichier texte, par exemple forward 100 puis turn 90. Souviens-toi : seul le dossier data/ est conservé quand tu fermes la page. Une fonction qui reçoit la liste et le chemin du fichier rend le code réutilisable.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

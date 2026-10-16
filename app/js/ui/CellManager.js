@@ -162,6 +162,8 @@ export class CellManager extends EventTarget {
             },
         });
 
+        // Même interrompu ou en erreur, le début du dessin aide à comprendre ce qui s'est passé.
+        cell.showDrawing(result.drawing);
         if (result.error) {
             cell.setBusy(false);
             cell.showError(translator.translate(result.error, i18n.lang));

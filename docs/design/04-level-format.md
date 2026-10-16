@@ -19,6 +19,9 @@ Le schéma laisse `additionalProperties: true` ; les champs ci-dessous sont la c
 | `var_equals` | `name`, `value` | variable globale égale à la valeur (`10.0` = float, `10` = int) |
 | `var_type_is` | `name`, `value` (`str`/`int`/`float`…) | type de la variable |
 | `code_contains` | `value` | sous-chaîne présente dans le code de l'apprenant (ex. `random.choice`) ; ne s'évalue pas sur un rejeu, donc sans `inputs` utile |
+| `drawing_segments` | `value` : `"4"` (exactement) ou `"4+"` (au moins) | nombre de traits tracés par `canvas.line` |
+| `drawing_has_line` | `value` : `"0,0 100,0"` ou `"0,0 100,0 red"` | un trait entre ces deux points (sens libre, tolérance 0,5), éventuellement de cette couleur |
+| `drawing_colors` | `value` : `"red,blue"` | toutes ces couleurs apparaissent dans le dessin |
 
 **`inputs` (optionnel, tout test)** : liste de saisies scriptées pour `input()`. Le test est évalué
 sur un rejeu isolé du code (copie de l'état d'avant l'exécution) ; sans `inputs`, sur l'exécution
@@ -47,3 +50,12 @@ besoin. Un niveau sans test de mission (ex. `00-intro`) se valide par un simple 
   que ça bloque la validation JSON Schema elle-même.
 - **Validation CLI** : `scripts/validate_levels.py` (à écrire, point 7/8) doit valider chaque
   `level.yaml` contre ce schéma — cible Makefile `make validate-levels`.
+
+## Dessin (module `canvas`)
+
+Le code de l'apprenant peut faire `import canvas` : `canvas.line(x1, y1, x2, y2, color)` et `canvas.clear()`.
+Repère centré (origine au milieu, y vers le haut, de -200 à 200). Couleurs : `black`, `red`, `green`, `blue`,
+`orange`, `purple`, `gray`. Chaque exécution repart d'une feuille vierge ; 5000 traits au plus. Le module est
+défini dans `app/python/pyquest_runner.py` ; le résultat d'une exécution contient `drawing` (liste de
+`[x1, y1, x2, y2, couleur]`), affiché par `ui/DrawingView.js` (canvas + description et liste en texte) et
+examiné par les kinds `drawing_*` (`core/drawingTests.js`).

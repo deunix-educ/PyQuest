@@ -1,0 +1,38 @@
+{
+    "en": {
+        "11a96b961f883329": {
+            "text": "For what comes next, PyQuest lends you a drawing sheet. Write import canvas, then canvas.line(x1, y1, x2, y2, \"red\") draws a line from point 1 to point 2. The point (0, 0) is in the centre of the sheet, positive numbers go right and up, to 200. The possible colours are black, red, green, blue, orange, purple and gray. Each run starts from a blank sheet.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "88964fb8545a1fb5": {
+            "text": "Now put an object behind the pen: a Pencil, a pencil that knows where it is (x, y) and where it faces (angle, in degrees, 0 is to the right). The turn method changes the angle. The forward method computes the end point with math.cos and math.sin, draws the line, then remembers the new position.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "d0298d50d336e794": {
+            "text": "So far you have used ready-made objects: a string, a list. With class, you build your own. A class is a blueprint; each object created from it is called an instance. The special method __init__ prepares the object when it is born, and self means the object itself.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "fd07a17a780038df": {
+            "text": "An object keeps information: its attributes, like self.name. Its methods can read them, but also change them. Each instance has its own values: two counters created from the same class do not mix.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "2292126e0728171c": {
+            "text": "Maintenant, mets un objet derrière le stylo : un Pencil, un crayon qui sait où il est (x, y) et vers où il regarde (angle, en degrés, 0 vers la droite). La méthode turn change l'angle. La méthode forward calcule le point d'arrivée avec math.cos et math.sin, trace le trait, puis mémorise la nouvelle position.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "c06a478ff2283891": {
+            "text": "Un objet garde des informations : ses attributs, comme self.name. Ses méthodes peuvent les lire, mais aussi les modifier. Chaque instance a ses propres valeurs : deux compteurs créés à partir de la même classe ne se mélangent pas.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "da2f083949fad49f": {
+            "text": "Pour la suite, PyQuest te prête une feuille de dessin. Écris import canvas, puis canvas.line(x1, y1, x2, y2, \"red\") trace un trait du point 1 au point 2. Le point (0, 0) est au centre de la feuille, les nombres positifs vont vers la droite et vers le haut, jusqu'à 200. Les couleurs possibles sont black, red, green, blue, orange, purple et gray. Chaque exécution repart d'une feuille vierge.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "e190b03895d29478": {
+            "text": "Jusqu'ici, tu as utilisé des objets déjà faits : une chaîne, une liste. Avec class, tu fabriques les tiens. Une classe est un plan de construction ; chaque objet créé avec ce plan s'appelle une instance. La méthode spéciale __init__ prépare l'objet à sa naissance, et self désigne l'objet lui-même.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

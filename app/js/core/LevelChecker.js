@@ -77,8 +77,15 @@ export class LevelChecker {
         return { exercises: summary, problems };
     }
 
+    /** Chaque essai part d'un état vierge : ni variables ni fichiers de data/ laissés par l'essai précédent. */
+    async #freshStart() {
+        await this.#client.run("import os as _os\nfor _name in _os.listdir('data'):\n    _os.remove(_os.path.join('data', _name))");
+        await this.#client.reset();
+    }
+
     /** Exécute `code` comme l'apprenant (saisies du premier test scripté), puis valide ses tests. */
     async #attempt(code, tests) {
+        await this.#freshStart();
         const queue = [...(tests.find((test) => test.inputs)?.inputs ?? [])];
         let stdout = '';
         const result = await this.#client.run(code, {

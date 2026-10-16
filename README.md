@@ -47,6 +47,14 @@ Python pour arrêter une cellule.
 
 Pyodide est servi depuis le même domaine (jamais depuis un CDN) : c'est une contrainte de COEP.
 
+### Sauvegarde et synchronisation (facultatives)
+
+L'application est autonome : la progression est stockée dans le navigateur. Dans **Réglages**, on peut
+l'exporter/importer en fichier JSON (sans serveur), ou la synchroniser entre appareils avec un jeton
+secret (sans compte) si le backend Django est déployé sur le même domaine, derrière nginx
+(`/api/` → Django, voir [nginx/pyquest.conf.example](nginx/pyquest.conf.example)). En développement :
+`make dev-sync`. Fonctionnement détaillé : [docs/design/09-sync.md](docs/design/09-sync.md).
+
 ## Contribuer
 
 Voir [CONTRIBUTING.md](CONTRIBUTING.md) (flux de contribution, ajout d'un niveau avec l'éditeur) et [docs/MAINTAINERS.md](docs/MAINTAINERS.md) (relecture, publication). `make ci` lance toute la chaîne de vérification.

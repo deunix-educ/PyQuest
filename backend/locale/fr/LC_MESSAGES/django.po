@@ -27,3 +27,7 @@ msgstr "Aucune progression enregistrée pour ce jeton."
 #: sync/views.py
 msgid "Invalid request."
 msgstr "Requête invalide."
+
+#: sync/views.py
+msgid "Progress changed on the server."
+msgstr "La progression a changé sur le serveur."

@@ -47,6 +47,14 @@ a cell.
 
 Pyodide is served from the same domain (never from a CDN): this is a COEP requirement.
 
+### Backup and sync (optional)
+
+The app is self-contained: progress is stored in the browser. In **Settings** you can export/import it
+as a JSON file (no server), or sync it across devices with a secret token (no account) when the Django
+backend is deployed on the same domain behind nginx (`/api/` → Django, see
+[nginx/pyquest.conf.example](nginx/pyquest.conf.example)). In development: `make dev-sync`.
+Details (in French): [docs/design/09-sync.md](docs/design/09-sync.md).
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) (contribution flow, adding a level with the editor) and [docs/MAINTAINERS.md](docs/MAINTAINERS.md) (review, release; in French). `make ci` runs the whole verification chain.

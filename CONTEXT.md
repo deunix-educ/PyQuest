@@ -37,7 +37,8 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Shell PWA | `app/index.html`, `app/js/main.js`, `app/service-worker.js`, `app/manifest.webmanifest` |
 | Tooling | `Makefile`, `scripts/{dev_server,validate_levels,build}.py`, `scripts/vendor_pyodide.sh` |
 | Tests | `tests/js/*.test.mjs` (node:test), `tests/python/`, `backend/sync/tests.py`, `tests/e2e/` (Chromium) |
-| Backend | `backend/` Django : `GET/PUT /api/sync/` avec jeton Bearer (haché côté serveur) |
+| Backend | `backend/` Django : `GET/PUT/DELETE /api/sync/` avec jeton Bearer (haché côté serveur), concurrence optimiste (`base` → 409) |
+| Synchronisation | `core/SyncClient.js` + section Réglages ; export/import fichier ; voir `docs/design/09-sync.md` ; `make dev-sync` |
 
 ## Éditeur de niveaux (mode auteur) — fait le 2026-10-16
 
@@ -116,7 +117,7 @@ Flux de contribution documenté (`CONTRIBUTING.md`, `docs/MAINTAINERS.md`, `docs
 3. **Navigateurs** : validé dans Chromium 155 seulement. Reste Firefox, Safari desktop et surtout
    **iOS Safari** (mémoire WASM, autoplay audio, `SharedArrayBuffer` + `Atomics.wait`).
 4. Icônes PNG (iOS) en plus de `app/icons/icon.svg`.
-5. Client de synchronisation (jeton + export/import) et son UI ; le backend existe.
+5. ~~Client de synchronisation~~ fait (export/import fichier + sync complète, e2e avec vrai Django). Reste : QR code du jeton (dépendance), URL serveur configurable (CORS).
 6. Documentation MkDocs bilingue (`docs/mkdocs/`) ; compilation des traductions Django
    (`compilemessages`, gettext absent du poste actuel).
 7. Audit accessibilité réel (lecteur d'écran, axe) ; le champ de saisie `input()` en particulier.

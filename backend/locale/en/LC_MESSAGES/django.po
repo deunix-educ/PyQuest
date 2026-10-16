@@ -27,3 +27,7 @@ msgstr ""
 #: sync/views.py
 msgid "Invalid request."
 msgstr ""
+
+#: sync/views.py
+msgid "Progress changed on the server."
+msgstr ""

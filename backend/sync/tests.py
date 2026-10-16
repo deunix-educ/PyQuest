@@ -46,3 +46,22 @@ class SyncApiTest(TestCase):
     def test_rejects_oversized_payload(self) -> None:
         big = {"payload": {"version": 1, "blob": "x" * (300 * 1024)}}
         self.assertEqual(self.put(big).status_code, 400)
+
+    def test_optimistic_concurrency(self) -> None:
+        first = self.put({"payload": PAYLOAD}).json()["updated_at"]
+        # Mise à jour avec la bonne base : acceptée.
+        second = self.put({"payload": PAYLOAD, "base": first}).json()["updated_at"]
+        # Base périmée (un autre appareil est passé entre-temps) : 409 avec l'état courant.
+        stale = self.put({"payload": {**PAYLOAD, "badges": {"x": "y"}}, "base": first})
+        self.assertEqual(stale.status_code, 409)
+        self.assertEqual(stale.json()["updated_at"], second)
+        self.assertEqual(stale.json()["payload"], PAYLOAD)
+        self.assertEqual(self.put({"payload": PAYLOAD, "base": 12}).status_code, 400)
+
+    def test_delete_erases_data(self) -> None:
+        self.put({"payload": PAYLOAD})
+        self.assertEqual(self.client.delete(URL, headers=bearer(TOKEN)).status_code, 204)
+        self.assertEqual(self.client.get(URL, headers=bearer(TOKEN)).status_code, 404)
+        # Idempotent, et exige toujours un jeton valide.
+        self.assertEqual(self.client.delete(URL, headers=bearer(TOKEN)).status_code, 204)
+        self.assertEqual(self.client.delete(URL).status_code, 401)

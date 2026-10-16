@@ -8,6 +8,7 @@ import { IndexedDbKeyValueStore, MemoryKeyValueStore } from './core/KeyValueStor
 import { ProgressStore } from './core/ProgressStore.js';
 import { PyodideWorkerClient } from './core/PyodideWorkerClient.js';
 import { SettingsStore } from './core/SettingsStore.js';
+import { SyncClient } from './core/SyncClient.js';
 import { ValidationEngine } from './core/ValidationEngine.js';
 import { VoiceEngine } from './core/VoiceEngine.js';
 import { I18n } from './i18n/i18n.js';
@@ -58,6 +59,7 @@ class App {
     #i18n;
     #settings;
     #progress;
+    #sync;
     #lessons;
     #audio;
     #voice;
@@ -88,6 +90,9 @@ class App {
 
         this.#progress = new ProgressStore(store);
         await this.#progress.load();
+        // Synchronisation facultative : l'API est sur le même domaine (nginx), sinon l'état « indisponible » s'affiche.
+        this.#sync = new SyncClient({ store, progress: this.#progress, endpoint: new URL('api/sync/', document.baseURI).href });
+        await this.#sync.load();
         this.#lessons = new LessonEngine({ levelsUrl: new URL('/levels/', location.href).href });
         this.#audio = new AudioEngine({ enabled: settings.soundEnabled, volume: settings.volume });
         this.#voice = new VoiceEngine({ enabled: settings.voiceEnabled, rate: settings.voiceRate });
@@ -120,8 +125,12 @@ class App {
             this.#goTo(event.detail.id);
         });
         this.#panel = new SettingsPanel(this.#i18n);
+        this.#panel.setSync(this.#sync.state);
         this.#panel.addEventListener('change', (event) => this.#onSettingChange(event.detail));
         this.#panel.addEventListener('test', (event) => this.#onTest(event.detail.kind));
+        this.#panel.addEventListener('sync', (event) => this.#onSync(event.detail));
+        this.#sync.addEventListener('change', (event) => this.#panel.setSync(event.detail));
+        this.#sync.addEventListener('merged', () => this.#renderMap());
         this.#panel.addEventListener('export', () => this.#exportProgress());
         this.#panel.addEventListener('import', (event) => this.#importProgress(event.detail.file));
 
@@ -142,6 +151,14 @@ class App {
         // Retour après une pause (2 jours ou plus sans activité) : accueil bienveillant, sans reproche.
         await this.#openLevel(next, { greeting: this.#isReturning() ? 'welcome_back' : 'level_start' });
         this.#registerServiceWorker();
+        // Synchronisation (si activée) : au démarrage, au retour du réseau et quand l'onglet redevient visible.
+        this.#sync.start();
+        window.addEventListener('online', () => this.#sync.sync());
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                this.#sync.sync();
+            }
+        });
     }
 
     /** Vrai si l'apprenant a déjà de l'activité mais pas depuis au moins deux jours. */
@@ -266,6 +283,40 @@ class App {
             this.#panel.focusSetting('lang');
             // Le niveau courant redémarre dans la nouvelle langue (les saisies en cours sont perdues).
             await this.#openLevel(this.#currentId);
+        }
+    }
+
+    async #onSync({ action, token }) {
+        const t = (key) => this.#i18n.t(key);
+        const say = (key) => this.#panel.setSync(this.#sync.state, key ? t(key) : '');
+        if (action === 'enable') {
+            const result = await this.#sync.enable();
+            say(result.ok ? 'sync.enabled' : '');
+        } else if (action === 'link') {
+            try {
+                const result = await this.#sync.link(token);
+                say(result.ok ? 'sync.linked' : '');
+            } catch {
+                say('sync.invalidToken');
+            }
+        } else if (action === 'now') {
+            await this.#sync.sync();
+            say('');
+        } else if (action === 'disable' || action === 'erase') {
+            const result = await this.#sync.disable({ eraseRemote: action === 'erase' });
+            if (result.ok) {
+                say(action === 'erase' ? 'sync.erased' : 'sync.disabled');
+            } else {
+                this.#panel.setSync(this.#sync.state, t(`sync.error.${result.code}`));
+            }
+        } else if (action === 'copy') {
+            try {
+                await navigator.clipboard.writeText(this.#sync.state.token);
+                say('sync.copied');
+            } catch {
+                // Pas d'API presse-papiers (http, autorisation refusée) : la copie manuelle reste possible.
+                say('sync.copyFailed');
+            }
         }
     }
 

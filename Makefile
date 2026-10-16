@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
+.PHONY: help install vendor-pyodide dev validate-levels build dev-sync test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -22,6 +22,12 @@ vendor-pyodide: ## Télécharge Pyodide (version épinglée) dans vendor/pyodide
 
 dev: ## Serveur de développement avec en-têtes COOP/COEP (PORT=8000)
 	$(PYTHON) scripts/dev_server.py --port $(PORT)
+
+dev-sync: $(VENV)/.installed ## Serveur de dev + backend Django relayé sur /api/ (synchronisation)
+	cd backend && DJANGO_SETTINGS_MODULE=pyquest_api.settings.dev ../$(VENV_PY) manage.py migrate --noinput
+	@set -e; (cd backend && DJANGO_SETTINGS_MODULE=pyquest_api.settings.dev ../$(VENV_PY) manage.py runserver 8001 --noreload) & \
+	pid=$$!; trap "kill $$pid" EXIT INT TERM; \
+	$(PYTHON) scripts/dev_server.py --port $(PORT) --api-upstream http://127.0.0.1:8001
 
 validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, traductions)
 	$(VENV_PY) scripts/validate_levels.py

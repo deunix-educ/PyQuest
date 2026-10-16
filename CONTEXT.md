@@ -63,6 +63,9 @@ Flux de contribution documenté (`CONTRIBUTING.md`, `docs/MAINTAINERS.md`, `docs
 - Synchronisation : jeton aléatoire côté client, sans compte ; fusion côté client
   (`ProgressStore.import`, mode `merge`).
 - Licence **MIT** (« PyQuest contributors ») — choisie par défaut, modifiable.
+- **Fichiers dans Pyodide** : seul le dossier `data/` (monté sur IndexedDB via IDBFS dans le worker) survit
+  au rechargement ; le reste du système de fichiers est en mémoire. Le niveau 10 l'enseigne. Les tests sous
+  Node n'ont pas IndexedDB : `data/` y est un dossier mémoire (suffisant pour valider les solutions).
 - Langue des commits/identifiants : anglais ; commentaires : français ; 4 espaces.
 
 ## À faire — priorités pour la prochaine session
@@ -104,8 +107,12 @@ Flux de contribution documenté (`CONTRIBUTING.md`, `docs/MAINTAINERS.md`, `docs
    badges illustrés, feedback coloré (vert/rouge, toujours doublé d'un texte). Procéder en 3
    temps avec validation à chaque étape (propositions → CSS/éditeur → carte + personnage).
 3. **Niveaux 08 à 14** (tableau dans `docs/design/05-curriculum.md`). Méthode : écrire le YAML
-   (fr + en obligatoires), `make validate-levels`, ajouter au manifeste, parcours e2e. Niveaux **00 à 07 faits**
-   (cœur impératif). Prochain : **08 Découper en fonctions** (après la phase de design, voir 2).
+   (fr + en obligatoires), `make validate-levels`, ajouter au manifeste, parcours e2e. Niveaux **00 à 12 faits**
+   (cœur impératif + structuration + robustesse), solutions vérifiées par `make test`, narration générée.
+   Prochain : **13 et 14** (POO + dessin) : ils exigent une **fonctionnalité de moteur nouvelle**, un canvas de
+   dessin façon `turtle` (module Python `pyquest` ou similaire qui poste des commandes de dessin du worker
+   vers un canvas de l'interface, + un kind de test déclaratif pour valider le dessin). À concevoir avec
+   l'utilisateur avant de coder. Voir aussi 05-curriculum.md (13 `Crayon`, 14 motifs sauvegardés).
 3. **Navigateurs** : validé dans Chromium 155 seulement. Reste Firefox, Safari desktop et surtout
    **iOS Safari** (mémoire WASM, autoplay audio, `SharedArrayBuffer` + `Atomics.wait`).
 4. Icônes PNG (iOS) en plus de `app/icons/icon.svg`.

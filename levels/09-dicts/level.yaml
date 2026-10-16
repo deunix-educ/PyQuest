@@ -1,0 +1,242 @@
+id: 09-dicts
+title:
+    fr: Structurer les données
+    en: Structuring data
+difficulty: 3
+xp: 90
+requires:
+    - 08-functions
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Un dictionnaire range des valeurs étiquetées par des clés, entre accolades : `person = {\"name\": \"Alice\", \"age\": 30}`. On lit une valeur avec sa clé : `person[\"name\"]` vaut \"Alice\"."
+          en: "A dictionary stores values labelled by keys, between curly braces: `person = {\"name\": \"Alice\", \"age\": 30}`. We read a value with its key: `person[\"name\"]` is \"Alice\"."
+    - type: code
+      starter: |
+          person = {"name": "Alice", "age": 30}
+          print(person["name"])
+      instruction:
+          fr: "Affiche la phrase Alice a 30 ans en utilisant les deux clés du dictionnaire."
+          en: "Show the sentence Alice a 30 ans using both keys of the dictionary."
+      tests:
+          - kind: stdout_equals
+            value: "Alice a 30 ans\n"
+          - kind: code_contains
+            value: person["age"]
+            message:
+                fr: Lis l'âge avec person["age"] au lieu de l'écrire à la main.
+                en: Read the age with person["age"] instead of typing it by hand.
+      hints:
+          fr:
+              - "Mets plusieurs valeurs dans `print`, séparées par des virgules."
+              - "`print(person[\"name\"], \"a\", person[\"age\"], \"ans\")`"
+          en:
+              - "Put several values in `print`, separated by commas."
+              - "`print(person[\"name\"], \"a\", person[\"age\"], \"ans\")`"
+      solution: |
+          person = {"name": "Alice", "age": 30}
+          print(person["name"], "a", person["age"], "ans")
+    - type: explain
+      voice: true
+      text:
+          fr: "On ajoute ou on change une valeur en l'affectant à sa clé : `person[\"city\"] = \"Lyon\"`. Pour tester qu'une clé existe, on écrit `\"city\" in person`."
+          en: "We add or change a value by assigning it to its key: `person[\"city\"] = \"Lyon\"`. To test that a key exists, we write `\"city\" in person`."
+    - type: code
+      starter: |
+          person = {"name": "Alice"}
+          print(person["name"])
+      instruction:
+          fr: Ajoute la clé city avec la valeur Lyon au dictionnaire, puis affiche la ville.
+          en: Add the key city with the value Lyon to the dictionary, then show the city.
+      tests:
+          - kind: stdout_equals
+            value: "Lyon\n"
+      hints:
+          fr:
+              - "Une ligne pour ajouter la clé, une autre pour l'afficher."
+              - "`person[\"city\"] = \"Lyon\"` puis `print(person[\"city\"])`."
+          en:
+              - "One line to add the key, another to show it."
+              - "`person[\"city\"] = \"Lyon\"` then `print(person[\"city\"])`."
+      solution: |
+          person = {"name": "Alice"}
+          person["city"] = "Lyon"
+          print(person["city"])
+    - type: explain
+      voice: true
+      text:
+          fr: "Une liste peut contenir des dictionnaires : c'est ainsi qu'on représente plusieurs éléments qui ont chacun plusieurs informations, comme des rendez-vous. On les parcourt avec `for`, et chaque élément est un dictionnaire."
+          en: "A list can contain dictionaries: this is how we represent several items that each have several pieces of information, like appointments. We go through them with `for`, and each item is a dictionary."
+    - type: code
+      starter: |
+          agenda = [
+              {"time": "10h", "title": "Dentiste"},
+              {"time": "20h", "title": "Cinéma"},
+          ]
+          for item in agenda:
+              print(item)
+      instruction:
+          fr: "Change le `print` pour afficher une ligne par rendez-vous sous la forme 10h - Dentiste."
+          en: "Change the `print` to show one line per appointment, as 10h - Dentiste."
+      tests:
+          - kind: stdout_equals
+            value: "10h - Dentiste\n20h - Cinéma\n"
+      hints:
+          fr:
+              - "Lis chaque information avec sa clé : `item[\"time\"]` et `item[\"title\"]`."
+              - "`print(item[\"time\"], \"-\", item[\"title\"])`"
+          en:
+              - "Read each piece of information with its key: `item[\"time\"]` and `item[\"title\"]`."
+              - "`print(item[\"time\"], \"-\", item[\"title\"])`"
+      solution: |
+          agenda = [
+              {"time": "10h", "title": "Dentiste"},
+              {"time": "20h", "title": "Cinéma"},
+          ]
+          for item in agenda:
+              print(item["time"], "-", item["title"])
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour chercher, on parcourt la liste et on garde les éléments qui conviennent. `\"ne\" in \"Cinéma\"` vaut True si le texte contient ces lettres. On range les éléments trouvés dans une nouvelle liste, que la fonction renvoie."
+          en: "To search, we go through the list and keep the items that match. `\"ne\" in \"Cinéma\"` is True if the text contains those letters. We put the items found in a new list, which the function returns."
+    - type: code
+      starter: |
+          agenda = [
+              {"time": "10h", "title": "Dentiste"},
+              {"time": "19h", "title": "Dîner"},
+              {"time": "20h", "title": "Cinéma"},
+          ]
+
+          def search(agenda, word):
+              results = []
+              return results
+
+          for item in search(agenda, input("Mot cherché ? ")):
+              print(item["time"], item["title"])
+      instruction:
+          fr: Complète `search()` pour qu'elle renvoie les rendez-vous dont le titre contient le mot cherché.
+          en: Complete `search()` so that it returns the appointments whose title contains the word searched.
+      tests:
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*10h Dentiste\\n$"
+            inputs:
+                - Dent
+            message:
+                fr: "Avec Dent, il faut afficher seulement 10h Dentiste."
+                en: "With Dent, it must show only 10h Dentiste."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*10h Dentiste\\n19h Dîner\\n$"
+            inputs:
+                - e
+            message:
+                fr: "Avec e, il faut afficher 10h Dentiste puis 19h Dîner (Cinéma n'a pas de e sans accent)."
+                en: "With e, it must show 10h Dentiste then 19h Dîner (Cinéma has no unaccented e)."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*$"
+            inputs:
+                - zzz
+            message:
+                fr: "Avec zzz, rien ne doit être affiché en dehors de la question."
+                en: "With zzz, nothing must be shown apart from the question."
+      hints:
+          fr:
+              - "Dans une boucle sur `agenda`, teste `word in item[\"title\"]`."
+              - "Si le test est vrai, `results.append(item)`."
+          en:
+              - "In a loop over `agenda`, test `word in item[\"title\"]`."
+              - "If the test is true, `results.append(item)`."
+      solution: |
+          agenda = [
+              {"time": "10h", "title": "Dentiste"},
+              {"time": "19h", "title": "Dîner"},
+              {"time": "20h", "title": "Cinéma"},
+          ]
+
+          def search(agenda, word):
+              results = []
+              for item in agenda:
+                  if word in item["title"]:
+                      results.append(item)
+              return results
+
+          for item in search(agenda, input("Mot cherché ? ")):
+              print(item["time"], item["title"])
+mission:
+    title:
+        fr: Mini-agenda, version 2
+        en: Mini agenda, version 2
+    goal:
+        fr: "Chaque rendez-vous est un dictionnaire avec `time` et `title`. Complète `add_appointment`, `show_agenda` (une ligne « 10h | Dentiste » par rendez-vous, comme un tableau) et `search`."
+        en: "Each appointment is a dictionary with `time` and `title`. Complete `add_appointment`, `show_agenda` (one line \"10h | Dentiste\" per appointment, like a table) and `search`."
+    starter: |
+        agenda = []
+
+        def add_appointment(agenda, time, title):
+            # Ajoute le dictionnaire {"time": ..., "title": ...} à la liste agenda
+            pass
+
+        def show_agenda(agenda):
+            # Affiche une ligne par rendez-vous : "10h | Dentiste"
+            pass
+
+        def search(agenda, word):
+            # Renvoie la liste des rendez-vous dont le titre contient word
+            return []
+
+        add_appointment(agenda, "10h", "Dentiste")
+        add_appointment(agenda, "20h", "Cinéma")
+        add_appointment(agenda, "19h", "Dîner")
+        show_agenda(agenda)
+        found = search(agenda, input("Mot cherché ? "))
+        show_agenda(found)
+    tests:
+        - kind: stdout_matches_regex
+          value: "^10h \\| Dentiste\\n20h \\| Cinéma\\n19h \\| Dîner\\n[^\\n]*10h \\| Dentiste\\n19h \\| Dîner\\n$"
+          inputs:
+              - e
+          message:
+              fr: "Le tableau complet doit s'afficher, puis les résultats de la recherche (avec e : Dentiste et Dîner)."
+              en: "The full table must be shown, then the search results (with e: Dentiste and Dîner)."
+        - kind: stdout_matches_regex
+          value: "^10h \\| Dentiste\\n20h \\| Cinéma\\n19h \\| Dîner\\n[^\\n]*$"
+          inputs:
+              - zzz
+          message:
+              fr: "Sans résultat, seul le tableau complet et la question doivent apparaître."
+              en: "With no result, only the full table and the question must appear."
+        - kind: var_type_is
+          name: found
+          value: list
+          inputs:
+              - e
+        - kind: code_contains
+          value: .append(
+          message:
+              fr: Utilise append pour ajouter à une liste.
+              en: Use append to add to a list.
+    solution: |
+        agenda = []
+
+        def add_appointment(agenda, time, title):
+            agenda.append({"time": time, "title": title})
+
+        def show_agenda(agenda):
+            for item in agenda:
+                print(item["time"], "|", item["title"])
+
+        def search(agenda, word):
+            results = []
+            for item in agenda:
+                if word in item["title"]:
+                    results.append(item)
+            return results
+
+        add_appointment(agenda, "10h", "Dentiste")
+        add_appointment(agenda, "20h", "Cinéma")
+        add_appointment(agenda, "19h", "Dîner")
+        show_agenda(agenda)
+        found = search(agenda, input("Mot cherché ? "))
+        show_agenda(found)
+    reward_sound: success_small

@@ -8,6 +8,11 @@
         { "id": "04-math", "requires": ["03-input"] },
         { "id": "05-decide", "requires": ["04-math"] },
         { "id": "06-lists", "requires": ["05-decide"] },
-        { "id": "07-while", "requires": ["06-lists"] }
+        { "id": "07-while", "requires": ["06-lists"] },
+        { "id": "08-functions", "requires": ["07-while"] },
+        { "id": "09-dicts", "requires": ["08-functions"] },
+        { "id": "10-files", "requires": ["09-dicts"] },
+        { "id": "11-libraries", "requires": ["10-files"] },
+        { "id": "12-errors", "requires": ["11-libraries"] }
     ]
 }

@@ -1,0 +1,38 @@
+{
+    "en": {
+        "194cbc856adc7b66": {
+            "text": "We add or change a value by assigning it to its key: person[\"city\"] = \"Lyon\". To test that a key exists, we write \"city\" in person.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "2929b052778dc2ce": {
+            "text": "A dictionary stores values labelled by keys, between curly braces: person = {\"name\": \"Alice\", \"age\": 30}. We read a value with its key: person[\"name\"] is \"Alice\".",
+            "voice": "en_US-ljspeech-high"
+        },
+        "71f943a3c23717e7": {
+            "text": "To search, we go through the list and keep the items that match. \"ne\" in \"Cinéma\" is True if the text contains those letters. We put the items found in a new list, which the function returns.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "b5064341e6e80bce": {
+            "text": "A list can contain dictionaries: this is how we represent several items that each have several pieces of information, like appointments. We go through them with for, and each item is a dictionary.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "2777d138555c3364": {
+            "text": "Une liste peut contenir des dictionnaires : c'est ainsi qu'on représente plusieurs éléments qui ont chacun plusieurs informations, comme des rendez-vous. On les parcourt avec for, et chaque élément est un dictionnaire.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "3f651fd011a8ad28": {
+            "text": "Pour chercher, on parcourt la liste et on garde les éléments qui conviennent. \"ne\" in \"Cinéma\" vaut True si le texte contient ces lettres. On range les éléments trouvés dans une nouvelle liste, que la fonction renvoie.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "76260487fed47abc": {
+            "text": "Un dictionnaire range des valeurs étiquetées par des clés, entre accolades : person = {\"name\": \"Alice\", \"age\": 30}. On lit une valeur avec sa clé : person[\"name\"] vaut \"Alice\".",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "f908dede13643d48": {
+            "text": "On ajoute ou on change une valeur en l'affectant à sa clé : person[\"city\"] = \"Lyon\". Pour tester qu'une clé existe, on écrit \"city\" in person.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

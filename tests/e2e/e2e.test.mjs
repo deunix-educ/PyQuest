@@ -259,15 +259,15 @@ test('navigation : lien direct vers un niveau, tiroirs accessibles, précédent/
     // Lien direct vers le niveau 05.
     await page.goto(`${base}#/levels/05-decide`);
     await page.waitForSelector('.explain', { timeout: 60000 });
-    assert.match(await page.textContent('#level-current'), /Niveau 6 sur 8 · Décider/);
+    assert.match(await page.textContent('#level-current'), /Niveau 6 sur \d+ · Décider/);
     assert.match(await page.textContent('.notebook-status'), /Étape 1 sur/);
 
     // Précédent / suivant changent de niveau et l'URL ; le bouton retour du navigateur revient.
     await page.locator('#level-next').click();
-    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 7 sur 8'));
+    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 7 sur '));
     assert.equal(new URL(page.url()).hash, '#/levels/06-lists');
     await page.goBack();
-    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 6 sur 8'));
+    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 6 sur '));
 
     // Tiroir « Niveaux » : le reste de la page devient inerte, Échap ferme et rend le focus au bouton.
     const toggle = page.locator('#levels-toggle');
@@ -276,7 +276,7 @@ test('navigation : lien direct vers un niveau, tiroirs accessibles, précédent/
     assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
     assert.equal(await page.locator('#app-root').getAttribute('inert'), '');
     assert.match(await page.textContent('.drawer-left .drawer-title'), /Ta progression/);
-    assert.match(await page.textContent('.progress-count'), /0 niveau\(x\) terminé\(s\) sur 8/);
+    assert.match(await page.textContent('.progress-count'), /0 niveau\(x\) terminé\(s\) sur \d+/);
     await page.keyboard.press('Escape');
     await page.locator('.drawer-left.is-open').waitFor({ state: 'hidden' });
     assert.equal(await page.locator('#app-root').getAttribute('inert'), null);
@@ -292,7 +292,7 @@ test('navigation : lien direct vers un niveau, tiroirs accessibles, précédent/
 
     // Choisir un niveau dans le tiroir le ferme et l'ouvre.
     await openLevelFromDrawer(page, 'Calculer');
-    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 5 sur 8'));
+    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 5 sur '));
     assert.equal(await page.locator('.drawer-left.is-open').count(), 0);
     assert.deepEqual(errors, []);
 });
@@ -494,5 +494,33 @@ test('éditeur de niveaux (mode auteur) : écrire un niveau, le vérifier, l\'es
     await page.locator('#author-lang').selectOption('en');
     await page.getByRole('button', { name: 'Add a code exercise' }).waitFor();
     assert.equal(await field('steps.1.solution').inputValue(), 'print("b")');
+    assert.deepEqual(errors, []);
+});
+
+test('fichiers : le dossier data/ survit au rechargement, le reste non', { skip, timeout: 120000 }, async () => {
+    const page = await (await browser.newContext()).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    const open = async () => {
+        await page.goto(`${base}#/levels/01-hello`);
+        await page.waitForSelector('.explain', { timeout: 60000 });
+        await page.locator('.notebook-action button').click();
+        await page.waitForSelector('.cell');
+    };
+    const run = async (code) => {
+        await page.locator('.cell textarea').fill(code);
+        await page.locator('.cell-run').click();
+        await page.waitForFunction(() => document.querySelector('.cell:last-of-type')?.getAttribute('aria-busy') !== 'true');
+        await page.waitForTimeout(200);
+        return page.locator('.cell-output').textContent();
+    };
+
+    await open();
+    assert.equal(await run('with open("data/memo.txt", "w") as f:\n    f.write("persistant")\nopen("hors.txt", "w").write("x")\nprint("écrit")'), 'écrit\n');
+    await page.reload(); // nouvelle session : la mémoire de Python est neuve
+    await page.waitForSelector('.explain', { timeout: 60000 });
+    await page.locator('.notebook-action button').click();
+    await page.waitForSelector('.cell');
+    assert.equal(await run('import os\nprint(os.path.exists("data/memo.txt"), os.path.exists("hors.txt"))\nprint(open("data/memo.txt").read())'), 'True False\npersistant\n');
     assert.deepEqual(errors, []);
 });

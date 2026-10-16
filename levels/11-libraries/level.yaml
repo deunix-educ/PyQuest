@@ -1,0 +1,200 @@
+id: 11-libraries
+title:
+    fr: Utiliser des bibliothèques
+    en: Using libraries
+difficulty: 4
+xp: 80
+requires:
+    - 10-files
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Python vient avec une grande boîte à outils : les modules. On en charge un avec `import`, puis on utilise ses outils avec un point : `math.sqrt(16)` calcule la racine carrée. Pas besoin de tout réécrire !"
+          en: "Python comes with a big toolbox: modules. We load one with `import`, then use its tools with a dot: `math.sqrt(16)` computes the square root. No need to rewrite everything!"
+    - type: code
+      starter: |
+          import math
+
+          print(math.sqrt(16))
+      instruction:
+          fr: Affiche la racine carrée de 81.
+          en: Show the square root of 81.
+      tests:
+          - kind: stdout_equals
+            value: "9.0\n"
+          - kind: code_contains
+            value: math.sqrt
+            message:
+                fr: Utilise math.sqrt.
+                en: Use math.sqrt.
+      hints:
+          fr:
+              - "Change le nombre donné à `math.sqrt`."
+          en:
+              - "Change the number given to `math.sqrt`."
+      solution: |
+          import math
+
+          print(math.sqrt(81))
+    - type: explain
+      voice: true
+      text:
+          fr: "Le module `string` contient des listes de caractères toutes prêtes : `string.ascii_lowercase` (les lettres minuscules) et `string.digits` (les chiffres). On peut les coller avec `+`. Et `\"\".join(liste)` colle les éléments d'une liste de lettres en un seul texte."
+          en: "The `string` module holds ready-made lists of characters: `string.ascii_lowercase` (lowercase letters) and `string.digits` (the digits). We can glue them with `+`. And `\"\".join(list)` glues the items of a list of letters into a single text."
+    - type: code
+      starter: |
+          import string
+
+          letters = string.ascii_lowercase
+          print(len(letters))
+      instruction:
+          fr: "Combien de caractères différents a-t-on en combinant les lettres minuscules et les chiffres ? Affiche-le avec `len()`."
+          en: "How many different characters do we have by combining lowercase letters and digits? Show it with `len()`."
+      tests:
+          - kind: stdout_equals
+            value: "36\n"
+          - kind: code_contains
+            value: string.digits
+            message:
+                fr: Utilise string.digits.
+                en: Use string.digits.
+      hints:
+          fr:
+              - "Colle les deux avec `+` avant de compter."
+              - "`letters = string.ascii_lowercase + string.digits`"
+          en:
+              - "Glue the two with `+` before counting."
+              - "`letters = string.ascii_lowercase + string.digits`"
+      solution: |
+          import string
+
+          letters = string.ascii_lowercase + string.digits
+          print(len(letters))
+    - type: explain
+      voice: true
+      text:
+          fr: "Le module `random` sait aussi mélanger : `random.shuffle(liste)` change l'ordre d'une liste, sur place. Et `random.choice(texte)` tire un caractère au hasard dans un texte."
+          en: "The `random` module can also shuffle: `random.shuffle(list)` changes the order of a list, in place. And `random.choice(text)` picks one character at random from a text."
+    - type: code
+      starter: |
+          import random
+
+          letters = ["a", "b", "c", "d"]
+          print("".join(letters))
+      instruction:
+          fr: Mélange la liste avec `random.shuffle` avant de l'afficher. Relance plusieurs fois pour voir l'ordre changer.
+          en: Shuffle the list with `random.shuffle` before showing it. Run it several times to see the order change.
+      tests:
+          - kind: code_contains
+            value: random.shuffle
+            message:
+                fr: Utilise random.shuffle(letters).
+                en: Use random.shuffle(letters).
+          - kind: stdout_matches_regex
+            value: "^(?!.*(.).*\\1)[abcd]{4}\\n$"
+            message:
+                fr: Il faut afficher les quatre lettres a, b, c, d, chacune une seule fois.
+                en: The four letters a, b, c, d must be shown, each exactly once.
+      hints:
+          fr:
+              - "`random.shuffle(letters)` ne renvoie rien : il modifie la liste."
+              - "Appelle-le sur sa propre ligne, avant le `print`."
+          en:
+              - "`random.shuffle(letters)` returns nothing: it changes the list."
+              - "Call it on its own line, before the `print`."
+      solution: |
+          import random
+
+          letters = ["a", "b", "c", "d"]
+          random.shuffle(letters)
+          print("".join(letters))
+    - type: explain
+      voice: true
+      text:
+          fr: "Dernier outil : `datetime`. Avec `from datetime import date`, `date(1789, 7, 14)` crée une date, et on lit ses morceaux avec `.year`, `.month` et `.day`. `date.today()` donne la date d'aujourd'hui."
+          en: "One last tool: `datetime`. With `from datetime import date`, `date(1789, 7, 14)` creates a date, and we read its parts with `.year`, `.month` and `.day`. `date.today()` gives today's date."
+    - type: code
+      starter: |
+          from datetime import date
+
+          day = date(2000, 1, 1)
+          print(day.year)
+      instruction:
+          fr: Crée la date du 14 juillet 1789 et affiche son mois.
+          en: Create the date of 14 July 1789 and show its month.
+      tests:
+          - kind: stdout_equals
+            value: "7\n"
+          - kind: code_contains
+            value: .month
+            message:
+                fr: Lis le mois avec .month.
+                en: Read the month with .month.
+      hints:
+          fr:
+              - "Les trois nombres de `date()` sont l'année, le mois et le jour."
+              - "`day = date(1789, 7, 14)` puis `print(day.month)`."
+          en:
+              - "The three numbers of `date()` are the year, the month and the day."
+              - "`day = date(1789, 7, 14)` then `print(day.month)`."
+      solution: |
+          from datetime import date
+
+          day = date(1789, 7, 14)
+          print(day.month)
+mission:
+    title:
+        fr: Générateur de mots de passe, version 2
+        en: Password generator, version 2
+    goal:
+        fr: "Demande la longueur avec `int(input())` (sans texte de question), puis affiche un mot de passe de cette longueur qui contient au moins une minuscule, une majuscule et un chiffre. Garantis-le : tire une lettre de chaque sorte, complète avec des caractères au hasard, puis mélange."
+        en: "Ask for the length with `int(input())` (without question text), then show a password of that length that contains at least one lowercase letter, one uppercase letter and one digit. Guarantee it: pick one character of each kind, fill up with random characters, then shuffle."
+    starter: |
+        import random
+        import string
+
+        length = int(input())
+        password = []
+        # Ajoute une minuscule, une majuscule et un chiffre, complète jusqu'à length, mélange
+        print("".join(password))
+    tests:
+        - kind: stdout_matches_regex
+          value: "^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{12}\\n$"
+          inputs:
+              - "12"
+          message:
+              fr: "Avec 12, il faut afficher 12 caractères (lettres et chiffres) avec au moins une minuscule, une majuscule et un chiffre."
+              en: "With 12, it must show 12 characters (letters and digits) with at least one lowercase, one uppercase and one digit."
+        - kind: stdout_matches_regex
+          value: "^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{20}\\n$"
+          inputs:
+              - "20"
+        - kind: stdout_matches_regex
+          value: "^(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])[A-Za-z0-9]{3}\\n$"
+          inputs:
+              - "3"
+          message:
+              fr: "Même avec 3, les trois sortes de caractères doivent être présentes."
+              en: "Even with 3, all three kinds of characters must be present."
+        - kind: code_contains
+          value: random.shuffle
+          message:
+              fr: Mélange le mot de passe avec random.shuffle.
+              en: Shuffle the password with random.shuffle.
+    solution: |
+        import random
+        import string
+
+        length = int(input())
+        password = [
+            random.choice(string.ascii_lowercase),
+            random.choice(string.ascii_uppercase),
+            random.choice(string.digits),
+        ]
+        pool = string.ascii_letters + string.digits
+        while len(password) < length:
+            password.append(random.choice(pool))
+        random.shuffle(password)
+        print("".join(password))
+    reward_sound: success_small

@@ -19,6 +19,9 @@
 // Saisie (input) : le worker est bloqué dans Python pendant input(), il ne peut donc pas lire de
 // message. Le client répond via un SharedArrayBuffer : Int32[0] = état (0 attente, 1 réponse,
 // 2 fin de saisie/EOF), Int32[1] = longueur en octets, puis le texte UTF-8 à partir de l'octet 8.
+// Dossier de sauvegarde de l'apprenant (relatif au dossier de travail de Python) : persiste d'une session à
+// l'autre grâce à IndexedDB (IDBFS). Le reste du système de fichiers est en mémoire et disparaît au rechargement.
+const DATA_DIR = '/home/pyodide/data';
 const SIGINT = 2;
 const INPUT_WAIT_SLICE_MS = 50;
 const INPUT_HEADER_BYTES = 8;
@@ -28,6 +31,7 @@ class PythonWorker {
     #pyodide = null;
     #runner = null;
     #interruptView = null;
+    #persistent = false; // vrai si data/ est monté sur IndexedDB
     #inputControl = null;
     #inputData = null;
     #currentId = null;
@@ -69,6 +73,7 @@ class PythonWorker {
             this.#pyodide.FS.writeFile('/pyquest/pyquest_runner.py', source);
             this.#pyodide.runPython("import sys; sys.path.insert(0, '/pyquest')");
             this.#runner = this.#pyodide.pyimport('pyquest_runner');
+            await this.#mountDataDir();
 
             // Sans SharedArrayBuffer, pas de saisie : input() lève EOFError (comportement par défaut).
             if (inputBuffer instanceof SharedArrayBuffer) {
@@ -103,6 +108,28 @@ class PythonWorker {
     }
 
     #decoders = { stdout: new TextDecoder(), stderr: new TextDecoder() };
+
+    /** Crée data/ et, si IndexedDB est disponible, le monte pour que son contenu survive aux sessions. */
+    async #mountDataDir() {
+        const { FS } = this.#pyodide;
+        FS.mkdirTree(DATA_DIR);
+        // Hors navigateur (tests sous Node) ou si IndexedDB est refusé : data/ reste un dossier en mémoire.
+        if (typeof indexedDB === 'undefined' || !FS.filesystems?.IDBFS) {
+            return;
+        }
+        try {
+            FS.mount(FS.filesystems.IDBFS, {}, DATA_DIR);
+            await this.#syncFs(true); // charge le contenu déjà sauvegardé
+            this.#persistent = true;
+        } catch {
+            this.#persistent = false;
+        }
+    }
+
+    /** Synchronise data/ avec IndexedDB (populate = true : IndexedDB → mémoire ; false : mémoire → IndexedDB). */
+    #syncFs(populate) {
+        return new Promise((resolve, reject) => this.#pyodide.FS.syncfs(populate, (error) => (error ? reject(error) : resolve())));
+    }
 
     /** Bloque jusqu'à la réponse de l'apprenant. Renvoie le JSON attendu par pyquest_runner. */
     #requestInput(prompt) {
@@ -143,6 +170,10 @@ class PythonWorker {
         }
         try {
             const raw = this.#runner.run_cell(code, JSON.stringify(collect), isolated);
+            // Les fichiers écrits dans data/ sont sauvegardés avant de rendre la main (un rechargement immédiat les garde).
+            if (this.#persistent) {
+                await this.#syncFs(false).catch(() => {});
+            }
             self.postMessage({ type: 'result', id, ...JSON.parse(raw) });
         } catch (error) {
             // Erreur hors du code de l'apprenant (bug du runner ou de Pyodide).

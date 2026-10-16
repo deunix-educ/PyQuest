@@ -1,0 +1,30 @@
+{
+    "en": {
+        "0b31ad7aad82d0c3": {
+            "text": "An error stops the program, but we can plan for it. With try, we attempt some code; with except, we say what to do if a specific error happens. The program carries on instead of crashing.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "138a92b691cd17b1": {
+            "text": "We can plan for several errors with several except blocks, each for a specific error. It is better to name the expected error than to catch everything: otherwise we also hide real bugs. For example, dividing by zero raises ZeroDivisionError.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "229531dd1cfbce9d": {
+            "text": "A robust program asks again as long as the input is invalid. We combine while True:, try and break: we try to convert, we leave the loop if it works, and we show a message if it fails.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "2a54bbd63acd06bb": {
+            "text": "Une erreur arrête le programme, mais on peut la prévoir. Avec try, on essaie du code ; avec except, on dit quoi faire si une erreur précise se produit. Le programme continue au lieu de planter.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "3c4ae2941dd9524b": {
+            "text": "On peut prévoir plusieurs erreurs avec plusieurs except, chacun pour une erreur précise. Il vaut mieux nommer l'erreur attendue que tout attraper : sinon on cache aussi les vrais bugs. Par exemple, diviser par zéro lève ZeroDivisionError.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "bedd252b7fa29e83": {
+            "text": "Un programme robuste redemande tant que la saisie est invalide. On combine while True:, try et break : on essaie de convertir, on sort de la boucle si ça marche, et on affiche un message si ça échoue.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

@@ -1,0 +1,222 @@
+id: 12-errors
+title:
+    fr: Gérer les erreurs
+    en: Handling errors
+difficulty: 4
+xp: 80
+requires:
+    - 11-libraries
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Une erreur arrête le programme, mais on peut la prévoir. Avec `try`, on essaie du code ; avec `except`, on dit quoi faire si une erreur précise se produit. Le programme continue au lieu de planter."
+          en: "An error stops the program, but we can plan for it. With `try`, we attempt some code; with `except`, we say what to do if a specific error happens. The program carries on instead of crashing."
+    - type: code
+      starter: |
+          text = input("Un nombre ? ")
+          number = int(text)
+          print(number * 2)
+      instruction:
+          fr: "Si l'utilisateur tape autre chose qu'un nombre, affiche Ce n'est pas un nombre au lieu de planter."
+          en: "If the user types something other than a number, show Ce n'est pas un nombre instead of crashing."
+      tests:
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*42\\n$"
+            inputs:
+                - "21"
+            message:
+                fr: "Avec 21, il faut toujours afficher 42."
+                en: "With 21, it must still show 42."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Ce n'est pas un nombre\\n$"
+            inputs:
+                - abc
+            message:
+                fr: "Avec abc, il faut afficher Ce n'est pas un nombre."
+                en: "With abc, it must show Ce n'est pas un nombre."
+          - kind: code_contains
+            value: except ValueError
+            message:
+                fr: Attrape précisément l'erreur ValueError.
+                en: Catch precisely the ValueError error.
+      hints:
+          fr:
+              - "Mets `int(text)` et le `print` dans un bloc `try:`."
+              - "Ajoute `except ValueError:` suivi du message à afficher."
+          en:
+              - "Put `int(text)` and the `print` in a `try:` block."
+              - "Add `except ValueError:` followed by the message to show."
+      solution: |
+          text = input("Un nombre ? ")
+          try:
+              number = int(text)
+              print(number * 2)
+          except ValueError:
+              print("Ce n'est pas un nombre")
+    - type: explain
+      voice: true
+      text:
+          fr: "On peut prévoir plusieurs erreurs avec plusieurs `except`, chacun pour une erreur précise. Il vaut mieux nommer l'erreur attendue que tout attraper : sinon on cache aussi les vrais bugs. Par exemple, diviser par zéro lève `ZeroDivisionError`."
+          en: "We can plan for several errors with several `except` blocks, each for a specific error. It is better to name the expected error than to catch everything: otherwise we also hide real bugs. For example, dividing by zero raises `ZeroDivisionError`."
+    - type: code
+      starter: |
+          a = int(input("a ? "))
+          b = int(input("b ? "))
+          print(a / b)
+      instruction:
+          fr: "Évite le plantage quand b vaut 0 : affiche Division par zéro impossible."
+          en: "Avoid the crash when b is 0: show Division par zéro impossible."
+      tests:
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*2.5\\n$"
+            inputs:
+                - "10"
+                - "4"
+            message:
+                fr: "Avec 10 et 4, il faut afficher 2.5."
+                en: "With 10 and 4, it must show 2.5."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Division par zéro impossible\\n$"
+            inputs:
+                - "5"
+                - "0"
+            message:
+                fr: "Avec 5 et 0, il faut afficher Division par zéro impossible."
+                en: "With 5 and 0, it must show Division par zéro impossible."
+          - kind: code_contains
+            value: ZeroDivisionError
+            message:
+                fr: Attrape l'erreur ZeroDivisionError.
+                en: Catch the ZeroDivisionError error.
+      hints:
+          fr:
+              - "Seul le calcul `a / b` peut provoquer l'erreur : mets-le dans le `try`."
+              - "`except ZeroDivisionError:` puis le message."
+          en:
+              - "Only the calculation `a / b` can cause the error: put it in the `try`."
+              - "`except ZeroDivisionError:` then the message."
+      solution: |
+          a = int(input("a ? "))
+          b = int(input("b ? "))
+          try:
+              print(a / b)
+          except ZeroDivisionError:
+              print("Division par zéro impossible")
+    - type: explain
+      voice: true
+      text:
+          fr: "Un programme robuste redemande tant que la saisie est invalide. On combine `while True:`, `try` et `break` : on essaie de convertir, on sort de la boucle si ça marche, et on affiche un message si ça échoue."
+          en: "A robust program asks again as long as the input is invalid. We combine `while True:`, `try` and `break`: we try to convert, we leave the loop if it works, and we show a message if it fails."
+    - type: code
+      starter: |
+          while True:
+              text = input("Ton âge ? ")
+              age = int(text)
+              break
+          print("Tu as", age, "ans")
+      instruction:
+          fr: "Redemande l'âge tant que la saisie n'est pas un nombre, en affichant Nombre invalide à chaque erreur."
+          en: "Ask for the age again as long as the input is not a number, showing Nombre invalide at each error."
+      tests:
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Tu as 15 ans\\n$"
+            inputs:
+                - "15"
+            message:
+                fr: "Avec 15 du premier coup, seule la phrase finale doit apparaître."
+                en: "With 15 at the first try, only the final sentence must appear."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Nombre invalide\\n[^\\n]*Nombre invalide\\n[^\\n]*Tu as 15 ans\\n$"
+            inputs:
+                - abc
+                - x
+                - "15"
+            message:
+                fr: "Avec abc, x puis 15, il faut afficher deux fois Nombre invalide puis Tu as 15 ans."
+                en: "With abc, x then 15, it must show Nombre invalide twice then Tu as 15 ans."
+      hints:
+          fr:
+              - "Mets la conversion `int(text)` et le `break` dans `try:`, de sorte que `break` ne soit atteint que si la conversion réussit."
+              - "Ajoute `except ValueError:` avec `print(\"Nombre invalide\")`."
+          en:
+              - "Put the conversion `int(text)` and the `break` in `try:`, so that `break` is only reached if the conversion succeeds."
+              - "Add `except ValueError:` with `print(\"Nombre invalide\")`."
+      solution: |
+          while True:
+              text = input("Ton âge ? ")
+              try:
+                  age = int(text)
+                  break
+              except ValueError:
+                  print("Nombre invalide")
+          print("Tu as", age, "ans")
+mission:
+    title:
+        fr: Calculatrice de pourboire robuste
+        en: Robust tip calculator
+    goal:
+        fr: "Redemande le montant de l'addition (`float`) tant qu'il est invalide (message Montant invalide), puis le pourcentage de pourboire tant qu'il est invalide (message Pourcentage invalide). Calcule `total` = montant + montant × pourcentage / 100 et affiche « Total : … ». Le programme ne doit jamais planter."
+        en: "Ask for the bill amount (`float`) again as long as it is invalid (message Montant invalide), then the tip percentage as long as it is invalid (message Pourcentage invalide). Compute `total` = amount + amount × percentage / 100 and show \"Total : …\". The program must never crash."
+    starter: |
+        # Calculatrice de pourboire robuste
+        bill = float(input("Montant de l'addition ? "))
+        rate = float(input("Pourcentage de pourboire ? "))
+        tip = bill * rate / 100
+        total = bill + tip
+        print("Total :", total)
+    tests:
+        - kind: var_equals
+          name: total
+          value: 57.5
+          inputs:
+              - abc
+              - "50"
+              - x
+              - "15"
+          message:
+              fr: "Avec abc, 50, x puis 15, total doit valoir 57.5."
+              en: "With abc, 50, x then 15, total must be 57.5."
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*Montant invalide\\n[^\\n]*[^\\n]*Pourcentage invalide\\n[^\\n]*Total : 57.5\\n$"
+          inputs:
+              - abc
+              - "50"
+              - x
+              - "15"
+          message:
+              fr: "Il faut afficher Montant invalide, puis Pourcentage invalide, puis Total : 57.5."
+              en: "It must show Montant invalide, then Pourcentage invalide, then Total : 57.5."
+        - kind: var_equals
+          name: total
+          value: 110
+          inputs:
+              - "100"
+              - "10"
+          message:
+              fr: "Avec 100 et 10, total doit valoir 110."
+              en: "With 100 and 10, total must be 110."
+        - kind: code_contains
+          value: except ValueError
+          message:
+              fr: Attrape l'erreur ValueError.
+              en: Catch the ValueError error.
+    solution: |
+        while True:
+            try:
+                bill = float(input("Montant de l'addition ? "))
+                break
+            except ValueError:
+                print("Montant invalide")
+
+        while True:
+            try:
+                rate = float(input("Pourcentage de pourboire ? "))
+                break
+            except ValueError:
+                print("Pourcentage invalide")
+
+        tip = bill * rate / 100
+        total = bill + tip
+        print("Total :", total)
+    reward_sound: success_small

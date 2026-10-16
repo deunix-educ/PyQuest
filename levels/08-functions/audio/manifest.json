@@ -1,0 +1,38 @@
+{
+    "en": {
+        "03f71e2631d3e61f": {
+            "text": "For the mission, a list can receive an item with append: agenda.append(\"Dentist\"). A function that receives a list can therefore change it. And nothing stops a function from being short: a good name matters as much as the code.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "1f039a619dbd29bb": {
+            "text": "A function stores instructions under a name. We define it with def, then call it by writing its name followed by parentheses. Written once, it can be used as many times as we like.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "ead7428ab51d88f0": {
+            "text": "A function can also give back a result with return. Careful: print shows on screen, but only return gives a value we can store in a variable: total = add(2, 3).",
+            "voice": "en_US-ljspeech-high"
+        },
+        "ef0de72707e53fd9": {
+            "text": "A function can receive values, called parameters: def greet(name):. When we call it, we give the value in parentheses: greet(\"Alice\"). The parameter name is then \"Alice\" inside the function.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "48ad607f6b05f823": {
+            "text": "Une fonction range des instructions sous un nom. On la définit avec def, puis on l'appelle en écrivant son nom suivi de parenthèses. Écrite une fois, elle peut servir autant de fois qu'on veut.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "a52eb6308b40dbaa": {
+            "text": "Pour la mission, une liste peut recevoir un élément avec append : agenda.append(\"Dentiste\"). Une fonction qui reçoit une liste peut donc la modifier. Et rien n'empêche une fonction de s'écrire en deux lignes : un bon nom compte autant que le code.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "b6ec691e41a479a1": {
+            "text": "Une fonction peut aussi renvoyer un résultat avec return. Attention : print affiche à l'écran, mais seul return donne une valeur qu'on peut ranger dans une variable : total = add(2, 3).",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "d9c2391bdef4fd14": {
+            "text": "Une fonction peut recevoir des valeurs, appelées paramètres : def greet(name):. Quand on l'appelle, on donne la valeur entre parenthèses : greet(\"Alice\"). Le paramètre name vaut alors \"Alice\" dans la fonction.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

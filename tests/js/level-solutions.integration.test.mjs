@@ -23,7 +23,7 @@ test('les solutions de référence passent, les codes de départ échouent', { s
         let checked = 0;
         for (const id of readdirSync(`${root}levels`).filter((name) => /^\d\d-/.test(name))) {
             const { exercises, problems } = await checker.check(load(id));
-            assert.deepEqual(summary(problems), [], `${id}`);
+            assert.deepEqual(summary(problems), [], `${id} : ${JSON.stringify(problems)}`);
             checked += exercises.length;
         }
         assert.ok(checked > 0);

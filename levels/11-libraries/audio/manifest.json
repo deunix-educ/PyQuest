@@ -1,0 +1,38 @@
+{
+    "en": {
+        "3485ed09f361fcef": {
+            "text": "One last tool: datetime. With from datetime import date, date(1789, 7, 14) creates a date, and we read its parts with .year, .month and .day. date.today() gives today's date.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "3b009f63d8254f91": {
+            "text": "The string module holds ready-made lists of characters: string.ascii_lowercase (lowercase letters) and string.digits (the digits). We can glue them with +. And \"\".join(list) glues the items of a list of letters into a single text.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "7630f1f246354f0a": {
+            "text": "Python comes with a big toolbox: modules. We load one with import, then use its tools with a dot: math.sqrt(16) computes the square root. No need to rewrite everything!",
+            "voice": "en_US-ljspeech-high"
+        },
+        "8052d50a4317efff": {
+            "text": "The random module can also shuffle: random.shuffle(list) changes the order of a list, in place. And random.choice(text) picks one character at random from a text.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "1817ecb69edf279b": {
+            "text": "Python vient avec une grande boîte à outils : les modules. On en charge un avec import, puis on utilise ses outils avec un point : math.sqrt(16) calcule la racine carrée. Pas besoin de tout réécrire !",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "8789fd1964baf52f": {
+            "text": "Le module string contient des listes de caractères toutes prêtes : string.ascii_lowercase (les lettres minuscules) et string.digits (les chiffres). On peut les coller avec +. Et \"\".join(liste) colle les éléments d'une liste de lettres en un seul texte.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "93fb523d197d048f": {
+            "text": "Dernier outil : datetime. Avec from datetime import date, date(1789, 7, 14) crée une date, et on lit ses morceaux avec .year, .month et .day. date.today() donne la date d'aujourd'hui.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "f129239ca80ce0fa": {
+            "text": "Le module random sait aussi mélanger : random.shuffle(liste) change l'ordre d'une liste, sur place. Et random.choice(texte) tire un caractère au hasard dans un texte.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

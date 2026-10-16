@@ -1,0 +1,204 @@
+id: 10-files
+title:
+    fr: Garder une trace
+    en: Keeping a record
+difficulty: 4
+xp: 90
+requires:
+    - 09-dicts
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Un fichier permet de garder des informations. On l'ouvre avec `open`, en indiquant le mode : \"w\" pour écrire et \"r\" pour lire. Avec `with`, Python referme le fichier tout seul. Dans PyQuest, seuls les fichiers du dossier `data/` sont conservés quand tu fermes la page."
+          en: "A file lets you keep information. We open it with `open`, giving the mode: \"w\" to write and \"r\" to read. With `with`, Python closes the file by itself. In PyQuest, only the files in the `data/` folder are kept when you close the page."
+    - type: code
+      starter: |
+          with open("data/note.txt", "w") as file:
+              file.write("Bonjour fichier")
+
+          with open("data/note.txt", "r") as file:
+              print(file.read())
+      instruction:
+          fr: Écris Salut PyQuest dans le fichier, puis relis-le pour l'afficher.
+          en: Write Salut PyQuest in the file, then read it back to show it.
+      tests:
+          - kind: stdout_equals
+            value: "Salut PyQuest\n"
+      hints:
+          fr:
+              - "Change seulement le texte donné à `file.write`."
+          en:
+              - "Only change the text given to `file.write`."
+      solution: |
+          with open("data/note.txt", "w") as file:
+              file.write("Salut PyQuest")
+
+          with open("data/note.txt", "r") as file:
+              print(file.read())
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour écrire plusieurs lignes, on termine chaque texte par `\\n`, le retour à la ligne. Pour les relire, on parcourt le fichier avec `for line in file:`, et `line.strip()` retire le retour à la ligne de chaque ligne."
+          en: "To write several lines, we end each text with `\\n`, the line break. To read them back, we go through the file with `for line in file:`, and `line.strip()` removes the line break from each line."
+    - type: code
+      starter: |
+          names = ["Alice", "Bob", "Chloé"]
+
+          with open("data/names.txt", "w") as file:
+              for name in names:
+                  pass
+
+          with open("data/names.txt", "r") as file:
+              for line in file:
+                  print(line.strip())
+      instruction:
+          fr: "Complète la boucle d'écriture pour que chaque prénom soit écrit sur sa propre ligne."
+          en: "Complete the writing loop so that each name is written on its own line."
+      tests:
+          - kind: stdout_equals
+            value: "Alice\nBob\nChloé\n"
+      hints:
+          fr:
+              - "Remplace `pass` par une écriture du prénom."
+              - "`file.write(name + \"\\n\")`"
+          en:
+              - "Replace `pass` with a write of the name."
+              - "`file.write(name + \"\\n\")`"
+      solution: |
+          names = ["Alice", "Bob", "Chloé"]
+
+          with open("data/names.txt", "w") as file:
+              for name in names:
+                  file.write(name + "\n")
+
+          with open("data/names.txt", "r") as file:
+              for line in file:
+                  print(line.strip())
+    - type: explain
+      voice: true
+      text:
+          fr: "Un fichier ne contient que du texte : pour relire un nombre, on le convertit avec `int()`. On peut aussi sauvegarder plusieurs informations par ligne en les séparant par un symbole, comme `10h|Dentiste`, puis les retrouver avec `ligne.split(\"|\")`."
+          en: "A file only holds text: to read a number back, we convert it with `int()`. We can also save several pieces of information per line by separating them with a symbol, like `10h|Dentist`, then get them back with `line.split(\"|\")`."
+    - type: code
+      starter: |
+          with open("data/scores.txt", "w") as file:
+              file.write("12\n7\n19\n")
+
+          total = 0
+          with open("data/scores.txt", "r") as file:
+              for line in file:
+                  pass
+          print(total)
+      instruction:
+          fr: Additionne les nombres lus dans le fichier, pour que `total` vaille 38.
+          en: Add up the numbers read from the file, so that `total` is 38.
+      tests:
+          - kind: var_equals
+            name: total
+            value: 38
+          - kind: stdout_equals
+            value: "38\n"
+      hints:
+          fr:
+              - "Chaque ligne est un texte : convertis-la avec `int(line)`."
+              - "`total = total + int(line)`"
+          en:
+              - "Each line is text: convert it with `int(line)`."
+              - "`total = total + int(line)`"
+      solution: |
+          with open("data/scores.txt", "w") as file:
+              file.write("12\n7\n19\n")
+
+          total = 0
+          with open("data/scores.txt", "r") as file:
+              for line in file:
+                  total = total + int(line)
+          print(total)
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour la mission, `import os` puis `os.path.exists(chemin)` dit si un fichier existe déjà. Ton agenda sera sauvegardé dans `data/agenda.txt`, une ligne par rendez-vous. Ferme PyQuest et rouvre-le : le fichier sera toujours là."
+          en: "For the mission, `import os` then `os.path.exists(path)` tells whether a file already exists. Your agenda will be saved in `data/agenda.txt`, one line per appointment. Close PyQuest and reopen it: the file will still be there."
+mission:
+    title:
+        fr: Mini-agenda, version 3
+        en: Mini agenda, version 3
+    goal:
+        fr: "Complète `save_agenda` (une ligne « 10h|Dentiste » par rendez-vous dans `data/agenda.txt`) et `load_agenda` (renvoie la liste de dictionnaires lue dans le fichier, ou une liste vide s'il n'existe pas). Le programme affiche l'agenda relu."
+        en: "Complete `save_agenda` (one line \"10h|Dentist\" per appointment in `data/agenda.txt`) and `load_agenda` (returns the list of dictionaries read from the file, or an empty list if it does not exist). The program shows the agenda read back."
+    starter: |
+        import os
+
+        PATH = "data/agenda.txt"
+
+        def save_agenda(agenda):
+            # Écris chaque rendez-vous sur une ligne : "10h|Dentiste"
+            pass
+
+        def load_agenda():
+            # Si le fichier existe, relis-le et renvoie la liste de dictionnaires ; sinon renvoie []
+            return []
+
+        title = input("Titre du dernier rendez-vous ? ")
+        agenda = [
+            {"time": "10h", "title": "Dentiste"},
+            {"time": "20h", "title": "Cinéma"},
+            {"time": "21h", "title": title},
+        ]
+        save_agenda(agenda)
+        loaded = load_agenda()
+        for item in loaded:
+            print(item["time"], "|", item["title"])
+    tests:
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*10h \\| Dentiste\\n20h \\| Cinéma\\n21h \\| Concert\\n$"
+          inputs:
+              - Concert
+          message:
+              fr: "Avec Concert, l'agenda relu doit afficher les trois rendez-vous."
+              en: "With Concert, the agenda read back must show the three appointments."
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*10h \\| Dentiste\\n20h \\| Cinéma\\n21h \\| Yoga\\n$"
+          inputs:
+              - Yoga
+        - kind: var_type_is
+          name: loaded
+          value: list
+          inputs:
+              - Concert
+        - kind: code_contains
+          value: with open(
+          message:
+              fr: Utilise with open(...) pour lire et écrire le fichier.
+              en: Use with open(...) to read and write the file.
+    solution: |
+        import os
+
+        PATH = "data/agenda.txt"
+
+        def save_agenda(agenda):
+            with open(PATH, "w") as file:
+                for item in agenda:
+                    file.write(item["time"] + "|" + item["title"] + "\n")
+
+        def load_agenda():
+            agenda = []
+            if os.path.exists(PATH):
+                with open(PATH, "r") as file:
+                    for line in file:
+                        time, title = line.strip().split("|")
+                        agenda.append({"time": time, "title": title})
+            return agenda
+
+        title = input("Titre du dernier rendez-vous ? ")
+        agenda = [
+            {"time": "10h", "title": "Dentiste"},
+            {"time": "20h", "title": "Cinéma"},
+            {"time": "21h", "title": title},
+        ]
+        save_agenda(agenda)
+        loaded = load_agenda()
+        for item in loaded:
+            print(item["time"], "|", item["title"])
+    reward_sound: success_big

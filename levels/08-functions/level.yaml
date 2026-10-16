@@ -1,0 +1,204 @@
+id: 08-functions
+title:
+    fr: Découper en fonctions
+    en: Splitting into functions
+difficulty: 3
+xp: 80
+requires:
+    - 07-while
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Une fonction range des instructions sous un nom. On la définit avec `def`, puis on l'appelle en écrivant son nom suivi de parenthèses. Écrite une fois, elle peut servir autant de fois qu'on veut."
+          en: "A function stores instructions under a name. We define it with `def`, then call it by writing its name followed by parentheses. Written once, it can be used as many times as we like."
+    - type: code
+      starter: |
+          def greet():
+              print("Bonjour !")
+
+          greet()
+      instruction:
+          fr: Appelle la fonction `greet()` deux fois pour afficher deux fois Bonjour !
+          en: Call the `greet()` function twice to show Bonjour ! twice.
+      tests:
+          - kind: stdout_equals
+            value: "Bonjour !\nBonjour !\n"
+      hints:
+          fr:
+              - "Écris `greet()` une deuxième fois, sur une nouvelle ligne, sans décalage."
+          en:
+              - "Write `greet()` a second time, on a new line, without indentation."
+      solution: |
+          def greet():
+              print("Bonjour !")
+
+          greet()
+          greet()
+    - type: explain
+      voice: true
+      text:
+          fr: "Une fonction peut recevoir des valeurs, appelées paramètres : `def greet(name):`. Quand on l'appelle, on donne la valeur entre parenthèses : `greet(\"Alice\")`. Le paramètre `name` vaut alors \"Alice\" dans la fonction."
+          en: "A function can receive values, called parameters: `def greet(name):`. When we call it, we give the value in parentheses: `greet(\"Alice\")`. The parameter `name` is then \"Alice\" inside the function."
+    - type: code
+      starter: |
+          def greet(name):
+              print("Bonjour", name)
+
+          greet("Alice")
+      instruction:
+          fr: Appelle `greet()` avec Alice, puis avec Bob, pour afficher une ligne par prénom.
+          en: Call `greet()` with Alice, then with Bob, to show one line per name.
+      tests:
+          - kind: stdout_equals
+            value: "Bonjour Alice\nBonjour Bob\n"
+      hints:
+          fr:
+              - "Ajoute un deuxième appel avec \"Bob\" entre les parenthèses."
+          en:
+              - "Add a second call with \"Bob\" between the parentheses."
+      solution: |
+          def greet(name):
+              print("Bonjour", name)
+
+          greet("Alice")
+          greet("Bob")
+    - type: explain
+      voice: true
+      text:
+          fr: "Une fonction peut aussi renvoyer un résultat avec `return`. Attention : `print` affiche à l'écran, mais seul `return` donne une valeur qu'on peut ranger dans une variable : `total = add(2, 3)`."
+          en: "A function can also give back a result with `return`. Careful: `print` shows on screen, but only `return` gives a value we can store in a variable: `total = add(2, 3)`."
+    - type: code
+      starter: |
+          def add(a, b):
+              print(a + b)
+
+          total = add(2, 3)
+          print(total)
+      instruction:
+          fr: "Ici `total` vaut None car `add()` affiche au lieu de renvoyer. Utilise `return` pour que `total` vaille 5."
+          en: "Here `total` is None because `add()` prints instead of returning. Use `return` so that `total` is 5."
+      tests:
+          - kind: var_equals
+            name: total
+            value: 5
+          - kind: stdout_equals
+            value: "5\n"
+      hints:
+          fr:
+              - "Dans la fonction, remplace `print(a + b)` par `return a + b`."
+          en:
+              - "In the function, replace `print(a + b)` with `return a + b`."
+      solution: |
+          def add(a, b):
+              return a + b
+
+          total = add(2, 3)
+          print(total)
+    - type: code
+      starter: |
+          def square(n):
+              pass
+
+          number = int(input("Un nombre ? "))
+          print(square(number))
+      instruction:
+          fr: Complète `square(n)` pour qu'elle renvoie le carré de `n` (4 donne 16, 7 donne 49).
+          en: Complete `square(n)` so that it returns the square of `n` (4 gives 16, 7 gives 49).
+      tests:
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*16\\n$"
+            inputs:
+                - "4"
+            message:
+                fr: "Avec 4, il faut afficher 16."
+                en: "With 4, it must show 16."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*49\\n$"
+            inputs:
+                - "7"
+            message:
+                fr: "Avec 7, il faut afficher 49."
+                en: "With 7, it must show 49."
+          - kind: code_contains
+            value: return
+            message:
+                fr: La fonction doit utiliser return.
+                en: The function must use return.
+      hints:
+          fr:
+              - "Le carré de n, c'est n multiplié par n."
+              - "Remplace `pass` par `return n * n`."
+          en:
+              - "The square of n is n multiplied by n."
+              - "Replace `pass` with `return n * n`."
+      solution: |
+          def square(n):
+              return n * n
+
+          number = int(input("Un nombre ? "))
+          print(square(number))
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour la mission, une liste peut recevoir un élément avec `append` : `agenda.append(\"Dentiste\")`. Une fonction qui reçoit une liste peut donc la modifier. Et rien n'empêche une fonction de s'écrire en deux lignes : un bon nom compte autant que le code."
+          en: "For the mission, a list can receive an item with `append`: `agenda.append(\"Dentist\")`. A function that receives a list can therefore change it. And nothing stops a function from being short: a good name matters as much as the code."
+mission:
+    title:
+        fr: Mini-agenda, version 1
+        en: Mini agenda, version 1
+    goal:
+        fr: "Écris `add_appointment(agenda, text)` qui ajoute un rendez-vous à la liste, et `show_agenda(agenda)` qui affiche chaque rendez-vous sur une ligne, sous la forme « - rendez-vous »."
+        en: "Write `add_appointment(agenda, text)` that adds an appointment to the list, and `show_agenda(agenda)` that shows each appointment on one line, as \"- appointment\"."
+    starter: |
+        agenda = []
+
+        def add_appointment(agenda, text):
+            # Ajoute text à la liste agenda
+            pass
+
+        def show_agenda(agenda):
+            # Affiche chaque rendez-vous sur une ligne : "- <rendez-vous>"
+            pass
+
+        add_appointment(agenda, input("Premier rendez-vous ? "))
+        add_appointment(agenda, input("Deuxième rendez-vous ? "))
+        show_agenda(agenda)
+    tests:
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*- Dentiste 10h\\n- Cinéma 20h\\n$"
+          inputs:
+              - Dentiste 10h
+              - Cinéma 20h
+          message:
+              fr: "Avec « Dentiste 10h » puis « Cinéma 20h », il faut afficher deux lignes : - Dentiste 10h puis - Cinéma 20h."
+              en: "With \"Dentiste 10h\" then \"Cinéma 20h\", it must show two lines: - Dentiste 10h then - Cinéma 20h."
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*- Yoga\\n- Marché\\n$"
+          inputs:
+              - Yoga
+              - Marché
+        - kind: code_contains
+          value: def add_appointment
+          message:
+              fr: Définis la fonction add_appointment.
+              en: Define the add_appointment function.
+        - kind: code_contains
+          value: def show_agenda
+          message:
+              fr: Définis la fonction show_agenda.
+              en: Define the show_agenda function.
+    solution: |
+        agenda = []
+
+        def add_appointment(agenda, text):
+            agenda.append(text)
+
+        def show_agenda(agenda):
+            for appointment in agenda:
+                print("-", appointment)
+
+        add_appointment(agenda, input("Premier rendez-vous ? "))
+        add_appointment(agenda, input("Deuxième rendez-vous ? "))
+        show_agenda(agenda)
+    reward_sound: success_small

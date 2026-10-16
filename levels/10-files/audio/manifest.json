@@ -1,0 +1,38 @@
+{
+    "en": {
+        "821fb59a96742789": {
+            "text": "A file only holds text: to read a number back, we convert it with int(). We can also save several pieces of information per line by separating them with a symbol, like 10h|Dentist, then get them back with line.split(\"|\").",
+            "voice": "en_US-ljspeech-high"
+        },
+        "b2d695b3cb944b9a": {
+            "text": "To write several lines, we end each text with \\n, the line break. To read them back, we go through the file with for line in file:, and line.strip() removes the line break from each line.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "b989ccad83c88205": {
+            "text": "A file lets you keep information. We open it with open, giving the mode: \"w\" to write and \"r\" to read. With with, Python closes the file by itself. In PyQuest, only the files in the data/ folder are kept when you close the page.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "ffa7efde6e083ddc": {
+            "text": "For the mission, import os then os.path.exists(path) tells whether a file already exists. Your agenda will be saved in data/agenda.txt, one line per appointment. Close PyQuest and reopen it: the file will still be there.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "483e096cf30497f4": {
+            "text": "Pour la mission, import os puis os.path.exists(chemin) dit si un fichier existe déjà. Ton agenda sera sauvegardé dans data/agenda.txt, une ligne par rendez-vous. Ferme PyQuest et rouvre-le : le fichier sera toujours là.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "49f34a662c74caad": {
+            "text": "Pour écrire plusieurs lignes, on termine chaque texte par \\n, le retour à la ligne. Pour les relire, on parcourt le fichier avec for line in file:, et line.strip() retire le retour à la ligne de chaque ligne.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "7bf51faefc539056": {
+            "text": "Un fichier permet de garder des informations. On l'ouvre avec open, en indiquant le mode : \"w\" pour écrire et \"r\" pour lire. Avec with, Python referme le fichier tout seul. Dans PyQuest, seuls les fichiers du dossier data/ sont conservés quand tu fermes la page.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "d2a8f02690d28132": {
+            "text": "Un fichier ne contient que du texte : pour relire un nombre, on le convertit avec int(). On peut aussi sauvegarder plusieurs informations par ligne en les séparant par un symbole, comme 10h|Dentiste, puis les retrouver avec ligne.split(\"|\").",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

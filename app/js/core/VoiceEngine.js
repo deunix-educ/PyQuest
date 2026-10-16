@@ -18,6 +18,7 @@ export class VoiceEngine {
     #objectUrl = null;
     #session = 0;
     #lastFailure = null;
+    #settle = null; // résolveur de la lecture de fichier en cours (pour la terminer si on l'interrompt)
 
     /**
      * @param {object} [options]
@@ -158,29 +159,40 @@ export class VoiceEngine {
         audio.playbackRate = this.#rate;
         return new Promise((resolve) => {
             let started = false;
+            const settle = (value) => {
+                if (this.#settle === settle) {
+                    this.#settle = null;
+                }
+                resolve(value);
+            };
+            this.#settle = settle;
             audio.onplaying = () => {
                 started = true;
             };
+            // Pas de gestion de `pause` : les navigateurs la déclenchent aussi juste avant `ended`.
             audio.onended = () => {
-                this.#releaseAudio();
-                resolve(true);
+                this.#releaseAudio({ interrupted: false });
+                settle(true);
             };
-            audio.onpause = () => resolve(false);
             audio.onerror = () => {
-                this.#releaseAudio();
-                resolve(started ? false : null);
+                this.#releaseAudio({ interrupted: false });
+                settle(started ? false : null);
             };
             Promise.resolve(audio.play()).catch(() => {
-                this.#releaseAudio();
-                resolve(null);
+                this.#releaseAudio({ interrupted: false });
+                settle(null);
             });
         });
     }
 
-    #releaseAudio() {
+    /** Arrête et libère la lecture ; si elle est interrompue, la promesse de #playFile résout false. */
+    #releaseAudio({ interrupted = true } = {}) {
+        const settle = this.#settle;
+        this.#settle = null;
+        if (interrupted) {
+            settle?.(false);
+        }
         if (this.#player) {
-            // Handlers retirés d'abord : pause() ne doit pas être pris pour une interruption à signaler.
-            this.#player.onpause = null;
             this.#player.onended = null;
             this.#player.onerror = null;
             this.#player.onplaying = null;

@@ -32,7 +32,11 @@ class FakeAudio {
     constructor() { this.src = ''; }
     play() {
         // Le silence d'amorçage (data:) ne déclenche rien ; une vraie source blob se termine seule.
-        if (this.src.startsWith('blob:')) { played.push(this.src); queueMicrotask(() => { this.onplaying?.(); this.onended?.(); }); }
+        if (this.src.startsWith('blob:')) {
+            played.push(this.src);
+            // Comme les vrais navigateurs : `pause` est émis juste avant `ended` en fin de lecture.
+            if (!globalThis.__holdPlayback) queueMicrotask(() => { this.onplaying?.(); this.onpause?.(); this.onended?.(); });
+        }
         return Promise.resolve();
     }
     pause() {}
@@ -52,6 +56,14 @@ assert.equal(v2.lastFailure, null);
 const v3 = new VoiceEngine({ synth: null, Utterance: undefined, AudioClass: FakeAudio, fetchFn });
 assert.equal(await v3.speak('x', 'fr', { audioUrl: '/a/absent.mp3' }), false);
 assert.equal(v3.lastFailure, 'unavailable');
+// Interruption en cours de lecture : résout false sans signaler de panne.
+globalThis.__holdPlayback = true;
+const pending = v2.speak('Texte', 'fr', { audioUrl: '/a/there.mp3' });
+await new Promise((resolve) => setTimeout(resolve, 5));
+v2.cancel();
+assert.equal(await pending, false);
+assert.equal(v2.lastFailure, null);
+globalThis.__holdPlayback = false;
 v2.setRate(1.5); assert.equal(v2.rate, 1.5);
 const noAudioNoSynth = new VoiceEngine({ synth: null, Utterance: undefined, AudioClass: undefined });
 assert.equal(noAudioNoSynth.supported, false);

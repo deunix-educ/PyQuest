@@ -120,6 +120,9 @@ Contrôle d'un son/UI à la main : `make dev` puis ouvrir l'URL dans un navigate
   `/vendor/pyodide/`. En cas de doute chez un utilisateur : DevTools → Application → Service
   Workers → Unregister + Clear site data, ou recharger deux fois. Bumper `CACHE_VERSION` purge
   l'ancien cache à l'activation.
+- **`pause` avant `ended`** (bug réel, 2026-10-16) : les navigateurs émettent `pause` juste avant
+  `ended` ; traiter `pause` comme une interruption faisait afficher « Impossible de lire la voix »
+  alors que la lecture réussissait. Le test e2e vérifie désormais l'absence de ce message.
 - **Lecture audio et activation utilisateur** : `play()` après un `await fetch` peut être refusé
   (Safari/iOS surtout). `VoiceEngine` « amorce » l'élément audio avec un silence dans le clic, puis
   change la source. Les tests e2e tournent sans option d'autoplay pour rester réalistes.

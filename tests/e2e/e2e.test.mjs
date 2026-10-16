@@ -198,6 +198,8 @@ test('narration : fichier Piper lu jusqu\'au bout (politique autoplay par défau
     await page.locator('.settings').getByRole('button', { name: 'Tester la voix' }).click();
     await page.waitForFunction((count) => window.__audio.ended > count, before, { timeout: 30000 });
 
+    // Une lecture menée à son terme ne doit jamais afficher le message d'échec.
+    assert.doesNotMatch(await page.textContent('.toast-region'), /Impossible de lire/);
     assert.ok(served.length >= 2 && served.every((entry) => entry.startsWith('200 audio/mpeg')), `mp3 servis : ${served}`);
     assert.equal(await page.evaluate(() => window.__audio.errors), 0);
     assert.deepEqual(errors, []);

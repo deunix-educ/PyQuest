@@ -11,15 +11,22 @@
     </head>
     <body>
         <a class="skip-link" href="#main">Aller au contenu / Skip to content</a>
-        <header class="app-header">
-            <h1 id="app-title">PyQuest</h1>
-            <button type="button" class="btn" id="settings-toggle" aria-expanded="false" aria-controls="settings-region"></button>
-        </header>
-        <div class="app-layout">
-            <aside id="progress-region"></aside>
+        <div id="app-root">
+            <header class="app-header">
+                <button type="button" class="btn" id="levels-toggle"></button>
+                <div class="app-heading">
+                    <h1 id="app-title">PyQuest</h1>
+                    <nav class="level-nav" id="level-nav">
+                        <button type="button" class="btn" id="level-prev"><span aria-hidden="true">‹</span></button>
+                        <span class="level-current" id="level-current"></span>
+                        <button type="button" class="btn" id="level-next"><span aria-hidden="true">›</span></button>
+                    </nav>
+                </div>
+                <button type="button" class="btn" id="settings-toggle"></button>
+            </header>
             <div id="notebook-region"></div>
         </div>
-        <div id="settings-region" hidden></div>
+        <div id="drawer-region"></div>
         <div id="toast-region"></div>
         <noscript>PyQuest a besoin de JavaScript. / PyQuest needs JavaScript.</noscript>
         <script type="module" src="js/main.js"></script>

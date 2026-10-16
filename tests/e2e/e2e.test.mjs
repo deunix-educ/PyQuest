@@ -15,6 +15,13 @@ const skip = !existsSync(`${root}vendor/pyodide/pyodide.mjs`) ? 'vendor/pyodide 
 let server;
 let browser;
 
+// Ouvre un niveau depuis le tiroir « Niveaux » (le tiroir se referme après le choix).
+async function openLevelFromDrawer(page, title) {
+    await page.locator('#levels-toggle').click();
+    await page.locator('.level-button', { hasText: title }).click();
+    await page.locator('.drawer-left.is-open').waitFor({ state: 'detached', timeout: 100 }).catch(() => {});
+}
+
 before(async () => {
     if (skip) return;
     server = spawn('python3', [`${root}scripts/dev_server.py`, '--port', String(port)], { env: { ...process.env, PYQUEST_QUIET: '1' }, stdio: 'ignore' });
@@ -53,7 +60,7 @@ test('parcours complet des niveaux 00 et 01', { skip, timeout: 180000 }, async (
     assert.match(await page.textContent('.progress-summary'), /10 XP/);
 
     // Niveau 01.
-    await page.locator('.level-button', { hasText: 'Ton premier programme' }).click();
+    await openLevelFromDrawer(page, 'Ton premier programme');
     await page.waitForSelector('.explain');
     await next();
     assert.match(await run('print("Bonjour")'), /correct/);
@@ -74,7 +81,7 @@ test('parcours complet des niveaux 00 et 01', { skip, timeout: 180000 }, async (
 
     // La progression survit au rechargement (IndexedDB).
     await page.reload();
-    await page.waitForSelector('.progress-map .level-button', { timeout: 60000 });
+    await page.waitForSelector('.progress-map .level-button', { state: 'attached', timeout: 60000 });
     assert.match(await page.textContent('.progress-map'), /10 XP/);
 
     assert.deepEqual(errors, []);
@@ -85,8 +92,8 @@ test('niveau 03 : saisie interactive et validation par rejeu scripté', { skip, 
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(base);
-    await page.waitForSelector('.progress-map .level-button', { timeout: 60000 });
-    await page.locator('.level-button', { hasText: 'Demander à l\'utilisateur' }).click();
+    await page.waitForSelector('.progress-map .level-button', { state: 'attached', timeout: 60000 });
+    await openLevelFromDrawer(page, 'Demander à l\'utilisateur');
     await page.waitForSelector('.explain');
 
     const next = () => page.locator('.notebook-action button').last().click();
@@ -201,8 +208,8 @@ test('niveau 07 : boucle while avec plusieurs saisies successives dans l\'interf
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(base);
-    await page.waitForSelector('.progress-map .level-button', { timeout: 60000 });
-    await page.locator('.level-button', { hasText: 'Répéter avec une condition' }).click();
+    await page.waitForSelector('.progress-map .level-button', { state: 'attached', timeout: 60000 });
+    await openLevelFromDrawer(page, 'Répéter avec une condition');
     await page.waitForSelector('.explain');
 
     const next = () => page.locator('.notebook-action button').last().click();
@@ -238,5 +245,51 @@ test('niveau 07 : boucle while avec plusieurs saisies successives dans l\'interf
     assert.match(await solveStep(mission, ['3', '9', '7']), /correct/);
     await page.waitForSelector('.toast');
     assert.match(await page.textContent('.toast-region'), /\+70 XP/);
+    assert.deepEqual(errors, []);
+});
+
+test('navigation : lien direct vers un niveau, tiroirs accessibles, précédent/suivant', { skip, timeout: 120000 }, async () => {
+    const page = await (await browser.newContext()).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+
+    // Lien direct vers le niveau 05.
+    await page.goto(`${base}#/levels/05-decide`);
+    await page.waitForSelector('.explain', { timeout: 60000 });
+    assert.match(await page.textContent('#level-current'), /Niveau 6 sur 8 · Décider/);
+    assert.match(await page.textContent('.notebook-status'), /Étape 1 sur/);
+
+    // Précédent / suivant changent de niveau et l'URL ; le bouton retour du navigateur revient.
+    await page.locator('#level-next').click();
+    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 7 sur 8'));
+    assert.equal(new URL(page.url()).hash, '#/levels/06-lists');
+    await page.goBack();
+    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 6 sur 8'));
+
+    // Tiroir « Niveaux » : le reste de la page devient inerte, Échap ferme et rend le focus au bouton.
+    const toggle = page.locator('#levels-toggle');
+    await toggle.click();
+    await page.locator('.drawer-left.is-open').waitFor();
+    assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+    assert.equal(await page.locator('#app-root').getAttribute('inert'), '');
+    assert.match(await page.textContent('.drawer-left .drawer-title'), /Ta progression/);
+    assert.match(await page.textContent('.progress-count'), /0 niveau\(x\) terminé\(s\) sur 8/);
+    await page.keyboard.press('Escape');
+    await page.locator('.drawer-left.is-open').waitFor({ state: 'hidden' });
+    assert.equal(await page.locator('#app-root').getAttribute('inert'), null);
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'levels-toggle');
+
+    // Tiroir « Réglages » : le focus reste piégé à l'intérieur.
+    await page.locator('#settings-toggle').click();
+    await page.locator('.drawer-right.is-open').waitFor();
+    for (let i = 0; i < 30; i++) await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => Boolean(document.activeElement.closest('.drawer-right'))), true, 'focus piégé');
+    await page.locator('.drawer-right .drawer-close').click();
+    await page.locator('.drawer-right.is-open').waitFor({ state: 'hidden' });
+
+    // Choisir un niveau dans le tiroir le ferme et l'ouvre.
+    await openLevelFromDrawer(page, 'Calculer');
+    await page.waitForFunction(() => document.querySelector('#level-current').textContent.includes('Niveau 5 sur 8'));
+    assert.equal(await page.locator('.drawer-left.is-open').count(), 0);
     assert.deepEqual(errors, []);
 });

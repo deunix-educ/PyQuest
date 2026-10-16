@@ -41,8 +41,11 @@ export class ProgressMap extends EventTarget {
             );
             return el('li', {}, button);
         });
+        const doneCount = levels.filter(({ id }) => id in progress.completedLevels).length;
+        const summary = this.#i18n.t('progress.levels_done', { done: doneCount, total: levels.length });
         this.#root.replaceChildren(
-            el('h2', { text: this.#i18n.t('progress.title') }),
+            el('p', { class: 'progress-count', id: 'progress-count', text: summary }),
+            el('progress', { class: 'progress-bar', max: levels.length, value: doneCount, 'aria-labelledby': 'progress-count' }),
             el('p', { class: 'progress-summary', text: `${this.#i18n.t('progress.xp', { xp: progress.xp })} · ${this.#i18n.t('progress.streak', { days: progress.streak.current })}` }),
             el('ol', { class: 'level-list' }, ...items),
         );

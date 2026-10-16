@@ -23,7 +23,6 @@ export class SettingsPanel extends EventTarget {
     render(settings) {
         const t = (key) => this.#i18n.t(key);
         this.#root.replaceChildren(
-            el('h2', { text: t('settings.title') }),
             this.#field('settings.language', 'select', {
                 value: settings.lang,
                 options: this.#i18n.languages.map((lang) => [lang, lang.toUpperCase()]),
@@ -42,6 +41,11 @@ export class SettingsPanel extends EventTarget {
             this.#testButton('settings.testVoice', 'voice'),
             this.#field('settings.voiceRate', 'range', { value: settings.voiceRate, min: 0.5, max: 2, step: 0.1, key: 'voiceRate', number: true }),
         );
+    }
+
+    /** Redonne le focus à un réglage après un nouveau rendu (ex. changement de langue). */
+    focusSetting(key) {
+        this.#root.querySelector(`[data-setting="${key}"]`)?.focus();
     }
 
     #testButton(labelKey, kind) {
@@ -69,6 +73,7 @@ export class SettingsPanel extends EventTarget {
         } else {
             control = el('input', { id, type: 'range', value, ...range, onchange: (event) => emit(number ? Number(event.target.value) : event.target.value) });
         }
+        control.dataset.setting = key;
         return el('div', { class: 'setting' }, el('label', { for: id, text: this.#i18n.t(labelKey) }), control);
     }
 }

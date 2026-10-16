@@ -75,7 +75,10 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
      immédiatement. Piper = GPL-3.0 mais outil de build seulement.
    - Whisper (dictée) et pyannote (diarisation) : écartés (hors besoin ; pyannote = modèles à accès
      restreint). Whisper reste une option d'accessibilité lointaine (dicter une réponse à `input()`).
-2. **Phase de design (décidée le 2026-10-16, après les niveaux 04-07)** : identité visuelle
+2. **Phase de design (décidée le 2026-10-16, après les niveaux 04-07)** — *amorcée le 2026-10-16* :
+   navigation refaite (tiroir « Niveaux »/progression à gauche, tiroir « Réglages » à droite via
+   `ui/Drawer.js`, en-tête avec niveau courant + précédent/suivant, lien direct `#/levels/<id>`,
+   historique navigateur). **Reste** : identité visuelle
    (palette, typo, logo), découpage CSS (`base`/`themes`/`cells`), coloration syntaxique de
    l'éditeur, carte de progression graphique, personnage-guide aux messages variés fr/en,
    badges illustrés, feedback coloré (vert/rouge, toujours doublé d'un texte). Procéder en 3

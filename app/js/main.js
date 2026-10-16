@@ -12,6 +12,8 @@ import { VoiceEngine } from './core/VoiceEngine.js';
 import { I18n } from './i18n/i18n.js';
 import { speechKey } from './core/speechKey.js';
 import { BadgeToast } from './ui/BadgeToast.js';
+import { Drawer } from './ui/Drawer.js';
+import { el } from './ui/dom.js';
 import { CellManager } from './ui/CellManager.js';
 import { NotebookView } from './ui/NotebookView.js';
 import { ProgressMap } from './ui/ProgressMap.js';
@@ -61,6 +63,8 @@ class App {
     #notebook;
     #map;
     #panel;
+    #levelsDrawer;
+    #settingsDrawer;
     #levelIds = [];
     #currentId = null;
 
@@ -103,31 +107,54 @@ class App {
         this.#manager.addEventListener('levelcomplete', () => this.#renderMap());
 
         this.#map = new ProgressMap(this.#i18n);
-        this.#map.addEventListener('select', (event) => this.#openLevel(event.detail.id));
+        this.#map.addEventListener('select', (event) => {
+            this.#levelsDrawer.close();
+            this.#goTo(event.detail.id);
+        });
         this.#panel = new SettingsPanel(this.#i18n);
         this.#panel.addEventListener('change', (event) => this.#onSettingChange(event.detail));
         this.#panel.addEventListener('test', (event) => this.#onTest(event.detail.kind));
 
-        document.getElementById('progress-region').append(this.#map.element);
         document.getElementById('notebook-region').append(notebook.element);
-        document.getElementById('settings-region').append(this.#panel.element);
         document.getElementById('toast-region').append(toast.element);
-        this.#bindSettingsToggle();
+        this.#buildDrawers();
+        this.#bindLevelNav();
 
         applySettings(settings);
         this.#renderChrome();
 
         this.#levelIds = (await this.#lessons.listLevels()).map((level) => level.id);
-        // Premier niveau non terminé, ou le dernier si tout est fait.
-        const next = this.#levelIds.find((id) => !this.#progress.isCompleted(id)) ?? this.#levelIds.at(-1);
+        // Lien direct (#/levels/05-decide) ; sinon premier niveau non terminé, ou le dernier si tout est fait.
+        const requested = this.#levelFromHash();
+        const next = requested ?? this.#levelIds.find((id) => !this.#progress.isCompleted(id)) ?? this.#levelIds.at(-1);
+        history.replaceState(null, '', `#/levels/${next}`);
+        window.addEventListener('popstate', () => this.#openLevel(this.#levelFromHash() ?? this.#levelIds[0]));
         await this.#openLevel(next);
         this.#registerServiceWorker();
+    }
+
+    /** Id de niveau demandé par l'URL (#/levels/<id>), s'il existe. */
+    #levelFromHash() {
+        const match = /^#\/levels\/([a-z0-9-]+)$/.exec(location.hash);
+        return match && this.#levelIds.includes(match[1]) ? match[1] : null;
+    }
+
+    /** Ouvre un niveau en ajoutant une entrée d'historique (retour arrière du navigateur utilisable). */
+    async #goTo(id) {
+        if (!this.#levelIds.includes(id)) {
+            return;
+        }
+        if (this.#levelFromHash() !== id) {
+            history.pushState(null, '', `#/levels/${id}`);
+        }
+        await this.#openLevel(id);
     }
 
     async #openLevel(id) {
         this.#currentId = id;
         await this.#renderMap();
         const session = await this.#lessons.startLevel(id, this.#i18n.lang);
+        this.#updateLevelNav(session.title);
         await this.#manager.start(session);
     }
 
@@ -141,21 +168,59 @@ class App {
         this.#map.render({ levels, progress: this.#progress.snapshot(), currentId: this.#currentId });
     }
 
-    #renderChrome() {
-        const toggle = document.getElementById('settings-toggle');
-        toggle.textContent = this.#i18n.t('settings.title');
-        document.getElementById('app-title').textContent = this.#i18n.t('app.title');
-        this.#panel.render(this.#settings.settings);
+    /** Tiroirs « Niveaux » (gauche) et « Réglages » (droite) ; un seul ouvert à la fois. */
+    #buildDrawers() {
+        const appRoot = document.getElementById('app-root');
+        const region = document.getElementById('drawer-region');
+        this.#levelsDrawer = new Drawer({
+            side: 'left',
+            title: '',
+            closeLabel: '',
+            content: this.#map.element,
+            trigger: document.getElementById('levels-toggle'),
+            inertTargets: [appRoot],
+        });
+        this.#settingsDrawer = new Drawer({
+            side: 'right',
+            title: '',
+            closeLabel: '',
+            content: this.#panel.element,
+            trigger: document.getElementById('settings-toggle'),
+            inertTargets: [appRoot],
+        });
+        region.append(...this.#levelsDrawer.elements, ...this.#settingsDrawer.elements);
+        this.#levelsDrawer.addEventListener('open', () => this.#settingsDrawer.close({ restoreFocus: false }));
+        this.#settingsDrawer.addEventListener('open', () => this.#levelsDrawer.close({ restoreFocus: false }));
     }
 
-    #bindSettingsToggle() {
-        const toggle = document.getElementById('settings-toggle');
-        const region = document.getElementById('settings-region');
-        toggle.addEventListener('click', () => {
-            const open = region.hidden;
-            region.hidden = !open;
-            toggle.setAttribute('aria-expanded', String(open));
-        });
+    #bindLevelNav() {
+        const step = (offset) => this.#goTo(this.#levelIds[this.#levelIds.indexOf(this.#currentId) + offset]);
+        document.getElementById('level-prev').addEventListener('click', () => step(-1));
+        document.getElementById('level-next').addEventListener('click', () => step(1));
+    }
+
+    /** Titre du niveau courant et boutons précédent/suivant. */
+    #updateLevelNav(title) {
+        const index = this.#levelIds.indexOf(this.#currentId);
+        const label = this.#i18n.t('nav.level', { n: index + 1, total: this.#levelIds.length });
+        document.getElementById('level-current').textContent = `${label} · ${title}`;
+        document.getElementById('level-prev').disabled = index <= 0;
+        document.getElementById('level-next').disabled = index >= this.#levelIds.length - 1;
+    }
+
+    #renderChrome() {
+        const t = (key) => this.#i18n.t(key);
+        document.getElementById('app-title').textContent = t('app.title');
+        document.getElementById('levels-toggle').replaceChildren(el('span', { 'aria-hidden': 'true', text: '☰ ' }), t('nav.levels'));
+        document.getElementById('settings-toggle').replaceChildren(el('span', { 'aria-hidden': 'true', text: '⚙ ' }), t('nav.settings'));
+        document.getElementById('level-prev').setAttribute('aria-label', t('nav.prev'));
+        document.getElementById('level-next').setAttribute('aria-label', t('nav.next'));
+        document.getElementById('level-nav').setAttribute('aria-label', t('nav.label'));
+        this.#levelsDrawer?.setTitle(t('progress.title'));
+        this.#levelsDrawer?.setCloseLabel(t('nav.close'));
+        this.#settingsDrawer?.setTitle(t('settings.title'));
+        this.#settingsDrawer?.setCloseLabel(t('nav.close'));
+        this.#panel.render(this.#settings.settings);
     }
 
     async #onSettingChange({ key, value }) {
@@ -170,6 +235,7 @@ class App {
         if (key === 'lang') {
             this.#i18n.setLang(value);
             this.#renderChrome();
+            this.#panel.focusSetting('lang');
             // Le niveau courant redémarre dans la nouvelle langue (les saisies en cours sont perdues).
             await this.#openLevel(this.#currentId);
         }

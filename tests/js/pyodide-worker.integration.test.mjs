@@ -8,7 +8,7 @@ import assert from 'node:assert';
 const root = new URL('../../', import.meta.url).pathname;
 const indexURL = `${root}vendor/pyodide/`;
 
-test('worker Python sous Pyodide', { skip: !existsSync(`${indexURL}pyodide.mjs`) && 'vendor/pyodide absent' }, async () => {
+test('worker Python sous Pyodide', { skip: !existsSync(`${indexURL}pyodide.mjs`) && 'vendor/pyodide absent', timeout: 90000 }, async () => {
     const worker = new Worker(new URL('./helpers/worker-shim.mjs', import.meta.url), {
         workerData: { workerPath: `${root}app/js/workers/python-worker.js`, runnerPath: `${root}app/python/pyquest_runner.py` },
     });
@@ -39,6 +39,13 @@ test('worker Python sous Pyodide', { skip: !existsSync(`${indexURL}pyodide.mjs`)
         throw error;
     });
     const wait = (key) => new Promise((resolve) => waiters.set(key, resolve));
+    // Une interruption envoyée avant le début de la cellule serait effacée (le worker remet le tampon à
+    // zéro au démarrage) : on la renvoie tant que la cellule n'a pas rendu son résultat, comme un
+    // utilisateur qui reclique sur « Arrêter », pour que le test ne dépende pas de la charge machine.
+    const interruptUntilDone = (promise) => {
+        const timer = setInterval(() => (new Uint8Array(interruptBuffer)[0] = 2), 100);
+        return promise.finally(() => clearInterval(timer));
+    };
     const run = (id, code, collect = [], isolated = false) => {
         const done = wait(id);
         worker.postMessage({ type: 'run_code', id, code, collect, isolated });
@@ -75,8 +82,7 @@ test('worker Python sous Pyodide', { skip: !existsSync(`${indexURL}pyodide.mjs`)
 
         // Interruption pendant l'attente d'une saisie : KeyboardInterrupt, pas EOFError.
         inputAnswer = undefined;
-        const waiting = run(8, 'input("?")');
-        setTimeout(() => (new Uint8Array(interruptBuffer)[0] = 2), 400);
+        const waiting = interruptUntilDone(run(8, 'input("?")'));
         assert.equal((await waiting).error.type, 'KeyboardInterrupt');
         inputAnswer = 'x';
 
@@ -87,8 +93,7 @@ test('worker Python sous Pyodide', { skip: !existsSync(`${indexURL}pyodide.mjs`)
         result = await run(11, 'pass', ['counter']);
         assert.equal(result.variables.counter.value, 1);
 
-        const looping = run(5, 'while True:\n    pass');
-        setTimeout(() => (new Uint8Array(interruptBuffer)[0] = 2), 500);
+        const looping = interruptUntilDone(run(5, 'while True:\n    pass'));
         assert.equal((await looping).error.type, 'KeyboardInterrupt');
 
         result = await run(6, 'print("après")'); // le worker reste utilisable

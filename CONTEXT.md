@@ -130,6 +130,10 @@ Contrôle d'un son/UI à la main : `make dev` puis ouvrir l'URL dans un navigate
   `/vendor/pyodide/`. En cas de doute chez un utilisateur : DevTools → Application → Service
   Workers → Unregister + Clear site data, ou recharger deux fois. Bumper `CACHE_VERSION` purge
   l'ancien cache à l'activation.
+- **Interruption perdue au démarrage** (test flaky sous charge) : le worker remet le tampon
+  d'interruption à 0 au début de chaque cellule ; une interruption envoyée avant ce début est
+  effacée. Les tests renvoient l'interruption en boucle (comme un utilisateur qui reclique) et les
+  tests longs ont un `timeout` pour qu'un blocage échoue au lieu de pendre `make test`.
 - **`pause` avant `ended`** (bug réel, 2026-10-16) : les navigateurs émettent `pause` juste avant
   `ended` ; traiter `pause` comme une interruption faisait afficher « Impossible de lire la voix »
   alors que la lecture réussissait. Le test e2e vérifie désormais l'absence de ce message.

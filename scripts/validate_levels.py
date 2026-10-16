@@ -45,7 +45,7 @@ def code_snippets(level: dict[str, Any]) -> list[tuple[str, str]]:
     return snippets
 
 
-def validate_level(path: Path, schema: dict[str, Any], require_en: bool) -> list[str]:
+def validate_level(path: Path, schema: dict[str, Any], require_en: bool, check_folder: bool = True) -> list[str]:
     errors: list[str] = []
     try:
         level = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -59,7 +59,7 @@ def validate_level(path: Path, schema: dict[str, Any], require_en: bool) -> list
     if errors:
         return errors
 
-    if level["id"] != path.parent.name:
+    if check_folder and level["id"] != path.parent.name:
         errors.append(f"id '{level['id']}' différent du dossier '{path.parent.name}'")
     if require_en:
         errors.extend(f"traduction `en` manquante : {where}" for where in missing_english(level))
@@ -90,10 +90,18 @@ def validate_manifest(known_ids: set[str]) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--allow-missing-en", action="store_true", help="n'exige pas les traductions en")
+    parser.add_argument("--file", type=Path, help="valide un seul fichier level.yaml (ex. exporté par l'éditeur), hors manifeste")
     args = parser.parse_args()
 
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
     jsonschema.Draft202012Validator.check_schema(schema)
+
+    if args.file is not None:
+        errors = validate_level(args.file, schema, require_en=not args.allow_missing_en, check_folder=False)
+        print(f"{'OK ' if not errors else 'KO '} {args.file}")
+        for message in errors:
+            print(f"      - {message}")
+        return 1 if errors else 0
 
     files = sorted(LEVELS_DIR.glob("*/level.yaml"))
     failed = False

@@ -74,10 +74,9 @@ Commandes : `make test` (JS `node:test`, Python `unittest`, backend Django, vali
 niveaux), `make test-e2e` (Chromium), `make typecheck` (pyright), `make dev`, `make build`.
 Pyodide épinglé 314.0.7 (Python 3.14.2) via `make vendor-pyodide`.
 
-**À traiter en premier à la reprise** : recueillir le retour d'écoute de l'utilisateur sur les
-nouveaux effets sonores et la voix Piper (retour initial : « inaudible et de mauvaise qualité »),
-ajuster si besoin (voir CONTEXT.md). Ensuite : **phase de design** (décidée : après les niveaux
-04-07, qui sont faits), puis niveaux 08 et suivants.
+**À traiter en premier à la reprise** : le parcours est complet (niveaux 00 à 14, synchronisation, éditeur
+auteur, canvas de dessin). Restent : retour d'écoute sur les effets sonores, test Safari/iOS (Firefox validé par
+l'utilisateur), audit lecteur d'écran, documentation MkDocs. Voir les priorités dans CONTEXT.md.
 
 ## Règles de travail apprises
 

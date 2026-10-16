@@ -27,6 +27,11 @@ Deux possibilités :
 - **Tu peux lancer `make voice`** : fais-le et inclus les fichiers `levels/<id>/audio/` dans ta contribution.
 - **Tu ne peux pas** : mets `voice: false` sur tes étapes ; un mainteneur activera la narration avant la fusion.
 
+## Essayer la pile complète en local
+
+`make dev-nginx` lance un vrai nginx (mêmes blocs qu'en production) devant `dist/` et le backend Django : éditeur
+protégé par connexion, isolation, synchronisation. Il faut un binaire nginx (voir `docs/site/fr/host/deploy.md`).
+
 ## Documentation
 
 La documentation (MkDocs, bilingue) est dans `docs/site/fr` et `docs/site/en`, avec les mêmes pages dans les deux

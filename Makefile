@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build dev-sync docs docs-serve deploy check-deploy test-deploy test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
+.PHONY: help install vendor-pyodide dev validate-levels build dev-sync dev-nginx docs docs-serve deploy check-deploy test-deploy test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -50,6 +50,9 @@ docs: $(DOCS_VENV)/.installed ## Génère la documentation bilingue dans site/ (
 
 docs-serve: $(DOCS_VENV)/.installed ## Documentation en direct sur http://127.0.0.1:8003/
 	$(DOCS_VENV)/bin/mkdocs serve --dev-addr 127.0.0.1:8003
+
+dev-nginx: $(VENV)/.installed build ## Pile locale réelle : nginx + Django (éditeur protégé, API) sur http://127.0.0.1:8080/
+	$(VENV_PY) scripts/local_stack.py
 
 validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, traductions)
 	$(VENV_PY) scripts/validate_levels.py

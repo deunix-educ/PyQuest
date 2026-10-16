@@ -1,5 +1,6 @@
 // Panneau de réglages : accessible au clavier, chaque champ a un label visible.
-// Émet 'change' (detail: { key, value }) ; l'application persiste et applique.
+// Émet 'change' (detail: { key, value }) et 'test' (detail: { kind: 'sound' | 'voice' }) ;
+// l'application persiste, applique, et joue les échantillons.
 
 import { el, uniqueId } from './dom.js';
 
@@ -35,10 +36,22 @@ export class SettingsPanel extends EventTarget {
                 key: 'theme',
             }),
             this.#field('settings.sound', 'checkbox', { value: settings.soundEnabled, key: 'soundEnabled' }),
+            this.#testButton('settings.testSound', 'sound'),
             this.#field('settings.volume', 'range', { value: settings.volume, min: 0, max: 1, step: 0.1, key: 'volume', number: true }),
             this.#field('settings.voice', 'checkbox', { value: settings.voiceEnabled, key: 'voiceEnabled' }),
+            this.#testButton('settings.testVoice', 'voice'),
             this.#field('settings.voiceRate', 'range', { value: settings.voiceRate, min: 0.5, max: 2, step: 0.1, key: 'voiceRate', number: true }),
         );
+    }
+
+    #testButton(labelKey, kind) {
+        const button = el('button', {
+            type: 'button',
+            class: 'btn',
+            text: this.#i18n.t(labelKey),
+            onclick: () => this.dispatchEvent(new CustomEvent('test', { detail: { kind } })),
+        });
+        return el('div', { class: 'setting' }, button);
     }
 
     #field(labelKey, kind, { value, options = [], key, number = false, ...range }) {

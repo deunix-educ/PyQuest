@@ -1,0 +1,30 @@
+{
+    "en": {
+        "1e3d9deb4223b3ec": {
+            "text": "There are several types. str: text (\"cat\"). int: a whole number (7). float: a decimal number (3.14, with a dot).",
+            "voice": "en_US-ljspeech-high"
+        },
+        "53c913acebcde4f6": {
+            "text": "A variable is a box with a name. You put a value in it: age = 12. The = sign stores the value in the box.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "a7bc4151dfb8b449": {
+            "text": "You can calculate with variables: total = price * 3. A variable can also be reassigned later.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "34140c6135df449f": {
+            "text": "Une variable est une boîte avec un nom. Tu y ranges une valeur : age = 12. Le signe = range la valeur dans la boîte.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "a631adfba4ea98e4": {
+            "text": "Il existe plusieurs types. str : du texte (\"chat\"). int : un nombre entier (7). float : un nombre à virgule (3.14, avec un point).",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "b01fc242e75a475e": {
+            "text": "Tu peux calculer avec des variables : total = price * 3. Une variable peut aussi être réaffectée plus tard.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

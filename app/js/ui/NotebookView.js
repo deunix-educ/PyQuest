@@ -12,7 +12,7 @@ export class NotebookView {
     /**
      * @param {import('../i18n/i18n.js').I18n} i18n
      * @param {object} [options]
-     * @param {(text: string) => Promise<boolean>} [options.onSpeak]  Lecture vocale ; absent = pas de bouton.
+     * @param {(text: string, step: object) => Promise<boolean>} [options.onSpeak]  Lecture vocale ; absent = pas de bouton.
      * @param {() => boolean} [options.canSpeak]  Évalué à chaque étape : la voix est-elle activée ?
      */
     constructor(i18n, { onSpeak = null, canSpeak = () => true } = {}) {
@@ -48,13 +48,14 @@ export class NotebookView {
     }
 
     /** Étape d'explication : texte, et bouton de lecture si la voix est demandée par le niveau. */
-    addExplain({ text, voice, image }) {
+    addExplain(step) {
+        const { text, voice, image } = step;
         const children = [el('p', {}, renderInline(text))];
         if (image) {
             children.push(el('img', { src: image, alt: '' }));
         }
         if (voice && this.#onSpeak && this.#canSpeak()) {
-            children.push(el('button', { type: 'button', class: 'btn', text: this.#i18n.t('voice.listen'), onclick: () => this.#onSpeak(text) }));
+            children.push(el('button', { type: 'button', class: 'btn', text: this.#i18n.t('voice.listen'), onclick: () => this.#onSpeak(text, step) }));
         }
         return this.add(el('section', { class: 'explain', tabindex: '-1' }, ...children));
     }

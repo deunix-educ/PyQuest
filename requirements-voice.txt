@@ -1,0 +1,4 @@
+# Génération de la narration (make voice). Outil de build uniquement, jamais embarqué dans l'app :
+# piper-tts est sous GPL-3.0 ; seuls les fichiers audio produits sont distribués.
+piper-tts>=1.3
+PyYAML>=6.0

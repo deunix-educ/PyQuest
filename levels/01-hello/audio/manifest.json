@@ -1,0 +1,22 @@
+{
+    "en": {
+        "6bb0749a98111d4b": {
+            "text": "print() shows text on the screen. The text goes between quotes, inside the parentheses.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "a5c2adba55f3c70c": {
+            "text": "Text between quotes is called a string. Each print() writes on a new line.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "54eb6e343fdd61b5": {
+            "text": "print() affiche du texte à l'écran. Le texte va entre guillemets, dans les parenthèses.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "eb34bc4286d352bc": {
+            "text": "Un texte entre guillemets s'appelle une chaîne de caractères. Chaque print() écrit sur une nouvelle ligne.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

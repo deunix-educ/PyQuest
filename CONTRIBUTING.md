@@ -49,6 +49,15 @@ Un niveau ne contient **jamais de code exécutable** autre que le code de dépar
 affichés à l'apprenant : toute nouvelle sorte de validation passe par le moteur
 (`app/js/core/ValidationEngine.js`), pas par un fichier de niveau.
 
+### Narration vocale
+
+Une étape `explain` avec `voice: true` propose un bouton « Écouter ». La narration est un fichier
+mp3 **pré-généré** avec Piper : après avoir ajouté ou modifié un texte narré, lancez `make voice`
+(télécharge les voix au premier lancement, nécessite `ffmpeg`) et commitez les fichiers
+`levels/<id>/audio/`. `make check-voice` (inclus dans `make test`) échoue si un fichier manque ou est
+périmé. Sans fichier, l'application se rabat sur la voix du système. Voix et licences :
+[levels/AUDIO-CREDITS.md](levels/AUDIO-CREDITS.md).
+
 ### Accessibilité
 
 Aucune information ne doit passer uniquement par la couleur ou le son. Les images décoratives
@@ -73,7 +82,7 @@ ont un `alt` vide ; une illustration porteuse de sens doit être décrite dans l
    tone, runnable `starter`, `tests`, graduated `hints`, `solution`, motivating `mission`).
 3. Provide both `fr` and `en` for every text.
 4. List the level in `levels/manifest.json`.
-5. Run `make validate-levels`.
+5. Run `make validate-levels`; for narrated steps (`voice: true`) run `make voice` and commit the generated `audio/` files (see `levels/AUDIO-CREDITS.md`).
 
 Levels never contain executable code other than the starter and solution shown to the learner:
 new kinds of validation are added to the engine, not to level files.

@@ -1,6 +1,6 @@
 # Contexte de session — à lire en premier en reprenant ce projet
 
-Dernière mise à jour : 2026-10-14 (fin de session). Dernier commit de travail : voir `git log`.
+Dernière mise à jour : 2026-10-16. Dernier commit de travail : voir `git log`.
 
 ## Où on en est
 
@@ -29,7 +29,7 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Validation | `app/js/core/ValidationEngine.js` (kinds déclaratifs), rejeux à `inputs` dans `app/js/ui/CellManager.js` |
 | Erreurs | `app/js/core/ErrorTranslator.js` + `app/js/i18n/errors.{fr,en}.json` |
 | Progression | `app/js/core/ProgressStore.js`, `KeyValueStores.js` (IndexedDB/mémoire), `SettingsStore.js` |
-| Audio / voix | `app/js/core/AudioEngine.js` (sons synthétisés), `VoiceEngine.js` (speechSynthesis) |
+| Audio / voix | `app/js/core/AudioEngine.js` (sons synthétisés), `VoiceEngine.js` (mp3 Piper + repli speechSynthesis), `speechKey.js` ; `scripts/generate_voice.py`, `voice_key.py` |
 | UI | `app/js/ui/` (CellView, CellManager, NotebookView, HintPanel, ProgressMap, BadgeToast, SettingsPanel, dom.js), `app/js/i18n/{i18n.js,fr.json,en.json}`, `app/css/app.css` |
 | Shell PWA | `app/index.html`, `app/js/main.js`, `app/service-worker.js`, `app/manifest.webmanifest` |
 | Tooling | `Makefile`, `scripts/{dev_server,validate_levels,build}.py`, `scripts/vendor_pyodide.sh` |
@@ -45,7 +45,7 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
   des saisies scriptées (rejeu isolé).
 - `input()` **réel** (option b) : worker bloqué par `Atomics.wait`, champ de saisie dans la
   cellule, l'invite va dans stdout, pas la réponse. Sans isolation : `EOFError`.
-- Sons **synthétisés** (Web Audio), pas de fichiers mp3.
+- Effets sonores **synthétisés** (Web Audio) ; narration = mp3 **pré-générés** avec Piper (build).
 - YAML lu côté navigateur par js-yaml 4.3.2 vendorisé.
 - Tests JS : **`node:test`** sans dépendance ; e2e : `playwright-core` + Chromium système.
 - Synchronisation : jeton aléatoire côté client, sans compte ; fusion côté client
@@ -55,18 +55,25 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 
 ## À faire — priorités pour la prochaine session
 
-1. **🔊 Améliorer le son (retour utilisateur : « inaudible et de mauvaise qualité »).**
-   Constat : `AudioEngine` synthétise les sons (oscillateurs). Pistes à traiter, à *écouter sur
-   un vrai appareil* (impossible à valider en test automatique) :
-   - niveau trop bas : crête = `BASE_GAIN (0.15) × volume (0.8) ≈ 0.12`, notes de 0,1–0,5 s ;
-     monter nettement le gain, ajouter un `GainNode` maître + `DynamicsCompressorNode` ;
-   - timbre : `square`/`sawtooth` agressifs et pauvres ; préférer sinus/triangle + harmoniques,
-     enveloppe ADSR avec `exponentialRampToValueAtTime`, éventuellement filtre passe-bas ;
-   - vérifier que le contexte est bien `running` au moment du `play()` (déblocage `unlock()` au
-     premier clic ; contrôler iOS) et que le volume des réglages (0–1) est appliqué ;
-   - alternative : échantillons audio courts libres de droits (CC0) vendorisés dans
-     `app/assets/sounds/` (compatible licence, cache service worker à prévoir) ;
-   - ajouter un bouton « tester le son » dans `SettingsPanel` pour régler/valider rapidement.
+1. **🔊 Son : traité le 2026-10-16, à valider à l'oreille par l'utilisateur.**
+   - *Effets* : `AudioEngine` réécrit (synthèse additive en carillon, enveloppe exponentielle,
+     gain maître + compresseur). Mesures automatiques (`tests/e2e/audio.test.mjs`) : crête
+     −3 à −5 dBFS, niveau efficace ≈ −19 dBFS pour les 4 sons (≈ +13 dB de crête par rapport à
+     l'ancien, estimé : l'ancien plafonnait à ≈ −18 dBFS). `AUDIO_DUMP_DIR=/tmp/fx make test-e2e`
+     écrit les .wav pour les écouter. Bouton « Tester le son » dans les réglages.
+   - *Voix* : narration **pré-générée avec Piper** (`make voice`) : mp3 mono 48 kbit/s normalisés
+     à −18 LUFS, voix `fr_FR-siwis-medium` (CC BY 4.0) et `en_US-ljspeech-high` (domaine public),
+     débit ×1,1 ; fichiers dans `levels/<id>/audio/<lang>/<clé>.mp3` (+ échantillon réglages dans
+     `app/assets/voice/`). Clé = FNV-1a 64 du texte lu (`scripts/voice_key.py` ↔
+     `app/js/core/speechKey.js`, vecteurs de test communs). `VoiceEngine` lit le fichier (via blob,
+     compatible iOS) et se replie sur `speechSynthesis` s'il manque. Crédits/licences :
+     `levels/AUDIO-CREDITS.md`. `make check-voice` (dans `make test`) détecte un fichier manquant.
+   - **À faire** : l'utilisateur doit écouter effets et voix (la qualité perçue ne se mesure pas) ;
+     ajuster gain/timbre (`NOTE_PEAK`, `BELL`, compresseur) ou voix/débit (`VOICES`, `LENGTH_SCALE`
+     dans `scripts/generate_voice.py`) selon son retour. La voix est **désactivée par défaut**
+     (réglage « Voix ») : à reconsidérer. Piper = GPL-3.0 mais outil de build seulement.
+   - Whisper (dictée) et pyannote (diarisation) : écartés (hors besoin ; pyannote = modèles à accès
+     restreint). Whisper reste une option d'accessibilité lointaine (dicter une réponse à `input()`).
 2. **Niveaux 04 à 14** (tableau dans `docs/design/05-curriculum.md`). Méthode : écrire le YAML
    (fr + en obligatoires), `make validate-levels`, ajouter au manifeste, parcours e2e. Prochain :
    **04 Calculer** (opérateurs, `%`, priorités ; mission convertisseur d'unités).
@@ -87,7 +94,8 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 ```bash
 git log --oneline | head          # où on en est
 make install                       # venv .venv + Pyodide (déjà vendorisé = no-op)
-make test                          # JS + Python + backend + validation des niveaux
+make test                          # JS + Python + backend + niveaux + narration à jour
+make voice                         # (re)génère la narration (venv .venv-voice, ffmpeg requis)
 make test-e2e                      # parcours Chromium (CHROMIUM=/usr/bin/chromium par défaut)
 make typecheck                     # pyright (backend inclus)
 make dev                           # http://127.0.0.1:8000/
@@ -110,6 +118,7 @@ Contrôle d'un son/UI à la main : `make dev` puis ouvrir l'URL dans un navigate
   avec le bouton « Envoyer » de la saisie).
 - Messages d'erreur Python : validés sur Python 3.14.2 (Pyodide) ; à recontrôler si la version
   de Pyodide change (`tests/js/error-translator.test.mjs` utilise le `python3` du poste).
+- Après tout ajout/modification d'un texte `explain` avec `voice: true` : `make voice` puis commit des mp3.
 - Ne pas lancer de `pkill -f` large : il peut tuer le shell de l'outil.
 
 ## Git

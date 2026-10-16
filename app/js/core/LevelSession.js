@@ -1,5 +1,7 @@
 // Parcours d'un niveau par l'apprenant : étapes localisées puis mission finale.
 
+import { speechKey } from './speechKey.js';
+
 export class LevelSession {
     #level;
     #lang;
@@ -77,6 +79,11 @@ export class LevelSession {
         return true;
     }
 
+    #audioUrl(step) {
+        const lang = step.text[this.#lang] ? this.#lang : 'fr';
+        return new URL(`audio/${lang}/${speechKey(lang, step.text[lang])}.mp3`, this.#baseUrl).href;
+    }
+
     #localize(value) {
         return value?.[this.#lang] ?? value?.fr ?? '';
     }
@@ -95,6 +102,8 @@ export class LevelSession {
                 text: this.#localize(step.text),
                 voice: step.voice ?? false,
                 image: step.image ? new URL(step.image, this.#baseUrl).href : null,
+                // Narration pré-générée (make voice) ; absente = repli sur la voix du système.
+                audioUrl: step.voice ? this.#audioUrl(step) : null,
             };
         }
         return {

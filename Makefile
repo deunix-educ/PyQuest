@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend test-e2e typecheck clean
+.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend test-e2e typecheck voice check-voice clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -29,7 +29,7 @@ validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, t
 build: $(VENV)/.installed ## Construit dist/ pour la production
 	$(VENV_PY) scripts/build.py
 
-test: test-js test-python test-backend validate-levels ## Lance tous les tests
+test: test-js test-python test-backend validate-levels check-voice ## Lance tous les tests
 
 test-js: ## Tests JavaScript (node:test, aucune dépendance)
 	node --test tests/js/*.test.mjs
@@ -43,11 +43,19 @@ test-backend: $(VENV)/.installed ## Tests du backend Django (nécessite Django d
 
 test-e2e: ## Tests bout en bout dans Chromium (CHROMIUM=/chemin/navigateur)
 	npm --prefix tests/e2e install --silent
-	node --test tests/e2e/e2e.test.mjs
+	node --test tests/e2e/*.test.mjs
 
 typecheck: $(VENV)/.installed ## Vérifie les types Python avec pyright
 	$(VENV)/bin/pyright
 
+voice: ## Génère la narration (Piper → mp3) pour les textes de niveaux ; voir levels/AUDIO-CREDITS.md
+	$(PYTHON) -m venv .venv-voice
+	.venv-voice/bin/pip install --quiet -r requirements-voice.txt
+	cd scripts && ../.venv-voice/bin/python generate_voice.py
+
+check-voice: $(VENV)/.installed ## Vérifie que toute la narration est générée et à jour
+	cd scripts && ../$(VENV_PY) generate_voice.py --check
+
 clean: ## Supprime dist/, caches et environnement virtuel
-	rm -rf dist $(VENV)
+	rm -rf dist $(VENV) .venv-voice
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +

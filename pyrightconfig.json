@@ -17,6 +17,7 @@
     "venvPath": ".",
     "venv": ".venv",
     "extraPaths": [
-        "app/python"
+        "app/python",
+        "scripts"
     ]
 }

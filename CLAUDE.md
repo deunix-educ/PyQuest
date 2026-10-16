@@ -71,13 +71,14 @@ Commandes : `make test` (JS `node:test`, Python `unittest`, backend Django, vali
 niveaux), `make test-e2e` (Chromium), `make typecheck` (pyright), `make dev`, `make build`.
 Pyodide épinglé 314.0.7 (Python 3.14.2) via `make vendor-pyodide`.
 
-**À traiter en premier à la reprise** : améliorer le son (jugé « inaudible et de mauvaise
-qualité » par l'utilisateur) — pistes dans CONTEXT.md ; puis niveaux 04 et suivants.
+**À traiter en premier à la reprise** : recueillir le retour d'écoute de l'utilisateur sur les
+nouveaux effets sonores et la voix Piper (retour initial : « inaudible et de mauvaise qualité »),
+ajuster si besoin (voir CONTEXT.md) ; puis niveaux 04 et suivants.
 
 ## Règles de travail apprises
 
-- Chaque niveau ajouté : `fr` **et** `en`, `make validate-levels`, entrée dans
-  `levels/manifest.json`, parcours e2e si le niveau introduit un comportement nouveau.
+- Chaque niveau ajouté : `fr` **et** `en`, `make validate-levels`, `make voice` si des étapes ont
+  `voice: true` (commiter les mp3), entrée dans `levels/manifest.json`, parcours e2e si le niveau introduit un comportement nouveau.
 - Tester dans un vrai navigateur dès qu'un comportement dépend d'API navigateur : des écarts
   Node/Chromium (ex. `encodeInto` sur `SharedArrayBuffer`) ne se voient qu'ainsi.
 - Les commits sont autorisés « quand nécessaire » : un commit par composant cohérent, message en

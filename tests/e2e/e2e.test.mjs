@@ -145,3 +145,50 @@ test('niveau 03 : saisie interactive et validation par rejeu scripté', { skip, 
 
     assert.deepEqual(errors, []);
 });
+
+test('narration : fichier Piper lu jusqu\'au bout, échantillon des réglages, repli', { skip, timeout: 120000 }, async () => {
+    const browser2 = await chromium.launch({ executablePath, args: ['--no-sandbox', '--autoplay-policy=no-user-gesture-required'] });
+    try {
+        const page = await (await browser2.newContext()).newPage();
+        const errors = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        const served = [];
+        page.on('response', (response) => {
+            if (response.url().endsWith('.mp3')) served.push(`${response.status()} ${response.headers()['content-type']}`);
+        });
+        // Espionne les lectures pour savoir si un fichier est allé jusqu'à la fin.
+        await page.addInitScript(() => {
+            window.__audio = { ended: 0, errors: 0 };
+            const Original = window.Audio;
+            window.Audio = class extends Original {
+                constructor(...args) {
+                    super(...args);
+                    this.addEventListener('ended', () => (window.__audio.ended += 1));
+                    this.addEventListener('error', () => (window.__audio.errors += 1));
+                }
+            };
+        });
+        await page.goto(base);
+        await page.waitForSelector('.explain', { timeout: 60000 });
+
+        // La voix est désactivée par défaut : pas de bouton « Écouter ».
+        assert.equal(await page.locator('.explain button', { hasText: 'Écouter' }).count(), 0);
+        await page.locator('#settings-toggle').click();
+        await page.getByLabel('Voix', { exact: true }).check();
+        await page.locator('.settings').getByRole('button', { name: 'Tester la voix' }).click();
+        await page.waitForFunction(() => window.__audio.ended >= 1, null, { timeout: 30000 });
+
+        // Narration d'une étape de niveau : relance le niveau pour afficher le bouton.
+        await page.locator('.level-button', { hasText: 'Ton premier programme' }).click();
+        await page.waitForSelector('.explain button');
+        const before = await page.evaluate(() => window.__audio.ended);
+        await page.locator('.explain button', { hasText: 'Écouter' }).click();
+        await page.waitForFunction((count) => window.__audio.ended > count, before, { timeout: 30000 });
+
+        assert.ok(served.length >= 2 && served.every((entry) => entry.startsWith('200 audio/mpeg')), `mp3 servis : ${served}`);
+        assert.equal(await page.evaluate(() => window.__audio.errors), 0);
+        assert.deepEqual(errors, []);
+    } finally {
+        await browser2.close();
+    }
+});

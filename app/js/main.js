@@ -10,6 +10,7 @@ import { SettingsStore } from './core/SettingsStore.js';
 import { ValidationEngine } from './core/ValidationEngine.js';
 import { VoiceEngine } from './core/VoiceEngine.js';
 import { I18n } from './i18n/i18n.js';
+import { speechKey } from './core/speechKey.js';
 import { BadgeToast } from './ui/BadgeToast.js';
 import { CellManager } from './ui/CellManager.js';
 import { NotebookView } from './ui/NotebookView.js';
@@ -56,6 +57,7 @@ class App {
     #audio;
     #voice;
     #manager;
+    #toast;
     #map;
     #panel;
     #levelIds = [];
@@ -81,10 +83,11 @@ class App {
 
         const client = new PyodideWorkerClient({ indexURL: new URL('/vendor/pyodide/', location.href).href });
         const notebook = new NotebookView(this.#i18n, {
-            onSpeak: (text) => this.#voice.speak(text, this.#i18n.lang),
+            onSpeak: (text, step) => this.#voice.speak(text, this.#i18n.lang, { audioUrl: step.audioUrl }),
             canSpeak: () => this.#voice.supported && this.#voice.enabled,
         });
         const toast = new BadgeToast(this.#i18n);
+        this.#toast = toast;
         this.#manager = new CellManager({
             i18n: this.#i18n,
             notebook,
@@ -101,6 +104,7 @@ class App {
         this.#map.addEventListener('select', (event) => this.#openLevel(event.detail.id));
         this.#panel = new SettingsPanel(this.#i18n);
         this.#panel.addEventListener('change', (event) => this.#onSettingChange(event.detail));
+        this.#panel.addEventListener('test', (event) => this.#onTest(event.detail.kind));
 
         document.getElementById('progress-region').append(this.#map.element);
         document.getElementById('notebook-region').append(notebook.element);
@@ -166,6 +170,23 @@ class App {
             // Le niveau courant redémarre dans la nouvelle langue (les saisies en cours sont perdues).
             await this.#openLevel(this.#currentId);
         }
+    }
+
+    /** Échantillons des réglages : le clic est le geste utilisateur qui débloque le son. */
+    async #onTest(kind) {
+        if (kind === 'sound') {
+            await this.#audio.unlock();
+            this.#audio.play('success_big');
+            return;
+        }
+        if (!this.#voice.enabled) {
+            this.#toast.show(this.#i18n.t('settings.voiceOffNotice'));
+            return;
+        }
+        const lang = this.#i18n.lang;
+        const sample = this.#i18n.t('voice.sample');
+        const audioUrl = new URL(`assets/voice/${lang}/${speechKey(lang, sample)}.mp3`, document.baseURI).href;
+        await this.#voice.speak(sample, lang, { audioUrl });
     }
 
     #registerServiceWorker() {

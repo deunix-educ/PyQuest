@@ -59,5 +59,9 @@
     "settings.sound": "Effets sonores",
     "settings.volume": "Volume",
     "settings.voice": "Voix",
+    "voice.sample": "Bonjour, je suis la voix de PyQuest. Voici comment je lirai les explications.",
+    "settings.testSound": "Tester le son",
+    "settings.testVoice": "Tester la voix",
+    "settings.voiceOffNotice": "Active d'abord la voix dans les réglages.",
     "settings.voiceRate": "Vitesse de la voix"
 }

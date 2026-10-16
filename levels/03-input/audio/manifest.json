@@ -1,0 +1,30 @@
+{
+    "en": {
+        "5001c3ed998b7d08": {
+            "text": "Careful: input() always returns text (str), even if you type a number. To calculate, convert with int() for a whole number.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "9b1fde4f226e7312": {
+            "text": "For a decimal number, use float(). Write the number with a dot: 2.5.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "b6ee93b31ce24973": {
+            "text": "input() asks a question and waits for an answer. What you type is stored in a variable.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "10106ac3ec9e360e": {
+            "text": "Pour un nombre à virgule, utilise float(). Écris le nombre avec un point : 2.5.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "93d150defcc1afd3": {
+            "text": "Attention : input() renvoie toujours du texte (str), même si tu tapes un nombre. Pour calculer, convertis avec int() pour un entier.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "f78f76c20364c000": {
+            "text": "input() pose une question et attend une réponse. Ce que tu tapes est rangé dans une variable.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

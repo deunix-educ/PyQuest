@@ -1,0 +1,38 @@
+{
+    "en": {
+        "3377dbceba2bc0b7": {
+            "text": "A program is a list of instructions. The computer reads them one by one, from top to bottom.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "430223b95c3fa880": {
+            "text": "The computer guesses nothing. It does exactly what you write, nothing more. That is why we must be precise.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "b076ad3710ea6882": {
+            "text": "Python is a language for writing these instructions. In the next level, you write your first line.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "d9f081c67f104001": {
+            "text": "Like a recipe: 1. Crack the eggs. 2. Beat the eggs. 3. Cook the omelette. Change the order and the result changes.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "01f59f4dd745df14": {
+            "text": "Python est un langage pour écrire ces instructions. Dans le prochain niveau, tu écris ta première ligne.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "057035f93c3e455c": {
+            "text": "L'ordinateur ne devine rien. Il fait exactement ce que tu écris, rien de plus. C'est pour ça qu'on doit être précis.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "52435bdffec79d76": {
+            "text": "Comme une recette : 1. Casser les œufs. 2. Battre les œufs. 3. Cuire l'omelette. Si tu changes l'ordre, le résultat change.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "b691d6ad0208b825": {
+            "text": "Un programme est une liste d'instructions. L'ordinateur les lit une par une, de haut en bas.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

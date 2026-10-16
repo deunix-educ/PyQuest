@@ -7,7 +7,7 @@ beginners and advanced learners alike.
   a Web Worker: genuine error messages, translated into plain language.
 - Notebook-style cells, progressive hints, automatic exercise validation.
 - Declarative levels (YAML): adding a level requires no code change.
-- XP, badges, daily streaks, optional sounds and voice, French/English interface.
+- XP, badges, daily streaks, optional sound effects and narration (pre-generated Piper voices), French/English interface.
 - Accessibility target: WCAG 2.2 AA (full keyboard use, light/dark themes, adjustable text size).
 
 > Version française : [README.md](README.md)

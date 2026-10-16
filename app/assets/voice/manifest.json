@@ -1,0 +1,14 @@
+{
+    "en": {
+        "23087e367ecc886e": {
+            "text": "Hello, I am the voice of PyQuest. This is how I will read the explanations.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "c4262bd49831c690": {
+            "text": "Bonjour, je suis la voix de PyQuest. Voici comment je lirai les explications.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

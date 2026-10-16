@@ -3,9 +3,9 @@
 // - Pyodide vendorisé, niveaux, scripts : mis en cache à la première utilisation (hors ligne ensuite).
 // Les en-têtes COOP/COEP du document viennent du serveur ; ce worker ne les fabrique pas.
 
-const CACHE_VERSION = 'pyquest-v4';
+const CACHE_VERSION = 'pyquest-v5';
 
-const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'css/themes.css', 'css/base.css', 'css/cells.css', 'css/guide.css', 'icons/icon.svg', 'js/main.js'];
+const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'css/themes.css', 'css/base.css', 'css/cells.css', 'css/guide.css', 'css/progress.css', 'icons/icon.svg', 'js/main.js'];
 
 self.addEventListener('install', (event) => {
     event.waitUntil(caches.open(CACHE_VERSION).then((cache) => cache.addAll(SHELL)));

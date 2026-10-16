@@ -13,6 +13,19 @@ body {
     outline-offset: 2px;
 }
 
+/* Texte réservé aux lecteurs d'écran. */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* L'attribut hidden doit toujours l'emporter sur les règles display des composants. */
 [hidden] {
     display: none !important;
@@ -239,7 +252,7 @@ pre {
     padding: 1rem;
 }
 
-/* Progression */
+/* Barre et compteurs de progression (la carte et les badges sont dans progress.css) */
 .progress-bar {
     width: 100%;
     height: 1rem;
@@ -249,41 +262,6 @@ pre {
 .progress-count {
     margin: 0 0 0.25rem;
     font-weight: 700;
-}
-
-.level-list {
-    list-style: none;
-    padding: 0;
-}
-
-.level-button {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 0.25rem 0.75rem;
-    width: 100%;
-    margin: 0.25rem 0;
-    padding: 0.5rem 0.75rem;
-    background: var(--surface);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 0.375rem;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-}
-
-.level-button.is-current {
-    border-width: 3px;
-    border-color: var(--accent);
-}
-
-.level-title {
-    flex: 1 1 8rem;
-}
-
-.level-state {
-    white-space: nowrap;
 }
 
 /* Réglages */

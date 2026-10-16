@@ -12,6 +12,7 @@ import { ValidationEngine } from './core/ValidationEngine.js';
 import { VoiceEngine } from './core/VoiceEngine.js';
 import { I18n } from './i18n/i18n.js';
 import { speechKey } from './core/speechKey.js';
+import { BadgeShelf } from './ui/BadgeShelf.js';
 import { BadgeToast } from './ui/BadgeToast.js';
 import { Drawer } from './ui/Drawer.js';
 import { el } from './ui/dom.js';
@@ -64,6 +65,7 @@ class App {
     #toast;
     #notebook;
     #map;
+    #shelf;
     #panel;
     #levelsDrawer;
     #settingsDrawer;
@@ -112,6 +114,7 @@ class App {
         this.#manager.addEventListener('levelcomplete', () => this.#renderMap());
 
         this.#map = new ProgressMap(this.#i18n);
+        this.#shelf = new BadgeShelf(this.#i18n);
         this.#map.addEventListener('select', (event) => {
             this.#levelsDrawer.close();
             this.#goTo(event.detail.id);
@@ -183,7 +186,9 @@ class App {
                 return { id, title: level.title[this.#i18n.lang] ?? level.title.fr };
             }),
         );
-        this.#map.render({ levels, progress: this.#progress.snapshot(), currentId: this.#currentId });
+        const progress = this.#progress.snapshot();
+        this.#map.render({ levels, progress, currentId: this.#currentId });
+        this.#shelf.render({ ids: ProgressStore.badgeIds, earned: progress.badges });
     }
 
     /** Tiroirs « Niveaux » (gauche) et « Réglages » (droite) ; un seul ouvert à la fois. */
@@ -194,7 +199,7 @@ class App {
             side: 'left',
             title: '',
             closeLabel: '',
-            content: this.#map.element,
+            content: el('div', { class: 'progress-drawer' }, this.#map.element, this.#shelf.element),
             trigger: document.getElementById('levels-toggle'),
             inertTargets: [appRoot],
         });
@@ -207,7 +212,10 @@ class App {
             inertTargets: [appRoot],
         });
         region.append(...this.#levelsDrawer.elements, ...this.#settingsDrawer.elements);
-        this.#levelsDrawer.addEventListener('open', () => this.#settingsDrawer.close({ restoreFocus: false }));
+        this.#levelsDrawer.addEventListener('open', () => {
+            this.#settingsDrawer.close({ restoreFocus: false });
+            this.#map.scrollToCurrent();
+        });
         this.#settingsDrawer.addEventListener('open', () => this.#levelsDrawer.close({ restoreFocus: false }));
     }
 

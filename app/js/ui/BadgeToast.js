@@ -1,5 +1,6 @@
 // Notifications éphémères (badges, XP). Région role="status" : annoncée sans voler le focus.
 
+import { createBadgeIcon } from './badgeArt.js';
 import { el } from './dom.js';
 
 const DISPLAY_MS = 7000;
@@ -18,10 +19,11 @@ export class BadgeToast {
     }
 
     /** Affiche un message ; se ferme seul après quelques secondes ou au clic sur « Fermer ». */
-    show(message) {
+    show(message, { icon = null } = {}) {
         const toast = el(
             'div',
             { class: 'toast' },
+            icon,
             el('span', { text: message }),
             el('button', { type: 'button', class: 'btn', text: this.#i18n.t('toast.close'), onclick: () => toast.remove() }),
         );
@@ -30,6 +32,7 @@ export class BadgeToast {
     }
 
     showBadge(badgeId) {
-        this.show(this.#i18n.t('badge.earned', { name: this.#i18n.t(`badge.${badgeId}`) }));
+        const medal = el('span', { class: 'toast-badge' }, createBadgeIcon(badgeId, { earned: true }));
+        this.show(this.#i18n.t('badge.earned', { name: this.#i18n.t(`badge.${badgeId}`) }), { icon: medal });
     }
 }

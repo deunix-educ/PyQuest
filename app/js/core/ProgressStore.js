@@ -23,6 +23,11 @@ export class ProgressStore {
         this.#store = store;
     }
 
+    /** Identifiants de tous les badges existants (pour afficher aussi ceux à débloquer). */
+    static get badgeIds() {
+        return BADGES.map((badge) => badge.id);
+    }
+
     static emptyState() {
         return {
             version: SCHEMA_VERSION,

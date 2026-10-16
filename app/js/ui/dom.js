@@ -40,3 +40,12 @@ export function uniqueId(prefix) {
     counter += 1;
     return `${prefix}-${counter}`;
 }
+
+/**
+ * Crée un élément SVG à partir d'un balisage constant du code (jamais de données externes).
+ * @param {string} markup  Document SVG complet (avec xmlns).
+ */
+export function svg(markup) {
+    const parsed = new DOMParser().parseFromString(markup, 'image/svg+xml');
+    return document.importNode(parsed.documentElement, true);
+}

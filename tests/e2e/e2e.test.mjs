@@ -382,3 +382,37 @@ test('personnage-guide : messages variés selon la situation, réglage pour le m
     await cell.locator('.cell-guide .guide-bubble').waitFor({ state: 'visible' });
     assert.deepEqual(errors, []);
 });
+
+test('carte de progression et badges : états en texte, badge obtenu à la fin du niveau 00', { skip, timeout: 120000 }, async () => {
+    const page = await (await browser.newContext()).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(base);
+    await page.waitForSelector('.explain', { timeout: 60000 });
+
+    // Avant toute progression : tous les badges sont à débloquer, le niveau 1 est « En cours ».
+    await page.locator('#levels-toggle').click();
+    assert.match(await page.textContent('.badge-count'), /0 badge\(s\) obtenu\(s\) sur 5/);
+    assert.equal(await page.locator('.badge-item.is-locked').count(), 5);
+    const first = page.locator('.level-button').first();
+    assert.equal(await first.getAttribute('aria-current'), 'step');
+    assert.match(await first.textContent(), /Niveau 1 : .*Qu'est-ce qu'un programme \?.*En cours/s);
+    await page.keyboard.press('Escape');
+
+    // Termine le niveau 00.
+    for (let i = 0; i < 5; i++) await page.locator('.notebook-action button').last().click();
+    await page.waitForSelector('.toast');
+    assert.match(await page.textContent('.toast-region'), /Badge obtenu : Premier pas/);
+    assert.equal(await page.locator('.toast-badge svg.is-earned').count(), 1, 'médaille dans la notification');
+
+    // La carte montre le niveau 1 terminé (✔ + texte) et le badge est sur l'étagère, daté.
+    await page.locator('#levels-toggle').click();
+    const done = page.locator('.level-button.is-done').first();
+    assert.match(await done.textContent(), /Terminé/);
+    assert.match(await done.locator('.node-badge').textContent(), /✔/);
+    assert.match(await page.textContent('.badge-count'), /1 badge\(s\) obtenu\(s\) sur 5/);
+    assert.equal(await page.locator('.badge-item.is-earned').count(), 1);
+    assert.match(await page.locator('.badge-item.is-earned').textContent(), /Premier pas.*Terminer ton premier niveau.*Obtenu le/s);
+    assert.equal(await page.locator('.badge-item.is-locked .badge-status').first().textContent(), 'À débloquer');
+    assert.deepEqual(errors, []);
+});

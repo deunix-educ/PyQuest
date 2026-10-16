@@ -38,3 +38,18 @@ Choix de l'utilisateur parmi les propositions de [`identity/index.html`](identit
 - **Réglage** « Personnage-guide » : masque toutes les bulles (`data-guide="off"` sur `<html>`).
 - Ajouter une situation : clé dans les deux catalogues + humeur dans `GuideEngine` ; le test
   `tests/js/guide-engine.test.mjs` vérifie parité fr/en, variantes distinctes et paramètres connus.
+
+## Carte de progression et badges
+
+- **Carte** (`ui/ProgressMap.js`, `css/progress.css`) : chemin sinueux de pastilles reliées dans le
+  tiroir « Ta progression ». Segment plein = niveau terminé, pointillé = à venir. La chouette se tient
+  près du niveau en cours. Chaque niveau est un bouton dont le nom accessible contient « Niveau n »,
+  le titre et l'état en texte ; la pastille montre ✔ ou le numéro : le sens ne repose jamais sur la
+  couleur seule. Aucun verrou. Le tiroir défile jusqu'au niveau en cours à l'ouverture.
+- **Badges** (`ui/BadgeShelf.js`, `ui/badgeArt.js`) : médailles illustrées (pousse, escalier, étoile,
+  flamme, grande flamme). Obtenu = coloré, avec la date ; à débloquer = silhouette grise en pointillés
+  avec la condition en texte. La même médaille s'affiche dans la notification d'obtention.
+- Ajouter un badge : règle dans `ProgressStore` (`BADGES`), illustration dans `badgeArt.js`, textes
+  `badge.<id>` et `badge.<id>.desc` dans les deux catalogues ; `tests/js/badges.test.mjs` vérifie
+  la cohérence illustration / règle / textes fr-en.
+- **Feedback coloré** : déjà en place (vert/rouge de `cells.css`), toujours doublé d'une icône et d'un texte.

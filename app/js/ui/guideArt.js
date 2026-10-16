@@ -1,3 +1,5 @@
+import { svg } from './dom.js';
+
 // Dessin de la chouette-guide (SVG constant, aux couleurs du thème via les classes CSS de guide.css).
 // L'humeur (neutral, happy, thinking, celebrate) est portée par l'attribut data-mood du conteneur.
 
@@ -37,7 +39,5 @@ const OWL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" c
 
 /** Crée un nouvel élément SVG de chouette. */
 export function createOwl() {
-    // Marque constante (jamais construite à partir de données externes) : l'analyse DOM est sûre.
-    const document_ = new DOMParser().parseFromString(OWL_SVG, 'image/svg+xml');
-    return document.importNode(document_.documentElement, true);
+    return svg(OWL_SVG);
 }

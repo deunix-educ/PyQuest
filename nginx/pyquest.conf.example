@@ -7,7 +7,8 @@
 limit_req_zone $binary_remote_addr zone=pyquest_sync:10m rate=30r/m;
 
 server {
-    listen 443 ssl http2;
+    listen 443 ssl;
+    http2 on;   # nginx >= 1.25.1 ; avant : « listen 443 ssl http2; »
     server_name pyquest.example.org;
 
     ssl_certificate     /etc/letsencrypt/live/pyquest.example.org/fullchain.pem;
@@ -22,11 +23,23 @@ server {
     add_header Cross-Origin-Resource-Policy "same-origin" always;
     add_header X-Content-Type-Options "nosniff" always;
 
+    # Types MIME explicites : un bloc « types » dans server remplace la table par défaut, donc on liste
+    # tout ce que l'application sert (voir pyquest-static.conf.example pour la version complète et la compression).
     types {
-        text/javascript mjs;
-        application/manifest+json webmanifest;
-        application/wasm wasm;
+        text/html                  html;
+        text/css                   css;
+        text/javascript            js mjs;
+        application/json           json;
+        application/manifest+json  webmanifest;
+        application/wasm           wasm;
+        image/svg+xml              svg;
+        image/png                  png;
+        image/x-icon               ico;
+        audio/mpeg                 mp3;
+        font/woff2                 woff2;
+        text/plain                 txt py yaml;
     }
+    default_type application/octet-stream;
 
     location / {
         try_files $uri $uri/ =404;

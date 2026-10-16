@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build dev-sync docs docs-serve test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
+.PHONY: help install vendor-pyodide dev validate-levels build dev-sync docs docs-serve deploy check-deploy test-deploy test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -29,6 +29,15 @@ dev-sync: $(VENV)/.installed ## Serveur de dev + backend Django relayé sur /api
 	pid=$$!; trap "kill $$pid" EXIT INT TERM; \
 	$(PYTHON) scripts/dev_server.py --port $(PORT) --api-upstream http://127.0.0.1:8001
 
+deploy: build ## Déploie dist/ sur le VPS (DEPLOY_HOST=utilisateur@hote ; voir scripts/deploy.sh)
+	./scripts/deploy.sh
+
+check-deploy: ## Contrôle un site déployé (URL=https://domaine)
+	./scripts/check_deploy.sh $(URL)
+
+test-deploy: ## Teste le script de déploiement avec un faux ssh local
+	bash tests/deploy/test_deploy.sh
+
 DOCS_VENV := .venv-docs
 
 $(DOCS_VENV)/.installed: requirements-docs.txt
@@ -48,7 +57,7 @@ validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, t
 build: $(VENV)/.installed ## Construit dist/ pour la production
 	$(VENV_PY) scripts/build.py
 
-test: test-js test-python test-backend validate-levels check-voice ## Lance tous les tests
+test: test-js test-python test-backend test-deploy validate-levels check-voice ## Lance tous les tests
 
 test-js: ## Tests JavaScript (node:test, aucune dépendance)
 	node --test tests/js/*.test.mjs

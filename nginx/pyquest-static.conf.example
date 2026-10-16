@@ -1,0 +1,92 @@
+# Vhost PyQuest, version statique (sans synchronisation) : à adapter (domaine, chemins, certificat).
+# Contenu servi : le dossier « current » créé par scripts/deploy.sh (lien vers la dernière version).
+# Les en-têtes COOP/COEP/CORP sont indispensables à l'interruption des boucles infinies et à input()
+# (SharedArrayBuffer). Tout est servi depuis ce domaine, y compris Pyodide (COEP interdit les CDN).
+# Pour la synchronisation, voir pyquest.conf.example (bloc /api/ et limite de débit).
+#
+# Installation type (Debian/Ubuntu) : voir la documentation « Déploiement » (docs/site/fr/host/deploy.md).
+#   1. éditer server_name et les chemins ; commenter le second bloc server (443) tant qu'il n'y a pas de certificat
+#   2. sudo ln -s /etc/nginx/sites-available/pyquest /etc/nginx/sites-enabled/pyquest && sudo nginx -t && sudo systemctl reload nginx
+#   3. sudo certbot certonly --webroot -w /var/www/letsencrypt -d pyquest.example.org
+#   4. décommenter le bloc 443 puis sudo nginx -t && sudo systemctl reload nginx
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name pyquest.example.org;
+
+    # Défi HTTP de Let's Encrypt, puis tout le reste passe en HTTPS.
+    location /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt;
+    }
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    http2 on;   # nginx >= 1.25.1 ; avant : « listen 443 ssl http2; » ci-dessus
+    server_name pyquest.example.org;
+
+    ssl_certificate     /etc/letsencrypt/live/pyquest.example.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/pyquest.example.org/privkey.pem;
+
+    # Dossier créé par scripts/deploy.sh (lien « current » basculé à chaque déploiement).
+    root /var/www/pyquest/current;
+    index index.html;
+
+    # Types MIME explicites : un bloc « types » dans server remplace la table par défaut, donc on
+    # liste tout ce que l'application sert. Les scripts-modules exigent text/javascript.
+    types {
+        text/html                  html;
+        text/css                   css;
+        text/javascript            js mjs;
+        application/json           json;
+        application/manifest+json  webmanifest;
+        application/wasm           wasm;
+        image/svg+xml              svg;
+        image/png                  png;
+        image/x-icon               ico;
+        audio/mpeg                 mp3;
+        font/woff2                 woff2;
+        text/plain                 txt py yaml;
+    }
+    default_type application/octet-stream;
+
+    # Compression : le moteur Python (wasm) et les scripts gagnent beaucoup.
+    gzip on;
+    gzip_comp_level 6;
+    gzip_min_length 1024;
+    gzip_types text/css text/javascript application/json application/wasm image/svg+xml text/plain application/manifest+json;
+
+    # add_header n'est hérité que si le bloc location n'en déclare aucun : chaque location qui ajoute
+    # un en-tête (cache) doit donc répéter ceux d'isolation. On les regroupe dans ce fichier-ci.
+    add_header Cross-Origin-Opener-Policy "same-origin" always;
+    add_header Cross-Origin-Embedder-Policy "require-corp" always;
+    add_header Cross-Origin-Resource-Policy "same-origin" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Strict-Transport-Security "max-age=31536000" always;
+
+    location / {
+        try_files $uri $uri/ =404;
+        # Pages et scripts : revalidés à chaque chargement (le service worker passe par le réseau d'abord).
+        add_header Cache-Control "no-cache" always;
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        add_header Cross-Origin-Resource-Policy "same-origin" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Strict-Transport-Security "max-age=31536000" always;
+    }
+
+    # Pyodide est versionné et immuable : cache long.
+    location /vendor/pyodide/ {
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        add_header Cross-Origin-Resource-Policy "same-origin" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Strict-Transport-Security "max-age=31536000" always;
+    }
+}

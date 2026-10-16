@@ -1,5 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="PyQuest">
-    <rect width="512" height="512" rx="96" fill="#1d4ed8"/>
-    <path d="M150 200l-70 56 70 56M362 200l70 56-70 56" fill="none" stroke="#ffffff" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M286 150l-60 212" fill="none" stroke="#ffcc66" stroke-width="36" stroke-linecap="round"/>
+    <rect width="512" height="512" fill="#0f766e"/>
+    <g transform="translate(96 88) scale(2.67)">
+        <ellipse cx="60" cy="68" rx="38" ry="42" fill="#d7ebe6"/>
+        <path d="M30 38 L38 14 L52 30 Z M90 38 L82 14 L68 30 Z" fill="#d7ebe6"/>
+        <circle cx="44" cy="58" r="15" fill="#ffffff"/>
+        <circle cx="76" cy="58" r="15" fill="#ffffff"/>
+        <circle cx="46" cy="59" r="7" fill="#16231f"/>
+        <circle cx="74" cy="59" r="7" fill="#16231f"/>
+        <circle cx="48" cy="56" r="2.2" fill="#ffffff"/>
+        <circle cx="76" cy="56" r="2.2" fill="#ffffff"/>
+        <path d="M54 72 L66 72 L60 84 Z" fill="#ea580c"/>
+        <ellipse cx="60" cy="92" rx="22" ry="14" fill="#ffffff" opacity="0.75"/>
+    </g>
 </svg>

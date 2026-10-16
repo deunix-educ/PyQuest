@@ -295,3 +295,34 @@ test('navigation : lien direct vers un niveau, tiroirs accessibles, précédent/
     assert.equal(await page.locator('.drawer-left.is-open').count(), 0);
     assert.deepEqual(errors, []);
 });
+
+test('éditeur : coloration syntaxique, textarea réel, polices de la charte', { skip, timeout: 120000 }, async () => {
+    const page = await (await browser.newContext()).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(`${base}#/levels/06-lists`);
+    await page.waitForSelector('.explain', { timeout: 60000 });
+    await page.locator('.notebook-action button').click();
+    const textarea = page.locator('.cell textarea');
+    await textarea.waitFor();
+
+    // Le contrôle reste un vrai textarea accessible ; la coloration est décorative (aria-hidden).
+    assert.equal(await page.locator('.code-highlight').getAttribute('aria-hidden'), 'true');
+    assert.equal(await textarea.getAttribute('aria-label'), 'Éditeur de code Python');
+    await textarea.fill('for n in range(3):\n    print("a", n)  # fin');
+    await page.waitForFunction(() => document.querySelectorAll('.code-highlight .tok-keyword').length === 2);
+    assert.equal(await page.locator('.code-highlight .tok-string').textContent(), '"a"');
+    assert.equal(await page.locator('.code-highlight .tok-comment').textContent(), '# fin');
+
+    // Charte : polices auto-hébergées effectivement chargées, sans ligature.
+    const fonts = await page.evaluate(async () => {
+        await document.fonts.ready;
+        return {
+            ui: document.fonts.check('16px "Atkinson Hyperlegible"'),
+            code: document.fonts.check('16px "JetBrains Mono"'),
+            ligatures: getComputedStyle(document.querySelector('.code-editor')).fontVariantLigatures,
+        };
+    });
+    assert.deepEqual(fonts, { ui: true, code: true, ligatures: 'none' });
+    assert.deepEqual(errors, []);
+});

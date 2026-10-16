@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend test-e2e typecheck voice check-voice clean
+.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend test-e2e typecheck icons voice check-voice clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -47,6 +47,10 @@ test-e2e: ## Tests bout en bout dans Chromium (CHROMIUM=/chemin/navigateur)
 
 typecheck: $(VENV)/.installed ## Vérifie les types Python avec pyright
 	$(VENV)/bin/pyright
+
+icons: ## Régénère les icônes PNG depuis app/icons/icon.svg (Chromium requis)
+	npm --prefix tests/e2e install --silent
+	node scripts/render_icons.mjs
 
 voice: ## Génère la narration (Piper → mp3) pour les textes de niveaux ; voir levels/AUDIO-CREDITS.md
 	$(PYTHON) -m venv .venv-voice

@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DIST = ROOT / "dist"
-PRECACHED_SUFFIXES = {".html", ".css", ".js", ".mjs", ".json", ".svg", ".webmanifest", ".py"}
+PRECACHED_SUFFIXES = {".html", ".css", ".js", ".mjs", ".json", ".svg", ".png", ".woff2", ".webmanifest", ".py"}
 NOT_PRECACHED = {"service-worker.js"}
 
 

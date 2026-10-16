@@ -1,0 +1,106 @@
+/* Identité visuelle : palette « Forêt & Corail », typographie Atkinson Hyperlegible + JetBrains Mono.
+   Jetons de couleur clair/sombre (rapports de contraste vérifiés par tests/js/theme-contrast.test.mjs),
+   polices auto-hébergées (COEP : aucune ressource cross-origin), taille de texte réglable. */
+
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    src: url("../assets/fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Atkinson Hyperlegible";
+    src: url("../assets/fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    src: url("../assets/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "JetBrains Mono";
+    src: url("../assets/fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
+    font-weight: 700;
+    font-display: swap;
+}
+
+:root {
+    --font-ui: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-code: "JetBrains Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+    /* Réglable par SettingsPanel : html { font-size: calc(var(--font-scale) * 100%) } */
+    --font-scale: 1;
+
+    /* Clair */
+    --bg: #ffffff;
+    --surface: #f3f7f6;
+    --code: #ebf2f0;
+    --text: #16231f;
+    --muted: #475b55;
+    --border: #b4c4bf;
+    --accent: #0f766e;
+    --accent-text: #ffffff;
+    --hl: #c2410c; /* corail : XP, focus */
+    --focus: #c2410c;
+    --ok: #166534;
+    --ko: #b42318;
+    --tok-keyword: #9a3412;
+    --tok-string: #166534;
+    --tok-number: #1d4ed8;
+    --tok-comment: #4f625c;
+    --tok-builtin: #0f766e;
+    --tok-def: #6d28d9;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --bg: #0f1715;
+        --surface: #18231f;
+        --code: #121c19;
+        --text: #e8f1ee;
+        --muted: #a9bdb6;
+        --border: #41544e;
+        --accent: #5eead4;
+        --accent-text: #04201c;
+        --hl: #fdba74;
+        --focus: #fdba74;
+        --ok: #86efac;
+        --ko: #fda4af;
+        --tok-keyword: #fdba74;
+        --tok-string: #86efac;
+        --tok-number: #93c5fd;
+        --tok-comment: #9db0a9;
+        --tok-builtin: #5eead4;
+        --tok-def: #c4b5fd;
+    }
+}
+
+:root[data-theme="dark"] {
+    --bg: #0f1715;
+    --surface: #18231f;
+    --code: #121c19;
+    --text: #e8f1ee;
+    --muted: #a9bdb6;
+    --border: #41544e;
+    --accent: #5eead4;
+    --accent-text: #04201c;
+    --hl: #fdba74;
+    --focus: #fdba74;
+    --ok: #86efac;
+    --ko: #fda4af;
+    --tok-keyword: #fdba74;
+    --tok-string: #86efac;
+    --tok-number: #93c5fd;
+    --tok-comment: #9db0a9;
+    --tok-builtin: #5eead4;
+    --tok-def: #c4b5fd;
+}
+
+html {
+    font-size: calc(var(--font-scale) * 100%);
+}

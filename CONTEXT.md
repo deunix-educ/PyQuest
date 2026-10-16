@@ -30,7 +30,7 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Erreurs | `app/js/core/ErrorTranslator.js` + `app/js/i18n/errors.{fr,en}.json` |
 | Progression | `app/js/core/ProgressStore.js`, `KeyValueStores.js` (IndexedDB/mémoire), `SettingsStore.js` |
 | Audio / voix | `app/js/core/AudioEngine.js` (sons synthétisés), `VoiceEngine.js` (mp3 Piper + repli speechSynthesis), `speechKey.js` ; `scripts/generate_voice.py`, `voice_key.py` |
-| UI | `app/js/ui/` (CellView, CellManager, NotebookView, HintPanel, ProgressMap, BadgeToast, SettingsPanel, dom.js), `app/js/i18n/{i18n.js,fr.json,en.json}`, `app/css/app.css` |
+| UI | `app/js/ui/` (CellView, CellManager, NotebookView, HintPanel, ProgressMap, BadgeToast, SettingsPanel, dom.js), `app/js/i18n/{i18n.js,fr.json,en.json}`, `app/css/{themes,base,cells}.css`, `ui/CodeEditor.js`, `ui/highlightPython.js` |
 | Shell PWA | `app/index.html`, `app/js/main.js`, `app/service-worker.js`, `app/manifest.webmanifest` |
 | Tooling | `Makefile`, `scripts/{dev_server,validate_levels,build}.py`, `scripts/vendor_pyodide.sh` |
 | Tests | `tests/js/*.test.mjs` (node:test), `tests/python/`, `backend/sync/tests.py`, `tests/e2e/` (Chromium) |
@@ -80,8 +80,12 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
    `ui/Drawer.js`, en-tête avec niveau courant + précédent/suivant, lien direct `#/levels/<id>`,
    historique navigateur). **Étape 1 faite** : page de propositions `docs/design/identity/index.html` (3 palettes
    avec contrastes WCAG calculés, 3 typographies auto-hébergeables OFL, 3 mascottes + messages
-   fr/en) ; **recommandation : palette B, typo 2, mascotte 1 (Chouette)** — *en attente du choix de
-   l'utilisateur*. **Reste** : identité visuelle
+   fr/en) ; **recommandation : palette B, typo 2, mascotte 1 (Chouette)** — **choix validé par l'utilisateur** (voir
+   `docs/design/07-visual-identity.md`). **Étape 2 faite** : CSS découpé (`themes`/`base`/`cells`),
+   palette B + typo 2 auto-hébergée, éditeur coloré (`CodeEditor`, `highlightPython`), icône
+   chouette + PNG (`make icons`), test de contraste des thèmes. **Étape 3 restante** : carte de
+   progression graphique + personnage-guide (chouette) aux messages variés fr/en, badges
+   illustrés, feedback coloré doublé de texte. Anciennes notes : **Reste** : identité visuelle
    (palette, typo, logo), découpage CSS (`base`/`themes`/`cells`), coloration syntaxique de
    l'éditeur, carte de progression graphique, personnage-guide aux messages variés fr/en,
    badges illustrés, feedback coloré (vert/rouge, toujours doublé d'un texte). Procéder en 3

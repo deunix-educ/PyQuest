@@ -2,6 +2,7 @@
 // Émet les événements 'run' (detail: { code }), 'stop' et 'reset'. Aucune logique d'exécution ici.
 
 import { el, renderInline, uniqueId } from './dom.js';
+import { CodeEditor } from './CodeEditor.js';
 import { HintPanel } from './HintPanel.js';
 
 export class CellView extends EventTarget {
@@ -33,19 +34,16 @@ export class CellView extends EventTarget {
 
         const editorId = uniqueId('editor');
         const outputId = uniqueId('output');
-        this.#editor = el('textarea', {
-            id: editorId,
-            class: 'code-editor',
-            spellcheck: 'false',
-            autocapitalize: 'off',
-            autocomplete: 'off',
-            autocorrect: 'off',
-            rows: Math.max(3, starter.split('\n').length + 1),
-            'aria-label': i18n.t('cell.editor'),
-            'aria-describedby': `${editorId}-hint`,
-            onkeydown: (event) => this.#onKeyDown(event),
+        this.#editor = new CodeEditor({
+            value: starter,
+            attrs: {
+                id: editorId,
+                rows: Math.max(3, starter.split('\n').length + 1),
+                'aria-label': i18n.t('cell.editor'),
+                'aria-describedby': `${editorId}-hint`,
+            },
+            onKeyDown: (event) => this.#onKeyDown(event),
         });
-        this.#editor.value = starter;
 
         this.#runButton = el('button', { type: 'button', class: 'btn btn-primary cell-run', text: i18n.t('cell.run'), onclick: () => this.#emitRun() });
         this.#stopButton = el('button', {
@@ -79,7 +77,7 @@ export class CellView extends EventTarget {
             'section',
             { class: 'cell', tabindex: '-1' },
             el('p', { class: 'cell-instruction' }, renderInline(instruction)),
-            this.#editor,
+            this.#editor.element,
             el('p', { id: `${editorId}-hint`, class: 'cell-shortcut', text: i18n.t('cell.shortcut') }),
             el('div', { class: 'cell-actions' }, this.#runButton, this.#stopButton, resetButton, new HintPanel(i18n, hints).element),
             this.#output,

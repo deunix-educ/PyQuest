@@ -42,6 +42,7 @@ export class SettingsPanel extends EventTarget {
             this.#testButton('settings.testVoice', 'voice'),
             this.#field('settings.voiceRate', 'range', { value: settings.voiceRate, min: 0.5, max: 2, step: 0.1, key: 'voiceRate', number: true }),
             this.#field('settings.author', 'checkbox', { value: settings.authorMode, key: 'authorMode' }),
+            this.#backupSection(),
             settings.authorMode ? el('a', { class: 'btn author-link', href: 'author.html', text: t('settings.authorOpen') }) : null,
         );
     }
@@ -49,6 +50,34 @@ export class SettingsPanel extends EventTarget {
     /** Redonne le focus à un réglage après un nouveau rendu (ex. changement de langue). */
     focusSetting(key) {
         this.#root.querySelector(`[data-setting="${key}"]`)?.focus();
+    }
+
+    /** Sauvegarde manuelle de la progression : fichier JSON, sans serveur. */
+    #backupSection() {
+        const t = (key) => this.#i18n.t(key);
+        const fileId = uniqueId('import');
+        const input = el('input', {
+            id: fileId,
+            type: 'file',
+            accept: 'application/json,.json',
+            hidden: true,
+            onchange: (event) => {
+                const [file] = event.target.files;
+                event.target.value = '';
+                if (file) {
+                    this.dispatchEvent(new CustomEvent('import', { detail: { file } }));
+                }
+            },
+        });
+        return el(
+            'fieldset',
+            { class: 'setting-group' },
+            el('legend', { text: t('backup.title') }),
+            el('p', { class: 'hint', text: t('backup.help') }),
+            el('button', { type: 'button', class: 'btn', text: t('backup.export'), onclick: () => this.dispatchEvent(new Event('export')) }),
+            el('button', { type: 'button', class: 'btn', text: t('backup.import'), onclick: () => input.click() }),
+            input,
+        );
     }
 
     #testButton(labelKey, kind) {

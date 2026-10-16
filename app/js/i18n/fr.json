@@ -86,5 +86,12 @@
     "settings.testSound": "Tester le son",
     "settings.testVoice": "Tester la voix",
     "settings.voiceOffNotice": "Active d'abord la voix dans les réglages.",
-    "settings.voiceRate": "Vitesse de la voix"
+    "settings.voiceRate": "Vitesse de la voix",
+    "backup.title": "Sauvegarde de la progression",
+    "backup.help": "Un fichier à garder ou à copier sur un autre appareil. Rien n'est envoyé sur Internet.",
+    "backup.export": "Exporter ma progression",
+    "backup.import": "Importer une progression",
+    "backup.imported": "Progression importée : {n} nouveau(x) niveau(x).",
+    "backup.importFailed": "Ce fichier n'est pas une progression PyQuest valide.",
+    "backup.exported": "Progression exportée."
 }

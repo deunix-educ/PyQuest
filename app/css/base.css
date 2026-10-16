@@ -287,6 +287,26 @@ pre {
     accent-color: var(--accent);
 }
 
+.setting-group {
+    margin: 1rem 0;
+    padding: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+}
+
+.setting-group legend {
+    padding: 0 0.25rem;
+    font-weight: 700;
+}
+
+.setting-group .hint {
+    margin: 0 0 0.5rem;
+}
+
+.setting-group .btn {
+    margin: 0.25rem 0.5rem 0.25rem 0;
+}
+
 .author-link {
     display: inline-flex;
     align-items: center;

@@ -417,6 +417,42 @@ test('carte de progression et badges : états en texte, badge obtenu à la fin d
     assert.deepEqual(errors, []);
 });
 
+test('sauvegarde : exporter la progression sur un appareil, l\'importer sur un autre', { skip, timeout: 120000 }, async () => {
+    const errors = [];
+    const open = async () => {
+        const page = await (await browser.newContext({ acceptDownloads: true })).newPage();
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.goto(base);
+        await page.waitForSelector('.explain', { timeout: 60000 });
+        return page;
+    };
+
+    // Appareil A : termine le niveau 00 puis exporte.
+    const a = await open();
+    for (let i = 0; i < 5; i++) await a.locator('.notebook-action button').last().click();
+    await a.waitForSelector('.toast');
+    await a.locator('#settings-toggle').click();
+    const [download] = await Promise.all([a.waitForEvent('download'), a.getByRole('button', { name: 'Exporter ma progression' }).click()]);
+    assert.match(download.suggestedFilename(), /^pyquest-progress-\d{4}-\d{2}-\d{2}\.json$/);
+    const path = await download.path();
+    const content = readFileSync(path, 'utf8');
+    assert.ok('00-intro' in JSON.parse(content).completedLevels);
+
+    // Appareil B (profil vierge) : un fichier invalide est refusé, le bon est fusionné.
+    const b = await open();
+    await b.locator('#settings-toggle').click();
+    const input = b.locator('.settings input[type=file]');
+    await input.setInputFiles({ name: 'mauvais.json', mimeType: 'application/json', buffer: Buffer.from('{"version":1,"completedLevels":{"x":{"xp":"beaucoup"}}}') });
+    await b.waitForFunction(() => /pas une progression PyQuest valide/.test(document.querySelector('.toast-region')?.textContent ?? ''));
+    await input.setInputFiles({ name: 'progression.json', mimeType: 'application/json', buffer: Buffer.from(content) });
+    await b.waitForFunction(() => /1 nouveau\(x\) niveau/.test(document.querySelector('.toast-region')?.textContent ?? ''));
+    await b.keyboard.press('Escape');
+    await b.locator('#levels-toggle').click();
+    assert.match(await b.locator('.level-button.is-done').first().textContent(), /Terminé/);
+    assert.match(await b.textContent('.badge-count'), /1 badge\(s\) obtenu\(s\)/);
+    assert.deepEqual(errors, []);
+});
+
 test('éditeur de niveaux (mode auteur) : écrire un niveau, le vérifier, l\'essayer, l\'exporter', { skip, timeout: 240000 }, async () => {
     const { spawnSync } = await import('node:child_process');
     const { mkdtempSync, writeFileSync } = await import('node:fs');

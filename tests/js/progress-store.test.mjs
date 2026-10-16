@@ -22,4 +22,29 @@ assert.equal(merged.xp, 140); assert.equal(Object.keys(merged.completedLevels).l
 assert.equal(merged.streak.lastDay, '2026-10-20');
 await assert.rejects(p2.import('{"version":99}'));
 await assert.rejects(new ProgressStore(kv).completeLevel('x', 1));
+assert.equal(merged.addedLevels, 1);
+// Fichier hostile ou corrompu : rejeté sans toucher à l'état
+const good = JSON.parse(other.export());
+const bad = [
+    { ...good, completedLevels: { x: { xp: 'beaucoup', completedAt: 'a' } } },
+    { ...good, completedLevels: { x: { xp: -5, completedAt: 'a' } } },
+    { ...good, completedLevels: { x: { xp: 1e12, completedAt: 'a' } } },
+    { ...good, completedLevels: JSON.parse('{"__proto__": {"xp": 1, "completedAt": "a"}}') },
+    { ...good, completedLevels: { '../etc': { xp: 1, completedAt: 'a' } } },
+    { ...good, badges: [] },
+    { ...good, streak: { current: 'x', best: 1, lastDay: null } },
+    [],
+    null,
+];
+const xpBefore = p2.snapshot().xp;
+for (const candidate of bad) {
+    await assert.rejects(p2.import(JSON.stringify(candidate)));
+}
+assert.equal(p2.snapshot().xp, xpBefore);
+assert.equal(({}).xp, undefined);
+// Un changement persisté est signalé (utilisé par la synchronisation)
+let changes = 0;
+p2.addEventListener('change', () => (changes += 1));
+await p2.recordActivity(d('2026-10-21'));
+assert.equal(changes, 1);
 console.log('progress ok');

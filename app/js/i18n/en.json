@@ -86,5 +86,12 @@
     "settings.testSound": "Test the sound",
     "settings.testVoice": "Test the voice",
     "settings.voiceOffNotice": "Turn the voice on in the settings first.",
-    "settings.voiceRate": "Voice speed"
+    "settings.voiceRate": "Voice speed",
+    "backup.title": "Progress backup",
+    "backup.help": "A file to keep or copy to another device. Nothing is sent over the Internet.",
+    "backup.export": "Export my progress",
+    "backup.import": "Import progress",
+    "backup.imported": "Progress imported: {n} new level(s).",
+    "backup.importFailed": "This file is not a valid PyQuest progress file.",
+    "backup.exported": "Progress exported."
 }

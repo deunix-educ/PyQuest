@@ -4,6 +4,13 @@
 
 const STORAGE_KEY = 'progress';
 const SCHEMA_VERSION = 1;
+const ID_PATTERN = /^(?!__proto__$)[A-Za-z0-9_-]{1,64}$/;
+const MAX_ENTRIES = 500;
+const MAX_LEVEL_XP = 100000;
+
+function isPlainObject(value) {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
 
 // Badges de progression : règle déclarative évaluée sur l'état complet.
 const BADGES = [
@@ -14,12 +21,13 @@ const BADGES = [
     { id: 'streak_7', test: (state) => state.streak.best >= 7 },
 ];
 
-export class ProgressStore {
+export class ProgressStore extends EventTarget {
     #store;
     #state = null;
 
     /** @param {{get: (key: string) => Promise<any>, set: (key: string, value: any) => Promise<void>}} store */
     constructor(store) {
+        super();
         this.#store = store;
     }
 
@@ -103,20 +111,24 @@ export class ProgressStore {
 
     /**
      * Importe une progression exportée. Fusion par défaut (union, jamais de perte) : pratique
-     * pour réunir deux appareils. `replace` écrase tout.
+     * pour réunir deux appareils. `replace` écrase tout. Lève une erreur si le contenu est invalide.
      */
     async import(json, { mode = 'merge' } = {}) {
         const incoming = this.#parseImport(json);
         const state = this.#requireState();
+        const before = Object.keys(state.completedLevels).length;
         if (mode === 'replace') {
             this.#state = incoming;
         } else {
             this.#merge(state, incoming);
         }
         await this.#save();
-        return this.snapshot();
+        // `addedLevels` : niveaux nouveaux pour cet appareil (pour informer l'apprenant).
+        const after = Object.keys(this.#requireState().completedLevels).length;
+        return { ...this.snapshot(), addedLevels: Math.max(0, after - before) };
     }
 
+    /** Valide strictement un fichier venant de l'extérieur (jamais fiable : fichier édité, jeton volé…). */
     #parseImport(json) {
         let data;
         try {
@@ -124,15 +136,34 @@ export class ProgressStore {
         } catch {
             throw new Error('Invalid progress file: not JSON');
         }
+        if (!isPlainObject(data) || data.version !== SCHEMA_VERSION) {
+            throw new Error('Invalid progress file: unsupported format');
+        }
+        const { completedLevels, badges, streak } = data;
         const valid =
-            data?.version === SCHEMA_VERSION &&
-            typeof data.completedLevels === 'object' &&
-            typeof data.badges === 'object' &&
-            typeof data.streak === 'object';
+            isPlainObject(completedLevels) &&
+            Object.entries(completedLevels).length <= MAX_ENTRIES &&
+            Object.entries(completedLevels).every(
+                ([id, level]) =>
+                    ID_PATTERN.test(id) &&
+                    isPlainObject(level) &&
+                    Number.isFinite(level.xp) &&
+                    level.xp >= 0 &&
+                    level.xp <= MAX_LEVEL_XP &&
+                    typeof level.completedAt === 'string',
+            ) &&
+            isPlainObject(badges) &&
+            Object.entries(badges).length <= MAX_ENTRIES &&
+            Object.entries(badges).every(([id, at]) => ID_PATTERN.test(id) && typeof at === 'string') &&
+            isPlainObject(streak) &&
+            Number.isInteger(streak.current) &&
+            Number.isInteger(streak.best) &&
+            (streak.lastDay === null || typeof streak.lastDay === 'string');
         if (!valid) {
             throw new Error('Invalid progress file: unsupported format');
         }
-        return data;
+        // On ne reprend que les champs connus.
+        return { version: SCHEMA_VERSION, completedLevels, badges, streak: { current: streak.current, best: streak.best, lastDay: streak.lastDay } };
     }
 
     #merge(state, incoming) {
@@ -182,6 +213,7 @@ export class ProgressStore {
 
     async #save() {
         await this.#store.set(STORAGE_KEY, this.#state);
+        this.dispatchEvent(new Event('change'));
     }
 
     #requireState() {

@@ -122,6 +122,8 @@ class App {
         this.#panel = new SettingsPanel(this.#i18n);
         this.#panel.addEventListener('change', (event) => this.#onSettingChange(event.detail));
         this.#panel.addEventListener('test', (event) => this.#onTest(event.detail.kind));
+        this.#panel.addEventListener('export', () => this.#exportProgress());
+        this.#panel.addEventListener('import', (event) => this.#importProgress(event.detail.file));
 
         document.getElementById('notebook-region').append(notebook.element);
         document.getElementById('toast-region').append(toast.element);
@@ -264,6 +266,29 @@ class App {
             this.#panel.focusSetting('lang');
             // Le niveau courant redémarre dans la nouvelle langue (les saisies en cours sont perdues).
             await this.#openLevel(this.#currentId);
+        }
+    }
+
+    /** Télécharge la progression en JSON (Blob + lien temporaire : API standard, sans serveur). */
+    #exportProgress() {
+        const blob = new Blob([this.#progress.export()], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = el('a', { href: url, download: `pyquest-progress-${ProgressStore.dayKey(new Date())}.json` });
+        document.body.append(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        this.#toast.show(this.#i18n.t('backup.exported'));
+    }
+
+    /** Fusionne un fichier de progression (union : on ne perd jamais rien). */
+    async #importProgress(file) {
+        try {
+            const result = await this.#progress.import(await file.text());
+            await this.#renderMap();
+            this.#toast.show(this.#i18n.t('backup.imported', { n: result.addedLevels }));
+        } catch {
+            this.#toast.show(this.#i18n.t('backup.importFailed'));
         }
     }
 

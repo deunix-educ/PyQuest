@@ -40,7 +40,7 @@ before(async () => {
         if (ready && existsSync(join(work, 'db.sqlite3'))) break;
         await new Promise((resolve) => setTimeout(resolve, 500));
     }
-    const created = spawnSync(venvPython, ['manage.py', 'shell', '-c', `from django.contrib.auth.models import User; User.objects.create_user('ada', password='${PASSWORD}', is_staff=True); User.objects.create_user('lea', password='${PASSWORD}')`], {
+    const created = spawnSync(venvPython, ['manage.py', 'shell', '-c', `from django.contrib.auth.models import User; from authors import access; access.grant(User.objects.create_user('ada', password='${PASSWORD}')); User.objects.create_user('lea', password='${PASSWORD}'); User.objects.create_superuser('root', password='${PASSWORD}')`], {
         cwd: `${root}backend`,
         env: { ...process.env, DJANGO_SETTINGS_MODULE: 'pyquest_api.settings.dev', PYQUEST_DB_PATH: join(work, 'db.sqlite3') },
     });
@@ -132,5 +132,52 @@ test('nginx : l\'application apprenant est isolée, exécute Python et synchroni
     const group = page.locator('.settings .sync-group');
     await group.getByRole('button', { name: 'Activer la synchronisation' }).click();
     await group.getByText(/Dernière synchronisation/).waitFor({ timeout: 15000 });
+    assert.deepEqual(errors, []);
+});
+
+test('nginx : l\'administrateur autorise un compte à utiliser l\'éditeur depuis l\'administration Django', { skip, timeout: 120000 }, async () => {
+    // Les fichiers statiques de l'administration passent par nginx (alias), avec le bon type MIME.
+    const css = await fetch(`${base}api/static/admin/css/base.css`);
+    assert.equal(css.status, 200);
+    assert.match(css.headers.get('content-type'), /text\/css/);
+
+    const admin = await (await browser.newContext({ locale: 'fr-FR' })).newPage();
+    const errors = [];
+    admin.on('pageerror', (error) => errors.push(error.message));
+    // Un compte sans permission n'entre pas dans l'administration.
+    await admin.goto(`${base}api/admin/`);
+    await admin.getByLabel(/Nom d.utilisateur/).fill('lea');
+    await admin.getByLabel('Mot de passe :').fill(PASSWORD);
+    await admin.getByRole('button', { name: 'Connexion' }).click();
+    await admin.locator('.errornote').waitFor();
+    // L'administrateur entre, voit les comptes et donne l'accès à « lea ».
+    await admin.getByLabel(/Nom d.utilisateur/).fill('root');
+    await admin.getByLabel('Mot de passe :').fill(PASSWORD);
+    await admin.getByRole('button', { name: 'Connexion' }).click();
+    await admin.getByText('PyQuest — administration').first().waitFor();
+    await admin.goto(`${base}api/admin/auth/user/`);
+    await admin.locator('tr', { hasText: 'lea' }).locator('input[type=checkbox]').check();
+    await admin.locator('select[name=action]').selectOption('grant_editor');
+    await admin.getByRole('button', { name: 'Envoyer' }).click();
+    await admin.getByText(/autorisé\(s\) à utiliser l.éditeur/).waitFor();
+
+    // « lea » ouvre maintenant l'éditeur ; elle n'a pas accès à l'administration.
+    const author = await (await browser.newContext({ locale: 'fr-FR' })).newPage();
+    await author.goto(`${base}author.html`);
+    await author.getByLabel('Identifiant').fill('lea');
+    await author.getByLabel('Mot de passe').fill(PASSWORD);
+    await author.getByRole('button', { name: 'Se connecter' }).click();
+    await author.waitForURL(`${base}author.html`);
+    await author.goto(`${base}api/admin/`);
+    await author.getByText(/pas autorisé/).waitFor();
+
+    // Retrait de l'accès : le contrôle suivant refuse.
+    await admin.goto(`${base}api/admin/auth/user/`);
+    await admin.locator('tr', { hasText: 'lea' }).locator('input[type=checkbox]').check();
+    await admin.locator('select[name=action]').selectOption('revoke_editor');
+    await admin.getByRole('button', { name: 'Envoyer' }).click();
+    await admin.getByText(/Accès retiré/).waitFor();
+    const refused = await author.context().request.get(`${base}author.html`, { maxRedirects: 0 });
+    assert.equal(refused.status(), 302);
     assert.deepEqual(errors, []);
 });

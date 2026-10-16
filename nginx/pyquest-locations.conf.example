@@ -4,7 +4,7 @@
 # configuration de nginx (/etc/nginx en production).
 #
 # Installation : copier ce fichier en /etc/nginx/snippets/pyquest-locations.conf et pyquest-author-headers.conf.example
-# en /etc/nginx/snippets/pyquest-author-headers.conf. Les zones de limitation (limit_req_zone) sont dans le bloc http.
+# en /etc/nginx/snippets/pyquest-author-headers.conf. Les zones de limitation (limit_req_zone : pyquest_sync, pyquest_login, pyquest_admin) sont dans le bloc http.
 # Host $http_host (et non $host) : conserve le port, que Django compare à l'en-tête Origin des formulaires.
 
     # Types MIME explicites : un bloc « types » dans server remplace la table par défaut, donc on
@@ -109,6 +109,27 @@
         proxy_set_header Host $http_host;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Real-IP $remote_addr;   # écrase toute valeur envoyée par le client
+    }
+
+    # Fichiers statiques de l'administration Django (python manage.py collectstatic dans PYQUEST_STATIC_ROOT).
+    location /api/static/ {
+        alias /var/www/pyquest/static/;
+        add_header Cache-Control "public, max-age=604800" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Strict-Transport-Security "max-age=31536000" always;
+    }
+
+    # Administration Django (comptes auteurs) : débit modéré (la force brute est aussi bloquée par Django : 5 échecs
+    # par compte, 20 par adresse, 15 minutes). Pour la restreindre à ton réseau, décommente allow/deny (ou VPN).
+    location /api/admin/ {
+        limit_req zone=pyquest_admin burst=30 nodelay;
+        client_max_body_size 1m;
+        # allow 203.0.113.0/24;
+        # deny all;
+        proxy_pass http://127.0.0.1:8001;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
     }
 
     # Le reste de l'API (synchronisation, déconnexion) ; /api/auth/check/ n'est joignable que par la sous-requête interne.

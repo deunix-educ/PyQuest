@@ -7,6 +7,8 @@ from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import Client, TestCase, override_settings
 
+from . import access
+
 # Réponse du client de test Django : type exact non exposé par les stubs.
 _Response = Any
 
@@ -16,7 +18,11 @@ CHECK = "/api/auth/check/"
 
 
 def make_user(username: str = "ada", *, staff: bool = True, password: str = PASSWORD) -> User:
-    return User.objects.create_user(username=username, password=password, is_staff=staff)  # pyright: ignore[reportAttributeAccessIssue]
+    """`staff` : autorisé à utiliser l'éditeur (groupe « Auteurs »). `is_staff` reste faux : il ouvre l'administration."""
+    user = User.objects.create_user(username=username, password=password)  # pyright: ignore[reportAttributeAccessIssue]
+    if staff:
+        access.grant(user)
+    return user
 
 
 class LoginTest(TestCase):
@@ -46,7 +52,7 @@ class LoginTest(TestCase):
         self.assertEqual(wrong.content.decode().count("incorrect"), unknown.content.decode().count("incorrect"))
         self.assertEqual(self.client.get(CHECK).status_code, 401)
 
-    def test_non_staff_account_is_refused_even_with_the_right_password(self) -> None:
+    def test_account_without_editor_permission_is_refused_even_with_the_right_password(self) -> None:
         make_user("lea", staff=False)
         self.assertContains(self.post("lea", PASSWORD), "incorrect")
         self.assertEqual(self.client.get(CHECK).status_code, 401)
@@ -164,11 +170,11 @@ class CreateAuthorCommandTest(TestCase):
             call_command("create_author", *args, stdout=out)
         return out.getvalue()
 
-    def test_creates_a_staff_account_without_admin_rights(self) -> None:
+    def test_creates_an_author_account_without_admin_rights(self) -> None:
         self.run_command("Ada")
         user = User.objects.get(username="ada")
-        self.assertTrue(user.is_staff and user.is_active)
-        self.assertFalse(user.is_superuser)
+        self.assertTrue(access.is_author(user) and user.is_active)
+        self.assertFalse(user.is_staff or user.is_superuser)  # ni administration ni droits étendus
         self.assertTrue(user.check_password(PASSWORD))
         self.assertEqual(self.client.post(LOGIN, {"username": "ada", "password": PASSWORD}).status_code, 302)
 
@@ -187,3 +193,99 @@ class CreateAuthorCommandTest(TestCase):
         self.assertTrue(User.objects.get(username="ada").check_password("nouveau-mot-de-passe-77"))
         with self.assertRaises(CommandError):
             self.run_command("inconnu", "--reset")
+
+
+class EditorPermissionTest(TestCase):
+    def test_group_and_permission_exist_after_migrate(self) -> None:
+        from django.contrib.auth.models import Group
+
+        group = Group.objects.get(name=access.GROUP_NAME)
+        self.assertEqual(list(group.permissions.values_list("codename", flat=True)), ["use_editor"])
+
+    def test_is_staff_alone_does_not_open_the_editor(self) -> None:
+        user = User.objects.create_user("chef", password=PASSWORD, is_staff=True)  # pyright: ignore[reportAttributeAccessIssue]
+        self.assertFalse(access.is_author(user))
+        self.client.login(username="chef", password=PASSWORD)
+        self.assertEqual(self.client.get(CHECK).status_code, 401)
+
+    def test_superuser_can_use_the_editor(self) -> None:
+        User.objects.create_superuser("root", password=PASSWORD)  # pyright: ignore[reportAttributeAccessIssue]
+        self.client.login(username="root", password=PASSWORD)
+        self.assertEqual(self.client.get(CHECK).status_code, 204)
+
+    def test_revoke_removes_access_and_grant_restores_it(self) -> None:
+        user = make_user()
+        access.revoke(user)
+        self.client.login(username="ada", password=PASSWORD)
+        self.assertEqual(self.client.get(CHECK).status_code, 401)
+        access.grant(User.objects.get(username="ada"))
+        self.assertEqual(self.client.get(CHECK).status_code, 204)
+
+
+ADMIN = "/api/admin/"
+
+
+class AdminSiteTest(TestCase):
+    def setUp(self) -> None:
+        self.root = User.objects.create_superuser("root", password=PASSWORD)  # pyright: ignore[reportAttributeAccessIssue]
+
+    def test_anonymous_and_authors_cannot_enter(self) -> None:
+        self.assertEqual(self.client.get(ADMIN).status_code, 302)  # vers la connexion de l'administration
+        make_user("ada")
+        self.client.login(username="ada", password=PASSWORD)
+        response = self.client.get(ADMIN, follow=True)
+        self.assertContains(response, "pas autorisé")  # page de connexion de l'admin, pas l'index
+        self.assertNotContains(response, "Comptes et accès")
+
+    def test_administrator_sees_accounts_and_the_editor_column(self) -> None:
+        make_user("ada")
+        self.client.login(username="root", password=PASSWORD)
+        index = self.client.get(ADMIN)
+        self.assertContains(index, "PyQuest — administration")
+        users = self.client.get(f"{ADMIN}auth/user/")
+        self.assertContains(users, "Éditeur de niveaux")
+        self.assertContains(users, "ada")
+
+    def test_actions_grant_and_revoke_editor_access(self) -> None:
+        newcomer = User.objects.create_user("lea", password=PASSWORD)  # pyright: ignore[reportAttributeAccessIssue]
+        self.client.login(username="root", password=PASSWORD)
+        url = f"{ADMIN}auth/user/"
+        self.client.post(url, {"action": "grant_editor", "_selected_action": [newcomer.pk]}, follow=True)
+        self.assertTrue(access.is_author(User.objects.get(username="lea")))
+        self.client.post(url, {"action": "revoke_editor", "_selected_action": [newcomer.pk]}, follow=True)
+        self.assertFalse(access.is_author(User.objects.get(username="lea")))
+
+    def test_administrator_can_create_an_account_in_the_author_group(self) -> None:
+        from django.contrib.auth.models import Group
+
+        self.client.login(username="root", password=PASSWORD)
+        group = Group.objects.get(name=access.GROUP_NAME)
+        response = self.client.post(
+            f"{ADMIN}auth/user/add/",
+            {"username": "nouvelle", "password1": "mot-de-passe-solide-99", "password2": "mot-de-passe-solide-99"},
+            follow=True,
+        )
+        self.assertEqual(response.status_code, 200)
+        created = User.objects.get(username="nouvelle")
+        created.groups.add(group)
+        self.assertTrue(access.is_author(User.objects.get(username="nouvelle")))
+        self.assertFalse(created.is_staff)
+
+    def test_admin_login_is_throttled_like_the_editor_login(self) -> None:
+        for _ in range(5):
+            response = self.client.post(f"{ADMIN}login/", {"username": "root", "password": "mauvais", "next": ADMIN})
+            self.assertEqual(response.status_code, 200)
+        locked = self.client.post(f"{ADMIN}login/", {"username": "root", "password": PASSWORD, "next": ADMIN})
+        self.assertEqual(locked.status_code, 429)
+
+    def test_admin_login_works_and_clears_failures(self) -> None:
+        from .models import LoginFailure
+
+        self.client.post(f"{ADMIN}login/", {"username": "root", "password": "mauvais", "next": ADMIN})
+        response = self.client.post(f"{ADMIN}login/", {"username": "root", "password": PASSWORD, "next": ADMIN})
+        self.assertRedirects(response, ADMIN, fetch_redirect_response=False)
+        self.assertEqual(LoginFailure.objects.filter(username="root").count(), 0)
+
+    def test_pages_cannot_be_framed(self) -> None:
+        self.client.login(username="root", password=PASSWORD)
+        self.assertEqual(self.client.get(ADMIN).headers["X-Frame-Options"], "DENY")

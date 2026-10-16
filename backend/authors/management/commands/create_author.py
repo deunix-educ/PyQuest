@@ -1,4 +1,6 @@
-"""Crée (ou met à jour le mot de passe d') un compte auteur : accès à l'éditeur de niveaux, rien d'autre."""
+"""Crée (ou met à jour le mot de passe d') un compte auteur : accès à l'éditeur de niveaux, rien d'autre.
+
+Pratique en ligne de commande ; l'administration (/api/admin/) permet de gérer les mêmes comptes."""
 
 from __future__ import annotations
 
@@ -10,9 +12,11 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 
+from authors import access
+
 
 class Command(BaseCommand):
-    help = "Crée un compte auteur (is_staff, sans droits d'administration). Le mot de passe est demandé au clavier."
+    help = "Crée un compte auteur (accès à l'éditeur, sans droits d'administration). Le mot de passe est demandé au clavier."
 
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("username")
@@ -35,9 +39,10 @@ class Command(BaseCommand):
             raise CommandError(" ".join(error.messages)) from error
 
         user = existing or User(username=username)
-        user.is_staff = True
+        user.is_staff = False  # is_staff ouvre l'administration : réservé aux responsables
         user.is_superuser = False
         user.is_active = True
         user.set_password(password)
         user.save()
+        access.grant(user)
         self.stdout.write(self.style.SUCCESS(f"Compte auteur {username} {'mis à jour' if existing else 'créé'}."))

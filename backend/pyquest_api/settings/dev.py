@@ -16,3 +16,6 @@ DATABASES = {
         "NAME": os.environ.get("PYQUEST_DB_PATH", BASE_DIR / "db.sqlite3"),
     }
 }
+
+# Dossier des fichiers statiques collectés (essai avec nginx : scripts/local_stack.py).
+STATIC_ROOT = os.environ.get("PYQUEST_STATIC_ROOT", BASE_DIR / "staticfiles")

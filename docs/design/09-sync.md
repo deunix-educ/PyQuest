@@ -49,8 +49,11 @@ non JSON (serveur statique sans Django) donne `unavailable`.
 
 ## Backend : aussi l'accès à l'éditeur (2026-10-16)
 
-Le même backend Django porte les comptes **auteurs** (`authors/`) : page de connexion, `check` pour nginx
-`auth_request`, anti force brute (`LoginFailure`), commande `create_author` ; pas de site d'administration. Base de
+Le même backend Django porte les comptes (`authors/`) : page de connexion de l'éditeur, `check` pour nginx
+`auth_request`, anti force brute commun (`throttle.py`, `LoginFailure`), **administration Django** sur `/api/admin/`
+(`sites.py` : même limitation des essais). Deux rôles : administrateur (`is_staff`) et auteur (permission
+`authors.use_editor`, groupe « Auteurs », actions « Autoriser/Retirer » dans la liste des utilisateurs) ; `is_staff` seul
+n'ouvre pas l'éditeur. Commande `create_author` en raccourci. Base de
 production : **MariaDB** (`mysqlclient`, `backend/requirements-prod.txt`). Les fichiers de l'éditeur ne sont ni
 pré-cachés ni interceptés par le service worker (`build.py:is_author_tool`, `service-worker.js`).
 

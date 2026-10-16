@@ -13,9 +13,11 @@
 # Fichiers à copier dans /etc/nginx/snippets/ : pyquest-locations.conf (depuis pyquest-locations.conf.example) et
 # pyquest-author-headers.conf (depuis pyquest-author-headers.conf.example).
 
-# Limites de débit (contexte http, hors bloc server) : synchronisation 30 req/min, connexion 6 req/min par IP.
+# Limites de débit (contexte http, hors bloc server), par IP : synchronisation 30 req/min, connexion à l'éditeur
+# 6 req/min, administration 60 req/min.
 limit_req_zone $binary_remote_addr zone=pyquest_sync:10m rate=30r/m;
 limit_req_zone $binary_remote_addr zone=pyquest_login:10m rate=6r/m;
+limit_req_zone $binary_remote_addr zone=pyquest_admin:10m rate=60r/m;
 
 server {
     listen 80;

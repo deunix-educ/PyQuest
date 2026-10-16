@@ -41,3 +41,4 @@ CSRF_TRUSTED_ORIGINS = [_required("PYQUEST_ORIGIN")]
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 TRUST_REAL_IP_HEADER = True  # nginx écrase X-Real-IP (voir nginx/pyquest.conf.example)
+STATIC_ROOT = os.environ.get("PYQUEST_STATIC_ROOT", "/var/www/pyquest/static")  # servi par nginx : /api/static/

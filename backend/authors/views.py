@@ -1,31 +1,25 @@
 """Accès authentifié à l'éditeur de niveaux (author.html), pour les déploiements qui le protègent.
 
 nginx interroge `check/` (module auth_request) avant de servir l'éditeur ; `login/` est la page de connexion.
-Seuls les comptes `is_staff` (créés avec `manage.py create_author`) passent. Pas de site d'administration
-Django : moins de surface d'attaque. Les textes sont dans ce fichier plutôt que dans des catalogues gettext,
-car la compilation des traductions (.mo) n'est pas versionnée.
+Seuls les comptes qui ont la permission `authors.use_editor` (groupe « Auteurs », donné depuis l'administration
+ou avec `manage.py create_author`) passent ; `is_staff` ouvre l'administration, pas l'éditeur.
+Les textes sont dans ce fichier plutôt que dans des catalogues gettext, car la compilation des traductions (.mo) n'est
+pas versionnée.
 """
 
 from __future__ import annotations
 
-from datetime import timedelta
-
-from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
-from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from .models import LoginFailure
+from .access import is_author
+from .throttle import client_ip, is_locked, record_failure, record_success
 
 DEFAULT_NEXT = "/author.html"
-LOCK_WINDOW = timedelta(minutes=15)
-MAX_FAILURES_PER_USER = 5
-MAX_FAILURES_PER_IP = 20
 
 TEXTS = {
     "fr": {
@@ -55,23 +49,9 @@ TEXTS = {
 }
 
 
-def _is_author(user: object) -> bool:
-    """Compte actif réservé aux auteurs (is_staff) ; les visiteurs anonymes et les autres comptes sont refusés."""
-    return isinstance(user, User) and user.is_active and user.is_staff
-
-
 def _language(request: HttpRequest) -> str:
     header = request.headers.get("Accept-Language", "")
     return "en" if header.lower().startswith("en") else "fr"
-
-
-def _client_ip(request: HttpRequest) -> str:
-    # Derrière nginx, REMOTE_ADDR est le proxy : nginx écrase X-Real-IP, qu'on ne croit qu'en production.
-    if settings.TRUST_REAL_IP_HEADER:
-        forwarded = request.headers.get("X-Real-IP", "")
-        if forwarded:
-            return forwarded[:45]
-    return request.META.get("REMOTE_ADDR", "")[:45]
 
 
 def _safe_next(request: HttpRequest) -> str:
@@ -81,16 +61,10 @@ def _safe_next(request: HttpRequest) -> str:
     return candidate if allowed and candidate.startswith("/") and not candidate.startswith("//") else DEFAULT_NEXT
 
 
-def _is_locked(username: str, ip: str) -> bool:
-    since = timezone.now() - LOCK_WINDOW
-    recent = LoginFailure.objects.filter(created_at__gte=since)
-    return recent.filter(username=username).count() >= MAX_FAILURES_PER_USER or recent.filter(ip=ip).count() >= MAX_FAILURES_PER_IP
-
-
 def _page(request: HttpRequest, *, error_key: str | None = None, status: int = 200) -> HttpResponse:
     texts = TEXTS[_language(request)]
     user = request.user
-    signed_in = _is_author(user)
+    signed_in = is_author(user)
     context = {
         "t": texts,
         "lang": _language(request),
@@ -110,18 +84,16 @@ def login_view(request: HttpRequest) -> HttpResponse:
 
     username = request.POST.get("username", "").strip().lower()[:150]
     password = request.POST.get("password", "")
-    ip = _client_ip(request)
-    if _is_locked(username, ip):
+    ip = client_ip(request)
+    if is_locked(username, ip):
         return _page(request, error_key="locked", status=429)
 
     user = authenticate(request, username=username, password=password)
-    if not _is_author(user):
-        LoginFailure.objects.create(username=username, ip=ip)
-        # Ménage : on ne garde pas l'historique au-delà d'un jour.
-        LoginFailure.objects.filter(created_at__lt=timezone.now() - timedelta(days=1)).delete()
+    if not is_author(user):
+        record_failure(username, ip)
         return _page(request, error_key="invalid", status=200)
 
-    LoginFailure.objects.filter(username=username).delete()
+    record_success(username)
     login(request, user)
     return redirect(_safe_next(request))
 
@@ -137,4 +109,4 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 @require_GET
 def check_view(request: HttpRequest) -> HttpResponse:
     """Appelé par nginx (auth_request) : 204 si la session appartient à un auteur, sinon 401."""
-    return HttpResponse(status=204 if _is_author(request.user) else 401)
+    return HttpResponse(status=204 if is_author(request.user) else 401)

@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build dev-sync fetch-nginx dev-nginx dev-author docs docs-serve deploy check-deploy test-deploy test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
+.PHONY: help install vendor-pyodide dev validate-levels build dev-sync fetch-nginx dev-nginx dev-admin dev-author docs docs-serve deploy check-deploy test-deploy test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -57,7 +57,10 @@ fetch-nginx: ## Récupère le binaire nginx dans .local/nginx (Debian/Ubuntu, sa
 dev-nginx: $(VENV)/.installed build ## Pile locale réelle : nginx + Django (éditeur protégé, API) sur http://127.0.0.1:8080/
 	$(VENV_PY) scripts/local_stack.py
 
-dev-author: $(VENV)/.installed ## Crée (ou NAME=x --reset) un compte auteur pour make dev-nginx ; demande le mot de passe
+dev-admin: $(VENV)/.installed ## Crée le compte administrateur de l'essai local (gère les auteurs sur /api/admin/)
+	cd backend && DJANGO_SETTINGS_MODULE=pyquest_api.settings.dev PYQUEST_DB_PATH=$(CURDIR)/.local/stack/db.sqlite3 ../$(VENV_PY) manage.py createsuperuser
+
+dev-author: $(VENV)/.installed ## Crée directement un compte auteur local (NAME=x, RESET=--reset) ; demande le mot de passe
 	cd backend && DJANGO_SETTINGS_MODULE=pyquest_api.settings.dev PYQUEST_DB_PATH=$(CURDIR)/.local/stack/db.sqlite3 ../$(VENV_PY) manage.py create_author $(or $(NAME),$(USER)) $(RESET)
 
 validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, traductions)

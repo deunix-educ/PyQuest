@@ -9,8 +9,11 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.auth",
     "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.admin",
     "sync",
-    "authors",
+    "authors.apps.AuthorsConfig",
 ]
 
 MIDDLEWARE = [
@@ -20,15 +23,27 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "APP_DIRS": True,
-        "OPTIONS": {"context_processors": ["django.template.context_processors.request"]},
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ]
+        },
     }
 ]
+
+# Fichiers statiques de l'administration, servis par nginx sous /api/static/ (python manage.py collectstatic).
+STATIC_URL = "/api/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Session des auteurs (éditeur de niveaux) : cookie HttpOnly, 8 heures.
 SESSION_COOKIE_NAME = "pyquest_author"

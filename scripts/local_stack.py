@@ -44,6 +44,7 @@ http {{
     limit_req_zone $binary_remote_addr zone=pyquest_sync:1m rate=30r/m;
     # Plus large qu'en production pour ne pas gêner les essais répétés.
     limit_req_zone $binary_remote_addr zone=pyquest_login:1m rate=60r/m;
+    limit_req_zone $binary_remote_addr zone=pyquest_admin:1m rate=600r/m;
 
     server {{
         listen 127.0.0.1:{port};
@@ -75,9 +76,10 @@ def prepare(work: Path, port: int, api_port: int) -> Path:
         sys.exit("dist/ est absent : lance d'abord « make build ».")
     for sub in ("conf/snippets", "logs", "temp"):
         (work / sub).mkdir(parents=True, exist_ok=True)
-    # Même fichier qu'en production ; seul le port de Django (8001 par défaut) est adapté à l'essai.
+    # Même fichier qu'en production ; seuls le port de Django (8001 par défaut) et le dossier des statiques sont adaptés.
     locations = (NGINX_DIR / "pyquest-locations.conf.example").read_text(encoding="utf-8")
-    (work / "conf/snippets/pyquest-locations.conf").write_text(locations.replace("127.0.0.1:8001", f"127.0.0.1:{api_port}"), encoding="utf-8")
+    adapted = locations.replace("127.0.0.1:8001", f"127.0.0.1:{api_port}").replace("/var/www/pyquest/static/", f"{work}/static/")
+    (work / "conf/snippets/pyquest-locations.conf").write_text(adapted, encoding="utf-8")
     shutil.copy(NGINX_DIR / "pyquest-author-headers.conf.example", work / "conf/snippets/pyquest-author-headers.conf")
     config = work / "conf/nginx.conf"
     config.write_text(CONF_TEMPLATE.format(work=work, port=port, dist=dist), encoding="utf-8")
@@ -93,8 +95,8 @@ def python_for_backend() -> str:
     return str(venv) if venv.is_file() else sys.executable
 
 
-def has_author(env: dict[str, str]) -> bool:
-    code = "from django.contrib.auth.models import User; print(User.objects.filter(is_staff=True).count())"
+def has_account(env: dict[str, str]) -> bool:
+    code = "from django.contrib.auth.models import User; print(User.objects.count())"
     result = subprocess.run([python_for_backend(), "manage.py", "shell", "-c", code], cwd=ROOT / "backend", env=env, capture_output=True, text=True)
     return result.returncode == 0 and result.stdout.strip() not in ("", "0")
 
@@ -114,12 +116,14 @@ def main() -> None:
     python = python_for_backend()
 
     subprocess.run([python, "manage.py", "migrate", "--noinput", "--verbosity", "0"], cwd=ROOT / "backend", env=env, check=True)
-    if not has_author(env):
+    # Fichiers statiques de l'administration, servis par nginx sous /api/static/ comme en production.
+    subprocess.run([python, "manage.py", "collectstatic", "--noinput", "--verbosity", "0"], cwd=ROOT / "backend", env={**env, "PYQUEST_STATIC_ROOT": str(work / "static")}, check=True)
+    if not has_account(env):
         if sys.stdin.isatty():
-            print("Aucun compte auteur : création d'un compte pour l'essai.")
-            subprocess.run([python, "manage.py", "create_author", os.environ.get("USER", "auteur")], cwd=ROOT / "backend", env=env, check=False)
+            print("Aucun compte : création du compte administrateur (il gère ensuite les auteurs sur /api/admin/).")
+            subprocess.run([python, "manage.py", "createsuperuser"], cwd=ROOT / "backend", env=env, check=False)
         else:
-            print("Aucun compte auteur. Crée-en un : (cd backend && PYQUEST_DB_PATH=%s %s manage.py create_author nom)" % (work / "db.sqlite3", python))
+            print("Aucun compte. Crée l'administrateur : make dev-admin")
 
     check = subprocess.run([nginx, "-t", "-p", str(work), "-c", str(config)], capture_output=True, text=True)
     if check.returncode != 0:
@@ -142,6 +146,7 @@ def main() -> None:
     signal.signal(signal.SIGINT, stop)
     try:
         print(f"Pile locale : http://127.0.0.1:{args.port}/   (éditeur : /author.html, protégé par connexion)")
+        print(f"Administration des comptes : http://127.0.0.1:{args.port}/api/admin/")
         print(f"Journaux : {work}/logs/ — Ctrl+C pour arrêter.")
         server = subprocess.Popen([nginx, "-p", str(work), "-c", str(config)])
         server.wait()

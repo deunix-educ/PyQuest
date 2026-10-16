@@ -132,7 +132,7 @@ test('synchronisation : sans backend, message clair et l\'application reste util
 });
 
 test('éditeur : connexion d\'un auteur par le backend Django (cookie, CSRF, redirection, refus)', { skip, timeout: 120000 }, async () => {
-    const created = spawnSync(venvPython, ['manage.py', 'shell', '-c', "from django.contrib.auth.models import User; User.objects.create_user('ada', password='un-mot-de-passe-solide-42', is_staff=True); User.objects.create_user('lea', password='un-mot-de-passe-solide-42')"], {
+    const created = spawnSync(venvPython, ['manage.py', 'shell', '-c', "from django.contrib.auth.models import User; from authors import access; access.grant(User.objects.create_user('ada', password='un-mot-de-passe-solide-42')); User.objects.create_user('lea', password='un-mot-de-passe-solide-42')"], {
         cwd: `${root}backend`,
         env: { ...process.env, DJANGO_SETTINGS_MODULE: 'pyquest_api.settings.dev', PYQUEST_DB_PATH: join(tmp, 'db.sqlite3') },
     });

@@ -21,6 +21,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser: CommandParser) -> None:
         parser.add_argument("username")
         parser.add_argument("--reset", action="store_true", help="Change le mot de passe d'un compte existant")
+        parser.add_argument("--admin", action="store_true", help="Compte administrateur : accès à l'administration (/api/admin/) en plus de l'éditeur")
 
     def handle(self, *args: Any, **options: Any) -> None:
         username: str = options["username"].strip().lower()
@@ -39,10 +40,13 @@ class Command(BaseCommand):
             raise CommandError(" ".join(error.messages)) from error
 
         user = existing or User(username=username)
-        user.is_staff = False  # is_staff ouvre l'administration : réservé aux responsables
-        user.is_superuser = False
+        # is_staff ouvre l'administration : réservé aux responsables (option --admin).
+        # --admin élève ; changer seulement un mot de passe (--reset) ne retire jamais de droits existants.
+        if options["admin"] or not existing:
+            user.is_staff = bool(options["admin"])
+            user.is_superuser = bool(options["admin"])
         user.is_active = True
         user.set_password(password)
         user.save()
         access.grant(user)
-        self.stdout.write(self.style.SUCCESS(f"Compte auteur {username} {'mis à jour' if existing else 'créé'}."))
+        self.stdout.write(self.style.SUCCESS(f"Compte auteur {username} {'mis à jour' if existing else 'créé'}" + (" (administrateur)." if options["admin"] else ".")))

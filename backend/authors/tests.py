@@ -178,6 +178,21 @@ class CreateAuthorCommandTest(TestCase):
         self.assertTrue(user.check_password(PASSWORD))
         self.assertEqual(self.client.post(LOGIN, {"username": "ada", "password": PASSWORD}).status_code, 302)
 
+    def test_admin_option_creates_an_administrator_who_can_also_edit(self) -> None:
+        self.run_command("chef", "--admin")
+        user = User.objects.get(username="chef")
+        self.assertTrue(user.is_staff and user.is_superuser and access.is_author(user))
+        # Un simple changement de mot de passe (--reset) ne retire pas les droits d'administration.
+        self.run_command("chef", "--reset")
+        user.refresh_from_db()
+        self.assertTrue(user.is_staff and user.is_superuser)
+
+    def test_admin_option_promotes_an_existing_author(self) -> None:
+        make_user("denis")
+        self.run_command("denis", "--reset", "--admin")
+        user = User.objects.get(username="denis")
+        self.assertTrue(user.is_staff and user.is_superuser)
+
     def test_rejects_weak_or_mismatched_passwords(self) -> None:
         with self.assertRaises(CommandError):
             self.run_command("ada", passwords=("court", "court"))

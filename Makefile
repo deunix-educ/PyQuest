@@ -60,8 +60,8 @@ dev-nginx: $(VENV)/.installed build ## Pile locale réelle : nginx + Django (éd
 dev-admin: $(VENV)/.installed ## Crée le compte administrateur de l'essai local (gère les auteurs sur /api/admin/)
 	cd backend && DJANGO_SETTINGS_MODULE=pyquest_api.settings.dev PYQUEST_DB_PATH=$(CURDIR)/.local/stack/db.sqlite3 ../$(VENV_PY) manage.py createsuperuser
 
-dev-author: $(VENV)/.installed ## Crée directement un compte auteur local (NAME=x, RESET=--reset) ; demande le mot de passe
-	cd backend && DJANGO_SETTINGS_MODULE=pyquest_api.settings.dev PYQUEST_DB_PATH=$(CURDIR)/.local/stack/db.sqlite3 ../$(VENV_PY) manage.py create_author $(or $(NAME),$(USER)) $(RESET)
+dev-author: $(VENV)/.installed ## Compte local direct : NAME=x, RESET=--reset (mot de passe), ADMIN=--admin (accès à /api/admin/) ; mot de passe demandé
+	cd backend && DJANGO_SETTINGS_MODULE=pyquest_api.settings.dev PYQUEST_DB_PATH=$(CURDIR)/.local/stack/db.sqlite3 ../$(VENV_PY) manage.py create_author $(or $(NAME),$(USER)) $(RESET) $(ADMIN)
 
 validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, traductions)
 	$(VENV_PY) scripts/validate_levels.py

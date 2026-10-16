@@ -67,6 +67,9 @@ lire en premier en reprenant une session sur ce projet.
 Livrables 1 à 8 du brief écrits ; l'app tourne dans Chromium (8 niveaux : 00 à 07). Détail,
 architecture du code, priorités et pièges : [CONTEXT.md](CONTEXT.md).
 
+Éditeur de niveaux (mode auteur, `app/author.html`) : voir `docs/design/08-author-editor.md`. Un nouveau
+kind de test touche ValidationEngine, schéma, `LevelDraft.TEST_KINDS`, catalogues et linter.
+
 Commandes : `make test` (JS `node:test`, Python `unittest`, backend Django, validation des
 niveaux), `make test-e2e` (Chromium), `make typecheck` (pyright), `make dev`, `make build`.
 Pyodide épinglé 314.0.7 (Python 3.14.2) via `make vendor-pyodide`.

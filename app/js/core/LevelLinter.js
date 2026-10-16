@@ -180,12 +180,14 @@ export class LevelLinter {
     // ---- Règles de contribution et cohérence des tests ----------------------------------------------------
 
     #contribution(level, add) {
+        // Un seul rappel pour toutes les étapes narrées (sinon une ligne par étape noie le reste).
+        const narrated = level.steps.map((step, index) => (step.type === 'explain' && step.voice ? index : null)).filter((index) => index !== null);
+        if (narrated.length > 0) {
+            add('info', 'voice_to_generate', ['steps', narrated[0]], { steps: narrated.map((index) => index + 1).join(', ') });
+        }
         level.steps.forEach((step, index) => {
             const path = ['steps', index];
             if (step.type === 'explain') {
-                if (step.voice) {
-                    add('info', 'voice_to_generate', path);
-                }
                 return;
             }
             this.#tests(step.tests, [...path, 'tests'], add);

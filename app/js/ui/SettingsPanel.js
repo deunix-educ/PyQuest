@@ -41,6 +41,8 @@ export class SettingsPanel extends EventTarget {
             this.#field('settings.voice', 'checkbox', { value: settings.voiceEnabled, key: 'voiceEnabled' }),
             this.#testButton('settings.testVoice', 'voice'),
             this.#field('settings.voiceRate', 'range', { value: settings.voiceRate, min: 0.5, max: 2, step: 0.1, key: 'voiceRate', number: true }),
+            this.#field('settings.author', 'checkbox', { value: settings.authorMode, key: 'authorMode' }),
+            settings.authorMode ? el('a', { class: 'btn author-link', href: 'author.html', text: t('settings.authorOpen') }) : null,
         );
     }
 

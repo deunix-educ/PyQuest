@@ -31,7 +31,7 @@ test('les solutions de référence passent, les codes de départ échouent', { s
         // --- Niveaux fautifs fabriqués : chaque défaut est détecté, au bon endroit.
         const base = () => structuredClone(load('04-math'));
         let level = base(); level.steps[1].solution = 'print(1 + 1)';
-        assert.deepEqual(summary((await checker.check(level)).problems), ['solution_fails@steps.1']);
+        assert.deepEqual(summary((await checker.check(level)).problems), ['solution_fails@steps.1.solution']);
 
         level = base(); level.steps[1].starter = level.steps[1].solution;
         assert.deepEqual(summary((await checker.check(level)).problems), [], 'départ = solution : étape « exécuter pour voir »');
@@ -40,18 +40,18 @@ test('les solutions de référence passent, les codes de départ échouent', { s
         assert.deepEqual(summary((await checker.check(level)).problems), [], 'départ = solution + commentaires de ligne : idem');
 
         level = base(); level.steps[1].starter = 'print(36)';
-        assert.deepEqual(summary((await checker.check(level)).problems), ['starter_passes@steps.1'], 'départ qui passe déjà sans être la solution');
+        assert.deepEqual(summary((await checker.check(level)).problems), ['starter_passes@steps.1.starter'], 'départ qui passe déjà sans être la solution');
 
         level = base(); level.steps[1].solution = 'print(';
         const syntax = (await checker.check(level)).problems;
-        assert.deepEqual(summary(syntax), ['solution_error@steps.1']);
+        assert.deepEqual(summary(syntax), ['solution_error@steps.1.solution']);
         assert.equal(syntax[0].params.type, 'SyntaxError');
 
         level = base(); level.mission.solution = 'print("rien")';
-        assert.deepEqual(summary((await checker.check(level)).problems), ['solution_fails@mission']);
+        assert.deepEqual(summary((await checker.check(level)).problems), ['solution_fails@mission.solution']);
 
         level = base(); level.steps[1].starter = 'print(';
-        assert.deepEqual(summary((await checker.check(level)).problems), ['starter_error@steps.1']);
+        assert.deepEqual(summary((await checker.check(level)).problems), ['starter_error@steps.1.starter']);
 
         console.log(`${checked} exercices vérifiés`);
     } finally {

@@ -416,3 +416,83 @@ test('carte de progression et badges : états en texte, badge obtenu à la fin d
     assert.equal(await page.locator('.badge-item.is-locked .badge-status').first().textContent(), 'À débloquer');
     assert.deepEqual(errors, []);
 });
+
+test('éditeur de niveaux (mode auteur) : écrire un niveau, le vérifier, l\'essayer, l\'exporter', { skip, timeout: 240000 }, async () => {
+    const { spawnSync } = await import('node:child_process');
+    const { mkdtempSync, writeFileSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const page = await (await browser.newContext({ acceptDownloads: true })).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    const field = (path) => page.locator(`[data-path="${path}"]`);
+    const fill = async (path, value) => field(path).fill(value);
+
+    await page.goto(`${base}author.html`);
+    await page.waitForSelector('.level-form', { timeout: 60000 });
+    // Niveau vide : des erreurs sont déjà signalées, avec un bouton pour aller au champ.
+    assert.match(await page.textContent('.problems-summary'), /[1-9]\d* erreur/);
+
+    // Informations + une explication + un exercice de code + la mission.
+    await fill('id', '99-essai');
+    await fill('title.fr', 'Essai');
+    await fill('title.en', 'Test');
+    await page.getByRole('button', { name: 'Ajouter une explication' }).click();
+    await fill('steps.0.text.fr', 'Voici `print()`.');
+    await fill('steps.0.text.en', 'Here is `print()`.');
+    await page.getByRole('button', { name: 'Ajouter un exercice de code' }).click();
+    await fill('steps.1.instruction.fr', 'Affiche b.');
+    await fill('steps.1.instruction.en', 'Print b.');
+    await fill('steps.1.starter', 'print("a")');
+    await fill('steps.1.tests.0.value', 'b\n');
+    await fill('steps.1.hints.fr', 'Change la lettre.');
+    await fill('steps.1.hints.en', 'Change the letter.');
+    await fill('steps.1.solution', 'print("b")');
+    await fill('mission.title.fr', 'Fin');
+    await fill('mission.title.en', 'End');
+    await fill('mission.goal.fr', 'Bravo.');
+    await fill('mission.goal.en', 'Well done.');
+    await page.waitForFunction(() => document.querySelector('.problems-summary')?.textContent.startsWith('0 erreur'), null, { timeout: 5000 });
+
+    // Exécution avec le vrai Python : la solution passe, le départ échoue → tout est correct.
+    await page.locator('#author-check').click();
+    await page.waitForFunction(() => /exercice\(s\) sont corrects/.test(document.querySelector('#author-check + p')?.textContent ?? ''), null, { timeout: 60000 });
+
+    // Une solution fausse est détectée, avec le bon message.
+    await fill('steps.1.solution', 'print("z")');
+    await page.locator('#author-check').click();
+    await page.waitForSelector('.problem-error');
+    assert.match(await page.textContent('.problem-error'), /La solution ne passe pas ses tests/);
+    await page.locator('.problem-error button', { hasText: 'Aller au champ' }).click();
+    assert.equal(await page.evaluate(() => document.activeElement.dataset.path), 'steps.1.solution');
+    await fill('steps.1.solution', 'print("b")');
+
+    // Essai comme apprenant dans l'interface réelle.
+    await page.locator('#author-preview').click();
+    await page.waitForSelector('.preview-frame .explain', { timeout: 60000 });
+    assert.match(await page.textContent('.preview-frame .explain'), /Voici print\(\)/);
+
+    // Export : le fichier téléchargé est accepté par le validateur Python de la CI.
+    const [download] = await Promise.all([page.waitForEvent('download'), page.locator('#author-download').click()]);
+    const dir = mkdtempSync(join(tmpdir(), 'pyquest-author-'));
+    const file = join(dir, 'level.yaml');
+    await download.saveAs(file);
+    assert.equal(download.suggestedFilename(), 'level.yaml');
+    const python = existsSync(`${root}.venv/bin/python`) ? `${root}.venv/bin/python` : null;
+    if (python) {
+        const result = spawnSync(python, [`${root}scripts/validate_levels.py`, '--file', file], { encoding: 'utf8' });
+        assert.equal(result.status, 0, result.stdout + result.stderr);
+        assert.match(result.stdout, /^OK/);
+    }
+    writeFileSync(join(dir, 'unused'), '');
+
+    // Brouillon restauré après rechargement ; la langue de l'éditeur se change sans perdre le contenu.
+    await page.reload();
+    await page.waitForSelector('.level-form');
+    assert.equal(await field('id').inputValue(), '99-essai');
+    assert.match(await page.textContent('.author-status'), /restauré/);
+    await page.locator('#author-lang').selectOption('en');
+    await page.getByRole('button', { name: 'Add a code exercise' }).waitFor();
+    assert.equal(await field('steps.1.solution').inputValue(), 'print("b")');
+    assert.deepEqual(errors, []);
+});

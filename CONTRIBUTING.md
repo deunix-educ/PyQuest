@@ -15,6 +15,14 @@ Français d'abord, English below.
 
 ## Ajouter un niveau
 
+**Le plus simple : l'éditeur de niveaux (mode auteur).** Lance `make dev`, active « Mode auteur » dans
+les réglages de l'application, puis ouvre l'éditeur (`/author.html`). Il te guide champ par champ,
+vérifie le niveau en direct, exécute tes solutions avec le vrai Python, te laisse l'essayer comme un
+apprenant et exporte `level.yaml`. Il ne remplace pas la relecture : les commandes `make` ci-dessous
+restent la référence. Voir `docs/design/08-author-editor.md`.
+
+À la main, ou pour finir ce que l'éditeur a produit :
+
 1. **Créer le dossier** `levels/NN-slug/` (ex. `levels/03-input/`) avec un fichier `level.yaml`.
    L'`id` doit être identique au nom du dossier (`^[0-9]{2}-[a-z0-9-]+$`).
 2. **Écrire le contenu** en suivant le schéma [`levels/schema/level.schema.json`](levels/schema/level.schema.json).
@@ -26,7 +34,7 @@ Français d'abord, English below.
     - une `mission` finale motivante, avec `reward_sound`.
 3. **Fournir le français et l'anglais** pour chaque texte (`fr` et `en`).
 4. **Référencer le niveau** dans `levels/manifest.json` (ordre et `requires`).
-5. **Valider** : `make validate-levels` vérifie le schéma, le manifeste, la présence des
+5. **Valider** : `python scripts/validate_levels.py --file mon-niveau.yaml` contrôle un fichier seul ; `make validate-levels` vérifie le schéma, le manifeste, la présence des
    traductions `en` et que le code de départ compile.
 
 ### Tests déclaratifs disponibles

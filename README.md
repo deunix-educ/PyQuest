@@ -7,6 +7,7 @@ fonctionne hors ligne (PWA), pour les débutants comme pour les plus avancés.
   Web Worker : les vrais messages d'erreur, traduits en langage simple.
 - Console à cellules façon notebook, indices progressifs, validation automatique des exercices.
 - Niveaux déclaratifs (YAML) : ajouter un niveau ne demande aucune modification du code.
+- Éditeur de niveaux intégré (mode auteur) pour contribuer sans écrire de YAML à la main.
 - XP, badges, séries de jours, effets sonores et narration vocale (voix Piper pré-générées) optionnels, interface fr/en.
 - Accessibilité visée : WCAG 2.2 AA (clavier complet, thèmes clair/sombre, taille de texte réglable).
 

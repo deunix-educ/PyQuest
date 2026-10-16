@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
     voiceEnabled: true, // le bouton « Écouter » ne lit jamais automatiquement : un clic à chaque fois
     voiceRate: 1,
     guideEnabled: true, // personnage-guide (bulles d'encouragement)
+    authorMode: false, // affiche le lien vers l'éditeur de niveaux (mode auteur)
 });
 
 export class SettingsStore extends EventTarget {

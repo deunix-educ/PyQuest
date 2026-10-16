@@ -287,6 +287,13 @@ pre {
     accent-color: var(--accent);
 }
 
+.author-link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 0.5rem;
+    text-decoration: none;
+}
+
 .setting > .btn:only-child {
     grid-column: 1 / -1;
 }

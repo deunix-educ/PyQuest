@@ -45,7 +45,8 @@ export class LevelChecker {
         const summary = [];
         let done = 0;
         for (const { path, exercise } of exercises) {
-            const add = (severity, code, params = {}) => problems.push({ severity, code, path, params });
+            // Chemin du champ en cause : la solution pour ses échecs, le code de départ pour les siens.
+            const add = (severity, code, params = {}) => problems.push({ severity, code, path: [...path, code.startsWith('starter') ? 'starter' : 'solution'], params });
             const entry = { path, runOnly: false, solutionPassed: null };
             summary.push(entry);
             onProgress(done, exercises.length);

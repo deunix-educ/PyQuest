@@ -58,6 +58,8 @@
     "settings.theme.light": "Light",
     "settings.theme.dark": "Dark",
     "settings.guide": "Guide character",
+    "settings.author": "Author mode",
+    "settings.authorOpen": "Open the level editor",
     "settings.sound": "Sound effects",
     "settings.volume": "Volume",
     "settings.voice": "Voice",

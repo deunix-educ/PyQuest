@@ -30,6 +30,7 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Erreurs | `app/js/core/ErrorTranslator.js` + `app/js/i18n/errors.{fr,en}.json` |
 | Progression | `app/js/core/ProgressStore.js`, `KeyValueStores.js` (IndexedDB/mémoire), `SettingsStore.js` |
 | Carte / badges | `app/js/ui/{ProgressMap,BadgeShelf,badgeArt}.js`, `app/css/progress.css` |
+| Éditeur de niveaux | `app/author.html`, `app/js/author/*`, `app/css/author.css`, `app/js/i18n/author.*.json`, `app/js/core/{LevelLinter,LevelChecker}.js`, `app/js/lib/json-schema/` |
 | Guide | `app/js/core/GuideEngine.js`, `app/js/i18n/guide.{fr,en}.json`, `app/js/ui/{GuideBubble,guideArt}.js`, `app/css/guide.css` |
 | Audio / voix | `app/js/core/AudioEngine.js` (sons synthétisés), `VoiceEngine.js` (mp3 Piper + repli speechSynthesis), `speechKey.js` ; `scripts/generate_voice.py`, `voice_key.py` |
 | UI | `app/js/ui/` (CellView, CellManager, NotebookView, HintPanel, ProgressMap, BadgeToast, SettingsPanel, dom.js), `app/js/i18n/{i18n.js,fr.json,en.json}`, `app/css/{themes,base,cells}.css`, `ui/CodeEditor.js`, `ui/highlightPython.js` |
@@ -37,6 +38,15 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Tooling | `Makefile`, `scripts/{dev_server,validate_levels,build}.py`, `scripts/vendor_pyodide.sh` |
 | Tests | `tests/js/*.test.mjs` (node:test), `tests/python/`, `backend/sync/tests.py`, `tests/e2e/` (Chromium) |
 | Backend | `backend/` Django : `GET/PUT /api/sync/` avec jeton Bearer (haché côté serveur) |
+
+## Éditeur de niveaux (mode auteur) — fait le 2026-10-16
+
+Décision de l'utilisateur : ouvrir à des contributeurs + éditeur en mode auteur (Django inchangé : sync
+seulement). Voir `docs/design/08-author-editor.md`. Page `app/author.html`, code `app/js/author/`,
+vérifications `core/LevelLinter.js` + `core/LevelChecker.js` (partagées avec `make test`), schéma validé
+dans le navigateur par `lib/json-schema`. `scripts/validate_levels.py --file` valide un fichier seul.
+**Reste** : documenter le flux de pull request / CI (pas de remote git), audit accessibilité réel de
+l'éditeur (lecteur d'écran), éventuelle génération de narration côté CI.
 
 ## Décisions actées (ne pas redemander)
 

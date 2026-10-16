@@ -57,12 +57,13 @@ http {{
 
 
 def find_nginx(explicit: str | None) -> str:
-    candidate = explicit or os.environ.get("PYQUEST_NGINX") or shutil.which("nginx")
+    fetched = ROOT / ".local/nginx/root/usr/sbin/nginx"  # créé par scripts/fetch_nginx.sh (make fetch-nginx)
+    candidate = explicit or os.environ.get("PYQUEST_NGINX") or shutil.which("nginx") or (str(fetched) if fetched.is_file() else None)
     if not candidate or not Path(candidate).is_file():
         sys.exit(
-            "nginx introuvable. Installe-le (sudo apt install nginx) ou récupère seulement le binaire sans droits root :\n"
-            "  mkdir -p /tmp/ngx && cd /tmp/ngx && apt-get download nginx && dpkg -x nginx_*.deb root\n"
-            "  PYQUEST_NGINX=/tmp/ngx/root/usr/sbin/nginx python3 scripts/local_stack.py"
+            "nginx introuvable. Le plus simple (Debian/Ubuntu, sans droits administrateur ni installation) :\n"
+            "  make fetch-nginx && make dev-nginx\n"
+            "Ou installe nginx (sudo apt install nginx), ou indique son binaire : PYQUEST_NGINX=/chemin/nginx make dev-nginx"
         )
     return candidate
 

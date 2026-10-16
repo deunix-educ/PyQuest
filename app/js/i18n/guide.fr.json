@@ -1,0 +1,70 @@
+{
+    "level_start": [
+        "C'est parti ! Une petite étape à la fois.",
+        "Prêt·e ? On avance tranquillement.",
+        "Bienvenue dans ce niveau. Prends ton temps.",
+        "Bonne idée de continuer. Allons-y !"
+    ],
+    "welcome_back": [
+        "Content de te revoir ! On reprend là où tu t'étais arrêté·e.",
+        "Te revoilà ! Aucune pression, on y va doucement.",
+        "Bon retour. Même une petite session compte."
+    ],
+    "success_step": [
+        "Bien joué, c'est correct !",
+        "Exactement ça. Tu prends le coup de main.",
+        "Propre ! Passons à la suite ?",
+        "Ça marche. Tu progresses."
+    ],
+    "success_first_try": [
+        "Du premier coup, bravo !",
+        "Juste et sans détour. Impressionnant !",
+        "Tout bon dès le premier essai !"
+    ],
+    "success_after_retry": [
+        "Tu as persévéré, et ça a payé !",
+        "Voilà, tu l'as trouvé. Chaque essai t'a rapproché·e.",
+        "Bravo d'avoir continué : c'est comme ça qu'on apprend."
+    ],
+    "error_runtime": [
+        "Une erreur, c'est un indice : regarde la ligne indiquée.",
+        "Pas de panique, ça arrive à tout le monde. Lis le message avec moi.",
+        "Python te dit où chercher : c'est utile, pas un échec.",
+        "Presque ! Corrige la ligne signalée et relance."
+    ],
+    "fail_tests": [
+        "Ça tourne, mais ce n'est pas encore le résultat attendu. Relis la consigne.",
+        "Tu es sur la bonne voie. Compare ce qui s'affiche avec ce qui est demandé.",
+        "Pas tout à fait. Un petit détail à ajuster ?"
+    ],
+    "suggest_hint": [
+        "Un indice peut aider : le bouton Indice est là pour ça.",
+        "Bloqué·e ? Demande un indice, il n'y a aucune pénalité."
+    ],
+    "hint_revealed": [
+        "Voilà un coup de pouce. À toi de jouer !",
+        "Un indice de plus : essaie avec ça.",
+        "Ça t'aide ? Reprends ton code et teste."
+    ],
+    "interrupted": [
+        "Exécution arrêtée. Bien vu d'avoir coupé la boucle !",
+        "Stop ! Vérifie que la condition de ta boucle peut devenir fausse."
+    ],
+    "input_waiting": [
+        "Je t'écoute : tape ta réponse.",
+        "Le programme attend ta saisie."
+    ],
+    "level_complete": [
+        "Niveau terminé : +{xp} XP ! Belle étape.",
+        "Bravo ! +{xp} XP, et tu as appris du solide.",
+        "Mission accomplie, +{xp} XP. Tu peux être fier·ère."
+    ],
+    "level_complete_replay": [
+        "Bien revu ! Pas de nouveaux XP, mais la pratique, ça compte.",
+        "Réviser, c'est toujours une bonne idée."
+    ],
+    "streak": [
+        "{days} jours de suite ! Reviens demain, sans pression.",
+        "Série de {days} jours : tu prends une belle habitude."
+    ]
+}

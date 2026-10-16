@@ -1,5 +1,6 @@
 // Zone verticale façon notebook : étapes d'explication, cellules et messages s'empilent.
 
+import { GuideBubble } from './GuideBubble.js';
 import { el, renderInline } from './dom.js';
 
 export class NotebookView {
@@ -67,6 +68,11 @@ export class NotebookView {
             );
         }
         return this.add(el('section', { class: 'explain', tabindex: '-1' }, ...children));
+    }
+
+    /** Message du personnage-guide dans le fil du notebook (sans déplacer le focus). */
+    addGuide(message) {
+        return this.add(new GuideBubble(message).element, { focus: false });
     }
 
     /** Réaffiche ou masque les boutons « Écouter » existants (réglage de la voix modifié). */

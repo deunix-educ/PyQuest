@@ -29,6 +29,7 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Validation | `app/js/core/ValidationEngine.js` (kinds déclaratifs, dont `code_contains`), `StepValidator.js` (rejeux à `inputs`) ; `tests/js/level-solutions.integration.test.mjs` vérifie toutes les solutions de référence avec le vrai Pyodide |
 | Erreurs | `app/js/core/ErrorTranslator.js` + `app/js/i18n/errors.{fr,en}.json` |
 | Progression | `app/js/core/ProgressStore.js`, `KeyValueStores.js` (IndexedDB/mémoire), `SettingsStore.js` |
+| Guide | `app/js/core/GuideEngine.js`, `app/js/i18n/guide.{fr,en}.json`, `app/js/ui/{GuideBubble,guideArt}.js`, `app/css/guide.css` |
 | Audio / voix | `app/js/core/AudioEngine.js` (sons synthétisés), `VoiceEngine.js` (mp3 Piper + repli speechSynthesis), `speechKey.js` ; `scripts/generate_voice.py`, `voice_key.py` |
 | UI | `app/js/ui/` (CellView, CellManager, NotebookView, HintPanel, ProgressMap, BadgeToast, SettingsPanel, dom.js), `app/js/i18n/{i18n.js,fr.json,en.json}`, `app/css/{themes,base,cells}.css`, `ui/CodeEditor.js`, `ui/highlightPython.js` |
 | Shell PWA | `app/index.html`, `app/js/main.js`, `app/service-worker.js`, `app/manifest.webmanifest` |
@@ -83,9 +84,9 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
    fr/en) ; **recommandation : palette B, typo 2, mascotte 1 (Chouette)** — **choix validé par l'utilisateur** (voir
    `docs/design/07-visual-identity.md`). **Étape 2 faite** : CSS découpé (`themes`/`base`/`cells`),
    palette B + typo 2 auto-hébergée, éditeur coloré (`CodeEditor`, `highlightPython`), icône
-   chouette + PNG (`make icons`), test de contraste des thèmes. **Étape 3 restante** : carte de
-   progression graphique + personnage-guide (chouette) aux messages variés fr/en, badges
-   illustrés, feedback coloré doublé de texte. Anciennes notes : **Reste** : identité visuelle
+   chouette + PNG (`make icons`), test de contraste des thèmes. **Étape 3a faite** : personnage-guide (chouette, 4 humeurs, messages variés fr/en,
+   `GuideEngine`, réglage pour le masquer). **Étape 3b restante** : carte de progression
+   graphique, badges illustrés, feedback coloré (vert/rouge) doublé de texte. Anciennes notes : **Reste** : identité visuelle
    (palette, typo, logo), découpage CSS (`base`/`themes`/`cells`), coloration syntaxique de
    l'éditeur, carte de progression graphique, personnage-guide aux messages variés fr/en,
    badges illustrés, feedback coloré (vert/rouge, toujours doublé d'un texte). Procéder en 3

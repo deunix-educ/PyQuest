@@ -34,6 +34,7 @@ export class SettingsPanel extends EventTarget {
                 options: ['auto', 'light', 'dark'].map((theme) => [theme, t(`settings.theme.${theme}`)]),
                 key: 'theme',
             }),
+            this.#field('settings.guide', 'checkbox', { value: settings.guideEnabled, key: 'guideEnabled' }),
             this.#field('settings.sound', 'checkbox', { value: settings.soundEnabled, key: 'soundEnabled' }),
             this.#testButton('settings.testSound', 'sound'),
             this.#field('settings.volume', 'range', { value: settings.volume, min: 0, max: 1, step: 0.1, key: 'volume', number: true }),

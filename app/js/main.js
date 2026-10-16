@@ -2,6 +2,7 @@
 
 import { AudioEngine } from './core/AudioEngine.js';
 import { ErrorTranslator } from './core/ErrorTranslator.js';
+import { GuideEngine } from './core/GuideEngine.js';
 import { LessonEngine } from './core/LessonEngine.js';
 import { IndexedDbKeyValueStore, MemoryKeyValueStore } from './core/KeyValueStores.js';
 import { ProgressStore } from './core/ProgressStore.js';
@@ -49,6 +50,7 @@ function applySettings(settings) {
         root.setAttribute('data-theme', settings.theme);
     }
     root.lang = settings.lang;
+    root.dataset.guide = settings.guideEnabled ? 'on' : 'off';
 }
 
 class App {
@@ -73,11 +75,13 @@ class App {
         this.#settings = new SettingsStore(store);
         const settings = await this.#settings.load();
 
-        const [translations, errorCatalogs] = await Promise.all([
+        const [translations, errorCatalogs, guideCatalogs] = await Promise.all([
             Promise.all(LANGUAGES.map((lang) => loadJson(`./i18n/${lang}.json`))),
             Promise.all(LANGUAGES.map((lang) => loadJson(`./i18n/errors.${lang}.json`))),
+            Promise.all(LANGUAGES.map((lang) => loadJson(`./i18n/guide.${lang}.json`))),
         ]);
         this.#i18n = new I18n(Object.fromEntries(LANGUAGES.map((lang, i) => [lang, translations[i]])), settings.lang);
+        const guide = new GuideEngine(Object.fromEntries(LANGUAGES.map((lang, i) => [lang, guideCatalogs[i]])));
         const translator = new ErrorTranslator(Object.fromEntries(LANGUAGES.map((lang, i) => [lang, errorCatalogs[i]])));
 
         this.#progress = new ProgressStore(store);
@@ -103,6 +107,7 @@ class App {
             audio: this.#audio,
             progress: this.#progress,
             toast,
+            guide,
         });
         this.#manager.addEventListener('levelcomplete', () => this.#renderMap());
 
@@ -129,8 +134,21 @@ class App {
         const next = requested ?? this.#levelIds.find((id) => !this.#progress.isCompleted(id)) ?? this.#levelIds.at(-1);
         history.replaceState(null, '', `#/levels/${next}`);
         window.addEventListener('popstate', () => this.#openLevel(this.#levelFromHash() ?? this.#levelIds[0]));
-        await this.#openLevel(next);
+        // Retour après une pause (2 jours ou plus sans activité) : accueil bienveillant, sans reproche.
+        await this.#openLevel(next, { greeting: this.#isReturning() ? 'welcome_back' : 'level_start' });
         this.#registerServiceWorker();
+    }
+
+    /** Vrai si l'apprenant a déjà de l'activité mais pas depuis au moins deux jours. */
+    #isReturning() {
+        const { lastDay } = this.#progress.snapshot().streak;
+        if (!lastDay) {
+            return false;
+        }
+        const [year, month, day] = lastDay.split('-').map(Number);
+        const now = new Date();
+        const days = (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(year, month - 1, day)) / 86400000;
+        return days >= 2;
     }
 
     /** Id de niveau demandé par l'URL (#/levels/<id>), s'il existe. */
@@ -150,12 +168,12 @@ class App {
         await this.#openLevel(id);
     }
 
-    async #openLevel(id) {
+    async #openLevel(id, { greeting = 'level_start' } = {}) {
         this.#currentId = id;
         await this.#renderMap();
         const session = await this.#lessons.startLevel(id, this.#i18n.lang);
         this.#updateLevelNav(session.title);
-        await this.#manager.start(session);
+        await this.#manager.start(session, { greeting });
     }
 
     async #renderMap() {

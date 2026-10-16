@@ -4,6 +4,7 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { after, before, test } from 'node:test';
 import assert from 'node:assert';
+import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright-core';
 
 const root = new URL('../../', import.meta.url).pathname;
@@ -324,5 +325,60 @@ test('éditeur : coloration syntaxique, textarea réel, polices de la charte', {
         };
     });
     assert.deepEqual(fonts, { ui: true, code: true, ligatures: 'none' });
+    assert.deepEqual(errors, []);
+});
+
+test('personnage-guide : messages variés selon la situation, réglage pour le masquer', { skip, timeout: 120000 }, async () => {
+    const guideFr = JSON.parse(readFileSync(`${root}app/js/i18n/guide.fr.json`, 'utf8'));
+    const page = await (await browser.newContext()).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(`${base}#/levels/01-hello`);
+    await page.waitForSelector('.explain', { timeout: 60000 });
+
+    // Accueil du niveau : une bulle du guide, issue du catalogue.
+    const greeting = await page.locator('.notebook > .guide-bubble .guide-text').first().textContent();
+    assert.ok(guideFr.level_start.includes(greeting), `accueil : ${greeting}`);
+    assert.equal(await page.locator('.notebook > .guide-bubble').first().getAttribute('data-mood'), 'happy');
+
+    await page.locator('.notebook-action button').last().click(); // 1re explication -> exercice « exécuter »
+    await page.locator('.cell').waitFor();
+    // Deuxième exercice, qui a des indices : « Bonjour le monde » attendu.
+    await page.locator('.cell-run').click();
+    await page.waitForFunction(() => document.querySelector('.cell-feedback')?.textContent.includes('correct'));
+    await page.locator('.notebook-action button').last().click();
+    const cell = page.locator('.cell').last();
+    const guide = cell.locator('.cell-guide .guide-text');
+    const run = async (code) => {
+        await cell.locator('textarea').fill(code);
+        await cell.locator('.cell-run').click();
+        await page.waitForFunction(() => document.querySelector('.cell:last-of-type')?.getAttribute('aria-busy') !== 'true');
+        await page.waitForTimeout(150);
+        return guide.textContent();
+    };
+
+    // Premier échec de sortie, puis erreur Python, puis nouvel échec : messages adaptés et différents.
+    const first = await run('print("bonjour le monde")');
+    assert.ok(guideFr.fail_tests.includes(first), `échec 1 : ${first}`);
+    assert.equal(await cell.locator('.cell-guide .guide-bubble').getAttribute('data-mood'), 'thinking');
+    // Deux échecs d'affilée avec des indices disponibles : le guide suggère un indice.
+    const second = await run('print(Bonjour)');
+    assert.ok(guideFr.suggest_hint.includes(second), `suggestion d'indice : ${second}`);
+    // Un indice révélé : encouragement dédié.
+    await cell.getByRole('button', { name: /Indice/ }).click();
+    assert.ok(guideFr.hint_revealed.includes(await guide.textContent()));
+    // Réussite après plusieurs essais.
+    const success = await run('print("Bonjour le monde")');
+    assert.ok(guideFr.success_after_retry.includes(success), `réussite après essais : ${success}`);
+    assert.equal(await cell.locator('.cell-guide .guide-bubble').getAttribute('data-mood'), 'celebrate');
+
+    // Le réglage masque le guide (CSS) sans casser le reste, et le réaffiche.
+    await page.locator('#settings-toggle').click();
+    const setting = page.getByLabel('Personnage-guide', { exact: true });
+    await setting.uncheck();
+    await cell.locator('.cell-guide .guide-bubble').waitFor({ state: 'hidden' });
+    assert.equal(await page.evaluate(() => document.documentElement.dataset.guide), 'off');
+    await setting.check();
+    await cell.locator('.cell-guide .guide-bubble').waitFor({ state: 'visible' });
     assert.deepEqual(errors, []);
 });

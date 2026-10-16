@@ -1,0 +1,112 @@
+/* Personnage-guide : chouette (aux couleurs du thème) et sa bulle. Masqué par le réglage « guide ». */
+
+.guide-bubble {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
+    animation: guide-pop 0.3s ease-out;
+}
+
+.guide-avatar {
+    flex: 0 0 3.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+.guide-avatar svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.guide-text {
+    position: relative;
+    margin: 0.25rem 0 0;
+    padding: 0.6rem 0.9rem;
+    background: var(--bg);
+    color: var(--text);
+    border: 2px solid var(--accent);
+    border-radius: 0.75rem;
+}
+
+/* Pointe de la bulle, vers l'avatar. */
+.guide-text::before {
+    content: "";
+    position: absolute;
+    left: -0.55rem;
+    top: 0.9rem;
+    width: 0.8rem;
+    height: 0.8rem;
+    background: var(--bg);
+    border-left: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    transform: rotate(45deg);
+}
+
+:root[data-guide="off"] .guide-bubble {
+    display: none;
+}
+
+@keyframes guide-pop {
+    from {
+        opacity: 0;
+        transform: translateY(0.4rem) scale(0.97);
+    }
+}
+
+/* Dessin : couleurs via les jetons du thème. */
+.owl-body {
+    fill: var(--accent);
+}
+
+.owl-belly {
+    fill: var(--surface);
+    opacity: 0.85;
+}
+
+.owl-eye {
+    fill: var(--bg);
+}
+
+.owl-pupil {
+    fill: var(--text);
+}
+
+.owl-glint {
+    fill: var(--bg);
+}
+
+.owl-beak,
+.owl-spark {
+    fill: var(--hl);
+}
+
+.owl-line {
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 4;
+    stroke-linecap: round;
+}
+
+/* Humeurs : par défaut (neutral) yeux ronds ; les autres groupes sont masqués. */
+.owl-wings,
+.owl-sparkles,
+.eyes-happy,
+.eyes-thinking {
+    display: none;
+}
+
+[data-mood="happy"] .eyes-round,
+[data-mood="celebrate"] .eyes-round,
+[data-mood="thinking"] .eyes-round {
+    display: none;
+}
+
+[data-mood="happy"] .eyes-happy,
+[data-mood="celebrate"] .eyes-happy,
+[data-mood="thinking"] .eyes-thinking,
+[data-mood="celebrate"] .owl-wings,
+[data-mood="celebrate"] .owl-sparkles {
+    display: inline;
+}

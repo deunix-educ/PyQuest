@@ -10,6 +10,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
     volume: 0.8,
     voiceEnabled: true, // le bouton « Écouter » ne lit jamais automatiquement : un clic à chaque fois
     voiceRate: 1,
+    guideEnabled: true, // personnage-guide (bulles d'encouragement)
 });
 
 export class SettingsStore extends EventTarget {

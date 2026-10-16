@@ -1,0 +1,70 @@
+{
+    "level_start": [
+        "Let's go! One small step at a time.",
+        "Ready? We'll take it easy.",
+        "Welcome to this level. Take your time.",
+        "Great idea to keep going. Let's do it!"
+    ],
+    "welcome_back": [
+        "Good to see you again! We pick up where you left off.",
+        "You're back! No pressure, we'll go gently.",
+        "Welcome back. Even a short session counts."
+    ],
+    "success_step": [
+        "Well done, that's correct!",
+        "Exactly right. You're getting the hang of it.",
+        "Clean! Shall we move on?",
+        "It works. You're making progress."
+    ],
+    "success_first_try": [
+        "First try, well done!",
+        "Right and straight to the point. Impressive!",
+        "All correct on the first attempt!"
+    ],
+    "success_after_retry": [
+        "You kept at it, and it paid off!",
+        "There, you found it. Every attempt got you closer.",
+        "Well done for carrying on: that's how we learn."
+    ],
+    "error_runtime": [
+        "An error is a clue: look at the line shown.",
+        "Don't panic, it happens to everyone. Let's read the message together.",
+        "Python tells you where to look: that's helpful, not a failure.",
+        "Almost! Fix the line shown and run again."
+    ],
+    "fail_tests": [
+        "It runs, but it's not the expected result yet. Reread the instruction.",
+        "You're on the right track. Compare what is printed with what is asked.",
+        "Not quite. A small detail to adjust?"
+    ],
+    "suggest_hint": [
+        "A hint can help: the Hint button is there for that.",
+        "Stuck? Ask for a hint, there is no penalty."
+    ],
+    "hint_revealed": [
+        "Here's a nudge. Over to you!",
+        "One more hint: try it with that.",
+        "Does that help? Go back to your code and test."
+    ],
+    "interrupted": [
+        "Execution stopped. Good call cutting the loop!",
+        "Stop! Check that your loop's condition can become false."
+    ],
+    "input_waiting": [
+        "I'm listening: type your answer.",
+        "The program is waiting for your input."
+    ],
+    "level_complete": [
+        "Level complete: +{xp} XP! Nice step.",
+        "Well done! +{xp} XP, and you learned something solid.",
+        "Mission accomplished, +{xp} XP. You can be proud."
+    ],
+    "level_complete_replay": [
+        "Nicely revised! No new XP, but practice counts.",
+        "Reviewing is always a good idea."
+    ],
+    "streak": [
+        "{days} days in a row! Come back tomorrow, no pressure.",
+        "A {days}-day streak: you're building a nice habit."
+    ]
+}

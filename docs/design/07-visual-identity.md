@@ -21,3 +21,20 @@ Choix de l'utilisateur parmi les propositions de [`identity/index.html`](identit
   (texte ≥ 4,5 : 1, composants et focus ≥ 3 : 1, couleurs de coloration incluses), thèmes clair et sombre.
 - La coloration syntaxique (`app/js/ui/highlightPython.js`, `CodeEditor.js`) est décorative :
   le contrôle reste un `<textarea>` réel, le calque coloré est `aria-hidden`.
+
+## Personnage-guide (la chouette)
+
+- **Messages** : `app/js/i18n/guide.{fr,en}.json`, plusieurs variantes par situation (accueil, retour
+  après pause, réussite du premier coup / après essais, erreur Python, test non validé, suggestion
+  d'indice, indice révélé, boucle interrompue, saisie attendue, niveau terminé, révision, série de
+  jours). Ton : bienveillant, jamais culpabilisant, « une erreur, c'est un indice ».
+- **Variété** : `GuideEngine` tire sans remise (toutes les variantes avant qu'une se répète, jamais
+  la même deux fois de suite).
+- **Humeurs du dessin** : neutre, content, réfléchi (erreurs), fête (réussites) — `ui/guideArt.js`,
+  couleurs par jetons du thème (`css/guide.css`).
+- **Placement** : la bulle apparaît là où l'attention est déjà (sous le retour de validation de la
+  cellule, et dans le fil du notebook à l'accueil et en fin de niveau). Décorative pour les lecteurs
+  d'écran (avatar `aria-hidden`, le retour de validation reste la source d'information).
+- **Réglage** « Personnage-guide » : masque toutes les bulles (`data-guide="off"` sur `<html>`).
+- Ajouter une situation : clé dans les deux catalogues + humeur dans `GuideEngine` ; le test
+  `tests/js/guide-engine.test.mjs` vérifie parité fr/en, variantes distinctes et paramètres connus.

@@ -3,6 +3,7 @@
 
 import { el, renderInline, uniqueId } from './dom.js';
 import { CodeEditor } from './CodeEditor.js';
+import { GuideBubble } from './GuideBubble.js';
 import { HintPanel } from './HintPanel.js';
 
 export class CellView extends EventTarget {
@@ -12,6 +13,8 @@ export class CellView extends EventTarget {
     #editor;
     #output;
     #feedback;
+    #guideSlot;
+    #hintPanel;
     #runButton;
     #stopButton;
     #busy = false;
@@ -57,6 +60,8 @@ export class CellView extends EventTarget {
 
         this.#output = el('pre', { id: outputId, class: 'cell-output', 'aria-live': 'polite', 'aria-label': i18n.t('cell.output') });
         this.#feedback = el('div', { class: 'cell-feedback', role: 'status' });
+        this.#guideSlot = el('div', { class: 'cell-guide' });
+        this.#hintPanel = new HintPanel(i18n, hints, { onReveal: () => this.dispatchEvent(new CustomEvent('hint')) });
 
         // Saisie demandée par input() : formulaire affiché seulement pendant l'attente.
         const inputId = uniqueId('input');
@@ -79,10 +84,11 @@ export class CellView extends EventTarget {
             el('p', { class: 'cell-instruction' }, renderInline(instruction)),
             this.#editor.element,
             el('p', { id: `${editorId}-hint`, class: 'cell-shortcut', text: i18n.t('cell.shortcut') }),
-            el('div', { class: 'cell-actions' }, this.#runButton, this.#stopButton, resetButton, new HintPanel(i18n, hints).element),
+            el('div', { class: 'cell-actions' }, this.#runButton, this.#stopButton, resetButton, this.#hintPanel.element),
             this.#output,
             this.#inputForm,
             this.#feedback,
+            this.#guideSlot,
             solutionBlock,
         );
     }
@@ -110,6 +116,17 @@ export class CellView extends EventTarget {
     clearOutput() {
         this.#output.textContent = '';
         this.#feedback.replaceChildren();
+        this.#guideSlot.replaceChildren();
+    }
+
+    /** Reste-t-il des indices à révéler ? */
+    get hasHintsLeft() {
+        return this.#hintPanel.hasMore;
+    }
+
+    /** Affiche un message du personnage-guide sous le retour de validation. */
+    showGuide(message) {
+        this.#guideSlot.replaceChildren(new GuideBubble(message).element);
     }
 
     appendOutput(text) {

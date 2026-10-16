@@ -42,6 +42,32 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Accès éditeur | `backend/authors/` (login, `check` pour nginx `auth_request`, administration `/api/admin/` : groupe « Auteurs » / permission `use_editor`, `create_author`, anti force brute) ; nginx `pyquest.conf.example` ; prod = MariaDB |
 | Synchronisation | `core/SyncClient.js` + section Réglages ; export/import fichier ; voir `docs/design/09-sync.md` ; `make dev-sync` |
 
+## Déploiement sur le VPS — état et reprise (2026-10-16)
+
+**État : rien n'est déployé.** Tout est préparé et testé sans serveur ; l'utilisateur a dit « Pas encore » au premier
+déploiement. Décisions : site statique + backend Django (synchronisation, accès authentifié à l'éditeur, administration),
+**MariaDB déjà en place** sur le VPS, nginx, Let's Encrypt, `nginx/pyquest.conf.example` (version complète).
+
+**Inconnues à demander à l'utilisateur** : adresse SSH (`utilisateur@hote`) et si je dois exécuter les commandes moi-même
+(sa préférence actuelle : il les lance lui-même), nom de domaine, version de MariaDB, version de nginx, e-mail Let's Encrypt.
+
+**Feuille de route** (détail et dépannage : `docs/site/fr/host/operations.md`) : `make ci` → `make vps-bootstrap
+DOMAIN=… ARGS=--dry-run` → `make vps-bootstrap DOMAIN=… ARGS="--certbot mail"` → base MariaDB
+(`deploy/mariadb-setup.sql.example`) + mot de passe dans `/etc/pyquest/env` → `systemctl enable --now pyquest` →
+`createsuperuser` → `make deploy` → `make check-deploy URL=…` → `make vps-doctor`.
+
+| Outil | Rôle | Testé |
+|---|---|---|
+| `scripts/deploy.sh` (`--rollback`, `--backend`, `--dry-run`) | versions atomiques du site, code du backend | faux ssh (`tests/deploy/test_deploy.sh`) |
+| `scripts/vps_bootstrap.sh` + `deploy/remote_setup.sh` | première installation root idempotente (`--dry-run`) | arguments et dry-run seulement |
+| `scripts/vps_doctor.sh` | diagnostic en lecture seule du serveur | exécution locale |
+| `scripts/backup_db.sh` | sauvegarde MariaDB vérifiée + rotation | faux `mariadb-dump` |
+| `scripts/check_deploy.sh` | contrôle du site publié | serveur local, vrai nginx (`make dev-nginx`) |
+| `deploy/pyquest.service.example`, `pyquest.env.example`, `mariadb-setup.sql.example` | unité systemd (migrate + collectstatic au démarrage), variables, base | syntaxe de l'unité (`systemd-analyze`) |
+
+**Jamais éprouvé en réel** : `remote_setup.sh` sur un vrai serveur (apt, systemd, sudoers, certbot), MariaDB, HTTPS réel,
+cookies `Secure`. Premier réflexe en reprenant : `make ci`, puis `make vps-doctor`, et lire les lignes ÉCHEC.
+
 ## Éditeur de niveaux (mode auteur) — fait le 2026-10-16
 
 Décision de l'utilisateur : ouvrir à des contributeurs + éditeur en mode auteur (Django inchangé : sync

@@ -52,4 +52,20 @@ DEPLOY_HOST='x; rm -rf /' "${DEPLOY}" >/dev/null 2>&1 && fail "hôte dangereux a
 DEPLOY_PATH='/var/www/a b' "${DEPLOY}" >/dev/null 2>&1 && fail "chemin avec espace accepté"
 DEPLOY_PATH='/' "${DEPLOY}" >/dev/null 2>&1 && fail "chemin racine accepté"
 rm "${FAKE_ROOT}/dist/index.html"; "${DEPLOY}" >/dev/null 2>&1 && fail "dist absent accepté"
+# --backend : code envoyé sans les fichiers locaux (base, caches), puis redémarrage demandé via sudo (faux sudo ici).
+mkdir -p "${FAKE_ROOT}/backend/app1/__pycache__" "${WORK}/bin"
+echo "print('manage')" > "${FAKE_ROOT}/backend/manage.py"
+echo "x = 1" > "${FAKE_ROOT}/backend/app1/models.py"
+echo "cache" > "${FAKE_ROOT}/backend/app1/__pycache__/models.pyc"
+echo "secret-db" > "${FAKE_ROOT}/backend/db.sqlite3"
+printf '#!/usr/bin/env bash\necho "sudo $*" >> "%s/sudo.log"\n' "${WORK}" > "${WORK}/bin/sudo"
+chmod +x "${WORK}/bin/sudo"
+export DEPLOY_BACKEND_PATH="${WORK}/opt/pyquest/backend"
+PATH="${WORK}/bin:${PATH}" "${DEPLOY}" --backend >/dev/null
+[[ -f "${DEPLOY_BACKEND_PATH}/manage.py" && -f "${DEPLOY_BACKEND_PATH}/app1/models.py" ]] || fail "le code du backend n'est pas envoyé"
+[[ ! -e "${DEPLOY_BACKEND_PATH}/db.sqlite3" && ! -e "${DEPLOY_BACKEND_PATH}/app1/__pycache__" ]] || fail "base locale ou caches envoyés"
+grep -q "systemctl restart pyquest" "${WORK}/sudo.log" || fail "le redémarrage du service n'est pas demandé"
+rm "${WORK}/sudo.log"
+PATH="${WORK}/bin:${PATH}" "${DEPLOY}" --backend --no-restart >/dev/null
+[[ ! -e "${WORK}/sudo.log" ]] || fail "--no-restart ne doit pas redémarrer"
 echo "deploy.sh : ok"

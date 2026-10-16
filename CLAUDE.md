@@ -76,9 +76,11 @@ Commandes : `make test` (JS `node:test`, Python `unittest`, backend Django, vali
 niveaux), `make test-e2e` (Chromium), `make typecheck` (pyright), `make dev`, `make build`.
 Pyodide épinglé 314.0.7 (Python 3.14.2) via `make vendor-pyodide`.
 
-**À traiter en premier à la reprise** : le parcours est complet (niveaux 00 à 14, synchronisation, éditeur
-auteur, canvas de dessin). Restent : retour d'écoute sur les effets sonores, test Safari/iOS (Firefox validé par
-l'utilisateur), audit lecteur d'écran, documentation MkDocs. Voir les priorités dans CONTEXT.md.
+**À traiter en premier à la reprise** : le parcours est complet (niveaux 00 à 14, synchronisation, éditeur auteur protégé
+par Django, administration des comptes, canvas de dessin, documentation bilingue). **Prochaine étape : le déploiement sur
+le VPS** (rien n'est encore en ligne, tout est préparé : voir « Déploiement sur le VPS — état et reprise » dans CONTEXT.md et
+`docs/site/fr/host/operations.md`). Demander à l'utilisateur adresse SSH, domaine, version de MariaDB avant d'agir. Restent
+aussi : retour d'écoute sur les effets sonores, test Safari/iOS (Firefox validé), audit lecteur d'écran.
 
 ## Règles de travail apprises
 

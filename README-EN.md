@@ -60,6 +60,12 @@ backend is deployed on the same domain behind nginx (`/api/` → Django, see
 [nginx/pyquest.conf.example](nginx/pyquest.conf.example)). In development: `make dev-sync`.
 Details (in French): [docs/design/09-sync.md](docs/design/09-sync.md).
 
+### Installing on a VPS
+
+Tested scripts for installation, atomic-release deployment, diagnostics and backup: see
+[docs/site/en/host/operations.md](docs/site/en/host/operations.md) (`make vps-bootstrap`, `make deploy`, `make vps-doctor`).
+Production-faithful local test: `make dev-nginx`.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) (contribution flow, adding a level with the editor) and [docs/MAINTAINERS.md](docs/MAINTAINERS.md) (review, release; in French). `make ci` runs the whole verification chain.

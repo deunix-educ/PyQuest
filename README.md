@@ -60,6 +60,12 @@ secret (sans compte) si le backend Django est déployé sur le même domaine, de
 (`/api/` → Django, voir [nginx/pyquest.conf.example](nginx/pyquest.conf.example)). En développement :
 `make dev-sync`. Fonctionnement détaillé : [docs/design/09-sync.md](docs/design/09-sync.md).
 
+### Installer sur un VPS
+
+Scripts testés d'installation, de déploiement par versions atomiques, de diagnostic et de sauvegarde : voir
+[docs/site/fr/host/operations.md](docs/site/fr/host/operations.md) (`make vps-bootstrap`, `make deploy`, `make vps-doctor`).
+Essai local fidèle à la production : `make dev-nginx`.
+
 ## Contribuer
 
 Voir [CONTRIBUTING.md](CONTRIBUTING.md) (flux de contribution, ajout d'un niveau avec l'éditeur) et [docs/MAINTAINERS.md](docs/MAINTAINERS.md) (relecture, publication). `make ci` lance toute la chaîne de vérification.

@@ -18,7 +18,7 @@
     "cell.output_empty": "(nothing printed)",
     "cell.input_label": "Answer requested by the program",
     "cell.input_send": "Send",
-    "cell.shortcut": "Ctrl/Cmd + Enter to run",
+    "cell.shortcut": "Ctrl/Cmd + Enter to run · Tab indents, Esc then Tab leaves the editor",
     "cell.passed": "Well done, that's correct!",
     "cell.failed": "Not yet. Here is what is wrong:",
     "cell.line": "Line {line}",

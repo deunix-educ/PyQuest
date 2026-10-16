@@ -18,7 +18,7 @@
     "cell.output_empty": "(aucun affichage)",
     "cell.input_label": "Réponse demandée par le programme",
     "cell.input_send": "Envoyer",
-    "cell.shortcut": "Ctrl/Cmd + Entrée pour exécuter",
+    "cell.shortcut": "Ctrl/Cmd + Entrée pour exécuter · Tab indente, Échap puis Tab pour quitter l'éditeur",
     "cell.passed": "Bravo, c'est correct !",
     "cell.failed": "Pas encore. Voici ce qui ne va pas :",
     "cell.line": "Ligne {line}",

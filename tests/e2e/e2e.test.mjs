@@ -386,6 +386,56 @@ test('éditeur : coloration syntaxique, textarea réel, polices de la charte', {
     assert.deepEqual(errors, []);
 });
 
+test('éditeur : Tab indente, Maj+Tab désindente, Échap puis Tab quitte l\'éditeur', { skip, timeout: 120000 }, async () => {
+    const page = await (await browser.newContext()).newPage();
+    await page.goto(`${base}#/levels/07-while`);
+    await page.waitForSelector('.explain', { timeout: 60000 });
+    await page.locator('.notebook-action button').last().click();
+    const area = page.locator('.cell').last().locator('textarea');
+    const value = () => area.inputValue();
+    await area.fill('while True:\nx = 1');
+
+    // Tab au début de la ligne 2 : 4 espaces (et non un changement de focus).
+    await area.evaluate((node) => node.setSelectionRange(12, 12));
+    await area.focus();
+    await page.keyboard.press('Tab');
+    assert.equal(await value(), 'while True:\n    x = 1');
+    assert.equal(await page.evaluate(() => document.activeElement.tagName), 'TEXTAREA');
+
+    // Tab en milieu de ligne : complète jusqu'à la colonne multiple de 4.
+    await page.keyboard.press('End');
+    await page.keyboard.press('Tab');
+    assert.equal(await value(), 'while True:\n    x = 1   ');
+
+    // Maj+Tab désindente la ligne.
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await value(), 'while True:\nx = 1   ');
+
+    // Sélection de plusieurs lignes : toutes sont indentées, puis désindentées.
+    await page.keyboard.press('Control+a');
+    await page.keyboard.press('Tab');
+    assert.equal(await value(), '    while True:\n    x = 1   ');
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await value(), 'while True:\nx = 1   ');
+
+    // Ctrl+Z annule l'indentation (historique conservé).
+    await page.keyboard.press('Control+End');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Control+z');
+    assert.equal(await value(), 'while True:\nx = 1   ');
+
+    // Échap puis Tab : le focus quitte l'éditeur (pas de piège clavier).
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Tab');
+    assert.notEqual(await page.evaluate(() => document.activeElement.tagName), 'TEXTAREA');
+    // Revenu dans l'éditeur, Tab indente de nouveau.
+    await page.keyboard.press('Shift+Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.tagName), 'TEXTAREA');
+    await page.keyboard.press('Control+Home');
+    await page.keyboard.press('Tab');
+    assert.equal((await value()).startsWith('    while'), true);
+});
+
 test('personnage-guide : messages variés selon la situation, réglage pour le masquer', { skip, timeout: 120000 }, async () => {
     const guideFr = JSON.parse(readFileSync(`${root}app/js/i18n/guide.fr.json`, 'utf8'));
     const page = await (await browser.newContext()).newPage();

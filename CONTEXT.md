@@ -78,7 +78,10 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 2. **Phase de design (décidée le 2026-10-16, après les niveaux 04-07)** — *amorcée le 2026-10-16* :
    navigation refaite (tiroir « Niveaux »/progression à gauche, tiroir « Réglages » à droite via
    `ui/Drawer.js`, en-tête avec niveau courant + précédent/suivant, lien direct `#/levels/<id>`,
-   historique navigateur). **Reste** : identité visuelle
+   historique navigateur). **Étape 1 faite** : page de propositions `docs/design/identity/index.html` (3 palettes
+   avec contrastes WCAG calculés, 3 typographies auto-hébergeables OFL, 3 mascottes + messages
+   fr/en) ; **recommandation : palette B, typo 2, mascotte 1 (Chouette)** — *en attente du choix de
+   l'utilisateur*. **Reste** : identité visuelle
    (palette, typo, logo), découpage CSS (`base`/`themes`/`cells`), coloration syntaxique de
    l'éditeur, carte de progression graphique, personnage-guide aux messages variés fr/en,
    badges illustrés, feedback coloré (vert/rouge, toujours doublé d'un texte). Procéder en 3

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>PyQuest — propositions d'identité visuelle</title>
+        <style>
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "Lexend"; src: url("fonts/lexend-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "Lexend"; src: url("fonts/lexend-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "JetBrains Mono"; src: url("fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2"); font-weight: 700; }
+.t-A.light { --bg: #ffffff; --surface: #f4f6fb; --text: #17202e; --muted: #4a5568; --border: #b8c0d0; --accent: #1d4ed8; --on: #ffffff; --hl: #b45309; --ok: #146c2e; --ko: #a31515; --code: #eef1f8; }
+.t-A.dark { --bg: #10141c; --surface: #1a2030; --text: #eceff6; --muted: #b0b9cb; --border: #46506a; --accent: #8ab4ff; --on: #0b1020; --hl: #fbbf24; --ok: #6ee08a; --ko: #ff8a8a; --code: #141a27; }
+.t-B.light { --bg: #ffffff; --surface: #f3f7f6; --text: #16231f; --muted: #475b55; --border: #b4c4bf; --accent: #0f766e; --on: #ffffff; --hl: #c2410c; --ok: #166534; --ko: #b42318; --code: #ebf2f0; }
+.t-B.dark { --bg: #0f1715; --surface: #18231f; --text: #e8f1ee; --muted: #a9bdb6; --border: #41544e; --accent: #5eead4; --on: #04201c; --hl: #fdba74; --ok: #86efac; --ko: #fda4af; --code: #121c19; }
+.t-C.light { --bg: #ffffff; --surface: #f6f4fb; --text: #1d1830; --muted: #524a6b; --border: #c3bcd8; --accent: #6d28d9; --on: #ffffff; --hl: #0e7490; --ok: #166534; --ko: #b42318; --code: #f0edf8; }
+.t-C.dark { --bg: #120f1d; --surface: #1d1830; --text: #efecf8; --muted: #b8b0d0; --border: #4c4470; --accent: #c4b5fd; --on: #1a0f33; --hl: #67e8f9; --ok: #86efac; --ko: #fda4af; --code: #171228; }
+
+:root { --page-bg: #f6f7f9; --page-text: #1b1f27; --page-muted: #4a5365; --page-border: #c3c9d6; }
+@media (prefers-color-scheme: dark) { :root { --page-bg: #14171d; --page-text: #eceff5; --page-muted: #b3bccd; --page-border: #3d4558; } }
+body { margin: 0; background: var(--page-bg); color: var(--page-text); font-family: system-ui, sans-serif; line-height: 1.55; }
+main { max-width: 70rem; margin: 0 auto; padding: 1rem 1.25rem 4rem; }
+h1 { margin-bottom: 0.25rem; }
+h2 { margin-top: 3rem; border-bottom: 2px solid var(--page-border); padding-bottom: 0.25rem; }
+.lead, .meta { color: var(--page-muted); }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1rem; margin: 1rem 0; }
+.mock { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 0.5rem; overflow: hidden; font-size: 0.95rem; }
+.mock-bar { display: flex; justify-content: space-between; align-items: center; background: var(--surface); padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+.mock-body { padding: 0.75rem; }
+.mock-body p { margin: 0.4rem 0; }
+.mock-card { background: var(--surface); border: 1px solid var(--border); border-radius: 0.4rem; padding: 0.5rem 0.75rem; }
+.mock-card p { margin: 0; }
+.mock-code, .typo pre { overflow-x: auto; background: var(--code); border-left: 4px solid var(--accent); padding: 0.5rem 0.75rem; border-radius: 0.25rem; margin: 0.5rem 0; font-family: ui-monospace, monospace; }
+.mock code, .typo code { background: var(--code); padding: 0 0.25rem; border-radius: 0.2rem; }
+.mock-btn { display: inline-block; border: 1px solid var(--border); border-radius: 0.35rem; padding: 0.25rem 0.7rem; background: var(--bg); color: var(--text); }
+.mock-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on); }
+.mock-step { color: var(--muted); }
+.mock-xp { color: var(--hl); font-weight: 700; }
+.mock-ok { color: var(--ok); font-weight: 600; }
+.mock-ko { color: var(--ko); font-weight: 600; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+td, th { border: 1px solid var(--page-border); padding: 0.25rem 0.5rem; text-align: left; }
+details { margin: 0.5rem 0; }
+.typo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; }
+.typo { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.5rem 1rem 1rem; }
+.typo-1 { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.typo-1 pre, .typo-1 code { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; }
+.typo-2 { font-family: "Atkinson Hyperlegible", sans-serif; }
+.typo-2 pre, .typo-2 code { font-family: "JetBrains Mono", monospace; }
+.typo-3 { font-family: "Lexend", sans-serif; }
+.typo-3 pre, .typo-3 code { font-family: "JetBrains Mono", monospace; }
+.sample-h { font-size: 1.4rem; margin: 0.5rem 0; }
+.confusables span { background: var(--code); padding: 0.1rem 0.4rem; border-radius: 0.25rem; margin-right: 0.4rem; font-size: 1.3rem; }
+.char { display: grid; grid-template-columns: 9rem 1fr; gap: 1.25rem; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem; margin: 1rem 0; }
+.char-art svg { width: 100%; height: auto; }
+.char h3 { margin-top: 0; }
+.char h4 { margin: 0.75rem 0 0.1rem; color: var(--accent); }
+.char ul { margin: 0; padding-left: 1.2rem; }
+.tagline { color: var(--muted); }
+.reco { border: 2px solid var(--page-border); border-radius: 0.5rem; padding: 0.75rem 1.25rem; }
+@media (max-width: 40rem) { .char { grid-template-columns: 1fr; } .char-art { max-width: 8rem; } }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h1>PyQuest — propositions d'identité visuelle</h1>
+            <p class="lead">Trois choix indépendants à faire : <strong>la palette</strong>, <strong>la typographie</strong>, <strong>la mascotte</strong>. Chaque proposition est montrée sur les vrais éléments de l'application. Le thème clair et le thème sombre suivent les mêmes couleurs de marque. Les rapports de contraste sont calculés (WCAG 2.2 : 4,5 : 1 minimum pour le texte), jamais estimés.</p>
+
+            <h2>1. Palette</h2>
+            <section><h3>Palette A — Cobalt & Soleil</h3><p class="meta">Franc et chaleureux : bleu soutenu, accent ambre pour les XP.</p><div class="pair"><div class="mock t-A light typo-1" role="group" aria-label="Aperçu Cobalt & Soleil clair">
+    <div class="mock-bar"><span class="mock-btn">☰ Niveaux</span><strong>PyQuest</strong><span class="mock-btn">⚙ Réglages</span></div>
+    <div class="mock-body">
+        <p class="mock-step">Étape 2 sur 5 · <span class="mock-xp">+20 XP</span></p>
+        <div class="mock-card"><p>Une variable est une boîte avec un nom. <code>age = 12</code> range la valeur dans la boîte.</p></div>
+        <pre class="mock-code">age = 12
+print(age + 1)</pre>
+        <p><span class="mock-btn primary">Exécuter</span> <span class="mock-btn">Indice</span></p>
+        <p class="mock-ok">✔ Bravo, c'est correct !</p>
+        <p class="mock-ko">🔍 Python ne connaît pas « nom » (Ligne 1)</p>
+    </div>
+</div><div class="mock t-A dark typo-1" role="group" aria-label="Aperçu Cobalt & Soleil sombre">
+    <div class="mock-bar"><span class="mock-btn">☰ Niveaux</span><strong>PyQuest</strong><span class="mock-btn">⚙ Réglages</span></div>
+    <div class="mock-body">
+        <p class="mock-step">Étape 2 sur 5 · <span class="mock-xp">+20 XP</span></p>
+        <div class="mock-card"><p>Une variable est une boîte avec un nom. <code>age = 12</code> range la valeur dans la boîte.</p></div>
+        <pre class="mock-code">age = 12
+print(age + 1)</pre>
+        <p><span class="mock-btn primary">Exécuter</span> <span class="mock-btn">Indice</span></p>
+        <p class="mock-ok">✔ Bravo, c'est correct !</p>
+        <p class="mock-ko">🔍 Python ne connaît pas « nom » (Ligne 1)</p>
+    </div>
+</div></div><details><summary>Rapports de contraste de la palette A</summary><table><thead><tr><th>Thème</th><th>Paire</th><th>Rapport</th><th>Niveau WCAG</th></tr></thead><tbody><tr><td>Clair</td><td>Texte / fond</td><td>16.4 : 1</td><td>AAA</td></tr>
+<tr><td>Clair</td><td>Texte atténué / fond</td><td>7.5 : 1</td><td>AAA</td></tr>
+<tr><td>Clair</td><td>Bouton (texte / accent)</td><td>6.7 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>Accent / fond (liens, focus)</td><td>6.7 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>XP (mise en valeur / fond)</td><td>5.0 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>Réussite / surface</td><td>6.0 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>Erreur / surface</td><td>7.3 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Texte / fond</td><td>16.0 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Texte atténué / fond</td><td>9.3 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Bouton (texte / accent)</td><td>9.1 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Accent / fond (liens, focus)</td><td>8.8 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>XP (mise en valeur / fond)</td><td>11.0 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Réussite / surface</td><td>9.8 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Erreur / surface</td><td>7.2 : 1</td><td>AAA</td></tr>
+</tbody></table></details></section><section><h3>Palette B — Forêt & Corail</h3><p class="meta">Calme et rassurant : vert-bleu profond, accent corail pour l'énergie. Se démarque du bleu/jaune de Python.</p><div class="pair"><div class="mock t-B light typo-1" role="group" aria-label="Aperçu Forêt & Corail clair">
+    <div class="mock-bar"><span class="mock-btn">☰ Niveaux</span><strong>PyQuest</strong><span class="mock-btn">⚙ Réglages</span></div>
+    <div class="mock-body">
+        <p class="mock-step">Étape 2 sur 5 · <span class="mock-xp">+20 XP</span></p>
+        <div class="mock-card"><p>Une variable est une boîte avec un nom. <code>age = 12</code> range la valeur dans la boîte.</p></div>
+        <pre class="mock-code">age = 12
+print(age + 1)</pre>
+        <p><span class="mock-btn primary">Exécuter</span> <span class="mock-btn">Indice</span></p>
+        <p class="mock-ok">✔ Bravo, c'est correct !</p>
+        <p class="mock-ko">🔍 Python ne connaît pas « nom » (Ligne 1)</p>
+    </div>
+</div><div class="mock t-B dark typo-1" role="group" aria-label="Aperçu Forêt & Corail sombre">
+    <div class="mock-bar"><span class="mock-btn">☰ Niveaux</span><strong>PyQuest</strong><span class="mock-btn">⚙ Réglages</span></div>
+    <div class="mock-body">
+        <p class="mock-step">Étape 2 sur 5 · <span class="mock-xp">+20 XP</span></p>
+        <div class="mock-card"><p>Une variable est une boîte avec un nom. <code>age = 12</code> range la valeur dans la boîte.</p></div>
+        <pre class="mock-code">age = 12
+print(age + 1)</pre>
+        <p><span class="mock-btn primary">Exécuter</span> <span class="mock-btn">Indice</span></p>
+        <p class="mock-ok">✔ Bravo, c'est correct !</p>
+        <p class="mock-ko">🔍 Python ne connaît pas « nom » (Ligne 1)</p>
+    </div>
+</div></div><details><summary>Rapports de contraste de la palette B</summary><table><thead><tr><th>Thème</th><th>Paire</th><th>Rapport</th><th>Niveau WCAG</th></tr></thead><tbody><tr><td>Clair</td><td>Texte / fond</td><td>16.2 : 1</td><td>AAA</td></tr>
+<tr><td>Clair</td><td>Texte atténué / fond</td><td>7.3 : 1</td><td>AAA</td></tr>
+<tr><td>Clair</td><td>Bouton (texte / accent)</td><td>5.5 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>Accent / fond (liens, focus)</td><td>5.5 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>XP (mise en valeur / fond)</td><td>5.2 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>Réussite / surface</td><td>6.6 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>Erreur / surface</td><td>6.1 : 1</td><td>AA</td></tr>
+<tr><td>Sombre</td><td>Texte / fond</td><td>15.8 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Texte atténué / fond</td><td>9.2 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Bouton (texte / accent)</td><td>11.6 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Accent / fond (liens, focus)</td><td>12.3 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>XP (mise en valeur / fond)</td><td>10.8 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Réussite / surface</td><td>11.5 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Erreur / surface</td><td>8.5 : 1</td><td>AAA</td></tr>
+</tbody></table></details></section><section><h3>Palette C — Nuit violette</h3><p class="meta">Ludique et « jeu vidéo » : violet électrique, accent cyan. Plus marqué, plus jeune.</p><div class="pair"><div class="mock t-C light typo-1" role="group" aria-label="Aperçu Nuit violette clair">
+    <div class="mock-bar"><span class="mock-btn">☰ Niveaux</span><strong>PyQuest</strong><span class="mock-btn">⚙ Réglages</span></div>
+    <div class="mock-body">
+        <p class="mock-step">Étape 2 sur 5 · <span class="mock-xp">+20 XP</span></p>
+        <div class="mock-card"><p>Une variable est une boîte avec un nom. <code>age = 12</code> range la valeur dans la boîte.</p></div>
+        <pre class="mock-code">age = 12
+print(age + 1)</pre>
+        <p><span class="mock-btn primary">Exécuter</span> <span class="mock-btn">Indice</span></p>
+        <p class="mock-ok">✔ Bravo, c'est correct !</p>
+        <p class="mock-ko">🔍 Python ne connaît pas « nom » (Ligne 1)</p>
+    </div>
+</div><div class="mock t-C dark typo-1" role="group" aria-label="Aperçu Nuit violette sombre">
+    <div class="mock-bar"><span class="mock-btn">☰ Niveaux</span><strong>PyQuest</strong><span class="mock-btn">⚙ Réglages</span></div>
+    <div class="mock-body">
+        <p class="mock-step">Étape 2 sur 5 · <span class="mock-xp">+20 XP</span></p>
+        <div class="mock-card"><p>Une variable est une boîte avec un nom. <code>age = 12</code> range la valeur dans la boîte.</p></div>
+        <pre class="mock-code">age = 12
+print(age + 1)</pre>
+        <p><span class="mock-btn primary">Exécuter</span> <span class="mock-btn">Indice</span></p>
+        <p class="mock-ok">✔ Bravo, c'est correct !</p>
+        <p class="mock-ko">🔍 Python ne connaît pas « nom » (Ligne 1)</p>
+    </div>
+</div></div><details><summary>Rapports de contraste de la palette C</summary><table><thead><tr><th>Thème</th><th>Paire</th><th>Rapport</th><th>Niveau WCAG</th></tr></thead><tbody><tr><td>Clair</td><td>Texte / fond</td><td>17.1 : 1</td><td>AAA</td></tr>
+<tr><td>Clair</td><td>Texte atténué / fond</td><td>8.2 : 1</td><td>AAA</td></tr>
+<tr><td>Clair</td><td>Bouton (texte / accent)</td><td>7.1 : 1</td><td>AAA</td></tr>
+<tr><td>Clair</td><td>Accent / fond (liens, focus)</td><td>7.1 : 1</td><td>AAA</td></tr>
+<tr><td>Clair</td><td>XP (mise en valeur / fond)</td><td>5.4 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>Réussite / surface</td><td>6.5 : 1</td><td>AA</td></tr>
+<tr><td>Clair</td><td>Erreur / surface</td><td>6.0 : 1</td><td>AA</td></tr>
+<tr><td>Sombre</td><td>Texte / fond</td><td>16.2 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Texte atténué / fond</td><td>9.1 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Bouton (texte / accent)</td><td>9.8 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Accent / fond (liens, focus)</td><td>10.2 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>XP (mise en valeur / fond)</td><td>13.0 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Réussite / surface</td><td>12.2 : 1</td><td>AAA</td></tr>
+<tr><td>Sombre</td><td>Erreur / surface</td><td>9.1 : 1</td><td>AAA</td></tr>
+</tbody></table></details></section>
+
+            <h2>2. Typographie</h2>
+            <p class="lead">Les polices web doivent être auto-hébergées (contrainte COEP du projet) : elles sont ici chargées depuis ce dossier, sous licence SIL OFL, sous-ensemble latin (accents français, « », œ inclus).</p>
+            <div class="typo-grid">
+                <article class="typo typo-1 t-B light"><h3>Typo 1 — Système</h3><p class="meta">police du système (Segoe UI, SF, Roboto…) et monospace du système · poids : 0 Ko, rendu variable selon l’appareil</p>
+<h4 class="sample-h">Apprendre Python, pas à pas</h4>
+<p>Une variable est une boîte avec un nom. Tu y ranges une valeur : <code>age = 12</code>. « Bravo, c'est correct ! » œuvres, à, ç, é.</p>
+<pre>name = input("Ton prénom ? ")
+print("Bonjour", name)   # 0 O l 1 I</pre>
+<p class="confusables">Lettres proches : <span>Il1</span> <span>O0</span> <span>rn m</span> <span>cl d</span></p></article>
+                <article class="typo typo-2 t-B light"><h3>Typo 2 — Atkinson Hyperlegible + JetBrains Mono</h3><p class="meta">Atkinson : conçue pour distinguer les lettres ambiguës (basse vision) ; JetBrains Mono : code très lisible · poids : ≈ 78 Ko (4 fichiers woff2)</p>
+<h4 class="sample-h">Apprendre Python, pas à pas</h4>
+<p>Une variable est une boîte avec un nom. Tu y ranges une valeur : <code>age = 12</code>. « Bravo, c'est correct ! » œuvres, à, ç, é.</p>
+<pre>name = input("Ton prénom ? ")
+print("Bonjour", name)   # 0 O l 1 I</pre>
+<p class="confusables">Lettres proches : <span>Il1</span> <span>O0</span> <span>rn m</span> <span>cl d</span></p></article>
+                <article class="typo typo-3 t-B light"><h3>Typo 3 — Lexend + JetBrains Mono</h3><p class="meta">Lexend : conçue pour faciliter la lecture (espacement ample) ; même police de code · poids : ≈ 73 Ko (4 fichiers woff2)</p>
+<h4 class="sample-h">Apprendre Python, pas à pas</h4>
+<p>Une variable est une boîte avec un nom. Tu y ranges une valeur : <code>age = 12</code>. « Bravo, c'est correct ! » œuvres, à, ç, é.</p>
+<pre>name = input("Ton prénom ? ")
+print("Bonjour", name)   # 0 O l 1 I</pre>
+<p class="confusables">Lettres proches : <span>Il1</span> <span>O0</span> <span>rn m</span> <span>cl d</span></p></article>
+            </div>
+
+            <h2>3. Mascotte (personnage-guide)</h2>
+            <p class="lead">Dessins originaux et volontairement simples (SVG, aux couleurs du thème, sans dépendance). Les messages sont <strong>variés</strong> (jamais la même phrase deux fois de suite, cf. stratégie anti-abandon), rassurants face à l'erreur, et le ton ne culpabilise jamais. Les textes affichés sont identiques pour les trois mascottes ; seul le personnage change.</p>
+            <article class="char t-B light"><div class="char-art"><svg viewBox="0 0 120 120" role="img" aria-label="Chouette"><ellipse cx="60" cy="68" rx="38" ry="42" fill="var(--accent)"/><path d="M30 38 L38 14 L52 30 Z M90 38 L82 14 L68 30 Z" fill="var(--accent)"/><circle cx="44" cy="58" r="15" fill="var(--bg)"/><circle cx="76" cy="58" r="15" fill="var(--bg)"/><circle cx="46" cy="59" r="7" fill="var(--text)"/><circle cx="74" cy="59" r="7" fill="var(--text)"/><circle cx="48" cy="56" r="2.2" fill="var(--bg)"/><circle cx="76" cy="56" r="2.2" fill="var(--bg)"/><path d="M54 72 L66 72 L60 84 Z" fill="var(--hl)"/><ellipse cx="60" cy="92" rx="22" ry="14" fill="var(--surface)" opacity=".85"/></svg></div><div><h3>Mascotte 1 — Chouette</h3><p>Un guide qui a de l'expérience : calme, bienveillant, jamais moqueur. Évoque la sagesse sans le côté « professeur ». Dessin original, aucun lien avec un logo existant.</p><p class="tagline"><em>Une chouette qui a tout vu, y compris vos erreurs de syntaxe, et qui n'en pense aucun mal.</em></p><h4>Réussite</h4><ul><li lang='fr'>Bien joué, ça marche du premier coup !</li><li lang='fr'>Exactement ça. Tu as le coup de main.</li><li lang='fr'>Propre. Passons à la suite ?</li><li lang='en'>Nice one, that works first time!</li><li lang='en'>Exactly right. You're getting the hang of it.</li><li lang='en'>Clean. Shall we move on?</li></ul><h4>Erreur</h4><ul><li lang='fr'>Une erreur, c'est un indice : regarde la ligne indiquée.</li><li lang='fr'>Pas grave, ça arrive à tout le monde. On cherche ensemble ?</li><li lang='fr'>Presque ! Il manque juste un petit détail.</li><li lang='en'>An error is a clue: look at the line shown.</li><li lang='en'>No worries, it happens to everyone. Shall we look together?</li><li lang='en'>Almost! Just one small detail is missing.</li></ul><h4>Série de jours</h4><ul><li lang='fr'>3 jours de suite ! Reviens demain, sans pression.</li><li lang='fr'>Tu as repris le fil : c'est ça qui compte.</li><li lang='en'>3 days in a row! Come back tomorrow, no pressure.</li><li lang='en'>You picked the thread back up: that's what counts.</li></ul></div></article><article class="char t-B light"><div class="char-art"><svg viewBox="0 0 120 120" role="img" aria-label="Robot"><line x1="60" y1="10" x2="60" y2="26" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/><circle cx="60" cy="10" r="6" fill="var(--hl)"/><rect x="24" y="26" width="72" height="58" rx="16" fill="var(--accent)"/><rect x="34" y="38" width="52" height="30" rx="10" fill="var(--bg)"/><circle cx="48" cy="53" r="6" fill="var(--text)"/><circle cx="72" cy="53" r="6" fill="var(--text)"/><path d="M50 74 Q60 82 70 74" fill="none" stroke="var(--on)" stroke-width="4" stroke-linecap="round"/><rect x="38" y="88" width="44" height="22" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="3"/></svg></div><div><h3>Mascotte 2 — Robot</h3><p>Un compagnon d'atelier : rond, curieux. Familier pour un public qui code, mais proche des assistants IA, donc risque de ton « froid ».</p><p class="tagline"><em>Un petit robot qui exécute chaque ligne que vous écrivez, à la lettre.</em></p><h4>Réussite</h4><ul><li lang='fr'>Bien joué, ça marche du premier coup !</li><li lang='fr'>Exactement ça. Tu as le coup de main.</li><li lang='fr'>Propre. Passons à la suite ?</li><li lang='en'>Nice one, that works first time!</li><li lang='en'>Exactly right. You're getting the hang of it.</li><li lang='en'>Clean. Shall we move on?</li></ul><h4>Erreur</h4><ul><li lang='fr'>Une erreur, c'est un indice : regarde la ligne indiquée.</li><li lang='fr'>Pas grave, ça arrive à tout le monde. On cherche ensemble ?</li><li lang='fr'>Presque ! Il manque juste un petit détail.</li><li lang='en'>An error is a clue: look at the line shown.</li><li lang='en'>No worries, it happens to everyone. Shall we look together?</li><li lang='en'>Almost! Just one small detail is missing.</li></ul><h4>Série de jours</h4><ul><li lang='fr'>3 jours de suite ! Reviens demain, sans pression.</li><li lang='fr'>Tu as repris le fil : c'est ça qui compte.</li><li lang='en'>3 days in a row! Come back tomorrow, no pressure.</li><li lang='en'>You picked the thread back up: that's what counts.</li></ul></div></article><article class="char t-B light"><div class="char-art"><svg viewBox="0 0 120 120" role="img" aria-label="Serpent"><path d="M30 100 Q8 84 30 70 Q56 56 38 40 Q26 28 50 20 Q74 14 80 30" fill="none" stroke="var(--accent)" stroke-width="20" stroke-linecap="round"/><circle cx="84" cy="32" r="16" fill="var(--accent)"/><circle cx="80" cy="28" r="5" fill="var(--bg)"/><circle cx="92" cy="28" r="5" fill="var(--bg)"/><circle cx="81" cy="29" r="2.2" fill="var(--text)"/><circle cx="93" cy="29" r="2.2" fill="var(--text)"/><path d="M98 38 L112 42 M98 38 L110 48" stroke="var(--hl)" stroke-width="3" stroke-linecap="round"/></svg></div><div><h3>Mascotte 3 — Serpent</h3><p>Clin d'œil direct à Python : mémorable, mais proche de l'univers du logo Python (marque déposée) ; il faudrait garder un dessin clairement distinct.</p><p class="tagline"><em>Un serpent qui glisse d'une ligne à l'autre, curieux de ce que vous allez écrire.</em></p><h4>Réussite</h4><ul><li lang='fr'>Bien joué, ça marche du premier coup !</li><li lang='fr'>Exactement ça. Tu as le coup de main.</li><li lang='fr'>Propre. Passons à la suite ?</li><li lang='en'>Nice one, that works first time!</li><li lang='en'>Exactly right. You're getting the hang of it.</li><li lang='en'>Clean. Shall we move on?</li></ul><h4>Erreur</h4><ul><li lang='fr'>Une erreur, c'est un indice : regarde la ligne indiquée.</li><li lang='fr'>Pas grave, ça arrive à tout le monde. On cherche ensemble ?</li><li lang='fr'>Presque ! Il manque juste un petit détail.</li><li lang='en'>An error is a clue: look at the line shown.</li><li lang='en'>No worries, it happens to everyone. Shall we look together?</li><li lang='en'>Almost! Just one small detail is missing.</li></ul><h4>Série de jours</h4><ul><li lang='fr'>3 jours de suite ! Reviens demain, sans pression.</li><li lang='fr'>Tu as repris le fil : c'est ça qui compte.</li><li lang='en'>3 days in a row! Come back tomorrow, no pressure.</li><li lang='en'>You picked the thread back up: that's what counts.</li></ul></div></article>
+
+            <h2>Recommandation</h2>
+            <div class="reco">
+                <p><strong>Palette B (Forêt &amp; Corail)</strong> : calme et rassurante pour de grands débutants, elle se démarque du bleu/jaune de Python, et tous ses contrastes dépassent 5 : 1.</p>
+                <p><strong>Typo 2 (Atkinson Hyperlegible + JetBrains Mono)</strong> : cohérente avec l'objectif WCAG 2.2 AA, les lettres ambiguës (Il1, O0) sont clairement distinctes, ce qui compte aussi pour lire du code.</p>
+                <p><strong>Mascotte 1 (Chouette)</strong> : un guide bienveillant sans l'ambiguïté d'un robot (ton « froid ») ni la proximité d'une marque (serpent).</p>
+                <p>Les combinaisons se choisissent indépendamment ; dis-moi « palette X, typo Y, mascotte Z » (ou ce que tu veux changer).</p>
+            </div>
+        </main>
+    </body>
+</html>

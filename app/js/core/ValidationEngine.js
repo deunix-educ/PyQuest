@@ -4,6 +4,11 @@
 const FLOAT_TOLERANCE = 1e-9;
 
 export class ValidationEngine {
+    /** Kinds de test interprétés par le moteur (le schéma en autorise davantage : certains sont encore à définir). */
+    static get supportedKinds() {
+        return ['no_syntax_error', 'stdout_equals', 'stdout_contains', 'stdout_matches_regex', 'code_contains', 'var_equals', 'var_type_is'];
+    }
+
     /** Noms de variables à relire côté Python (option `collect` de run_code) pour ces tests. */
     static variablesToCollect(tests) {
         const names = tests.filter((test) => test.kind.startsWith('var_')).map((test) => test.name);

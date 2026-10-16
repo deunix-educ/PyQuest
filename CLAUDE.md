@@ -80,6 +80,8 @@ l'utilisateur), audit lecteur d'écran, documentation MkDocs. Voir les priorité
 
 ## Règles de travail apprises
 
+- Documentation utilisateur bilingue : `docs/site/{fr,en}/` (MkDocs, `make docs`, strict). Toute fonctionnalité visible,
+  tout nouveau `kind` de test ou changement d'API doit être reporté **dans les deux langues**.
 - Chaque niveau ajouté : une `solution` pour chaque étape code et pour la mission (vérifiées par
   `make test` avec le vrai Pyodide), `fr` **et** `en`, `make validate-levels`, `make voice` si des étapes ont
   `voice: true` (commiter les mp3), entrée dans `levels/manifest.json`, parcours e2e si le niveau introduit un comportement nouveau.

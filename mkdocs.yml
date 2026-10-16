@@ -1,0 +1,94 @@
+# Documentation bilingue (fr par défaut, en). Sources : docs/site/fr et docs/site/en. Génération : make docs.
+site_name: PyQuest
+site_description: Apprendre Python par la pratique, dans le navigateur / Learn Python by doing, in the browser
+docs_dir: docs/site
+site_dir: site
+strict: true
+
+theme:
+    name: material
+    # Pas de police ni de ressource externe : la documentation ne contacte aucun tiers.
+    font: false
+    palette:
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          primary: teal
+          accent: deep orange
+          toggle:
+              icon: material/weather-night
+              name: Dark mode
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          primary: teal
+          accent: deep orange
+          toggle:
+              icon: material/weather-sunny
+              name: Light mode
+    features:
+        - navigation.sections
+        - navigation.top
+        - content.code.copy
+        - search.highlight
+
+markdown_extensions:
+    - admonition
+    - tables
+    - toc:
+          permalink: true
+    - pymdownx.highlight:
+          anchor_linenums: false
+    - pymdownx.superfences
+
+plugins:
+    - search
+    - i18n:
+          docs_structure: folder
+          fallback_to_default: true
+          languages:
+              - locale: fr
+                default: true
+                name: Français
+                build: true
+                site_name: PyQuest — documentation
+              - locale: en
+                name: English
+                build: true
+                site_name: PyQuest — documentation
+                nav_translations:
+                    Apprendre: Learn
+                    Contribuer: Contribute
+                    Héberger: Host
+                    Référence: Reference
+                    Accueil: Home
+                    Premiers pas: Getting started
+                    Écrire et exécuter du code: Writing and running code
+                    Progression et sauvegarde: Progress and backup
+                    Accessibilité et réglages: Accessibility and settings
+                    Flux de contribution: Contribution flow
+                    Écrire un niveau: Writing a level
+                    L'éditeur de niveaux: The level editor
+                    Déploiement: Deployment
+                    Architecture: Architecture
+                    Tests de validation: Validation tests
+                    API de synchronisation: Sync API
+
+nav:
+    - Accueil: index.md
+    - Apprendre:
+          - Premiers pas: learn/getting-started.md
+          - Écrire et exécuter du code: learn/code.md
+          - Progression et sauvegarde: learn/progress.md
+          - Accessibilité et réglages: learn/accessibility.md
+    - Contribuer:
+          - Flux de contribution: contribute/flow.md
+          - Écrire un niveau: contribute/write-level.md
+          - L'éditeur de niveaux: contribute/author-editor.md
+    - Héberger:
+          - Déploiement: host/deploy.md
+    - Référence:
+          - Architecture: reference/architecture.md
+          - Tests de validation: reference/tests.md
+          - API de synchronisation: reference/sync-api.md
+
+extra:
+    generator: false

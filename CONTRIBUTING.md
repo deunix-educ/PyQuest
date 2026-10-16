@@ -27,6 +27,12 @@ Deux possibilités :
 - **Tu peux lancer `make voice`** : fais-le et inclus les fichiers `levels/<id>/audio/` dans ta contribution.
 - **Tu ne peux pas** : mets `voice: false` sur tes étapes ; un mainteneur activera la narration avant la fusion.
 
+## Documentation
+
+La documentation (MkDocs, bilingue) est dans `docs/site/fr` et `docs/site/en`, avec les mêmes pages dans les deux
+langues. `make docs` la génère (échoue sur un lien cassé) ; `make docs-serve` l'affiche en direct. Une fonctionnalité
+visible ou un nouveau type de test se documente dans les deux langues.
+
 ## Conventions
 
 - Code, identifiants, noms de fichiers et messages de commit en **anglais** ; commentaires en

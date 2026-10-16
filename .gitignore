@@ -16,6 +16,8 @@ backend/**/*.mo
 backend/staticfiles/
 backend/.venv/
 .venv-voice/
+.venv-docs/
+site/
 .cache/
 backend/venv/
 

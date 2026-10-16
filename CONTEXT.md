@@ -118,7 +118,7 @@ Flux de contribution documenté (`CONTRIBUTING.md`, `docs/MAINTAINERS.md`, `docs
    **iOS Safari** (mémoire WASM, autoplay audio, `SharedArrayBuffer` + `Atomics.wait`).
 4. Icônes PNG (iOS) en plus de `app/icons/icon.svg`.
 5. ~~Client de synchronisation~~ fait (export/import fichier + sync complète, e2e avec vrai Django). Reste : QR code du jeton (dépendance), URL serveur configurable (CORS).
-6. Documentation MkDocs bilingue (`docs/mkdocs/`) ; compilation des traductions Django
+6. ~~Documentation MkDocs bilingue~~ faite : `mkdocs.yml`, sources `docs/site/{fr,en}/` (mêmes pages, `make docs` strict, dans `make ci`, aucune ressource externe) ; à tenir à jour avec les fonctionnalités. Reste : compilation des traductions Django
    (`compilemessages`, gettext absent du poste actuel).
 7. Audit accessibilité réel (lecteur d'écran, axe) ; le champ de saisie `input()` en particulier.
 8. Kinds de test pas encore définis : `stdout_contains_any_name`, `function_called_with`.

@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build dev-sync test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
+.PHONY: help install vendor-pyodide dev validate-levels build dev-sync docs docs-serve test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -28,6 +28,19 @@ dev-sync: $(VENV)/.installed ## Serveur de dev + backend Django relayé sur /api
 	@set -e; (cd backend && DJANGO_SETTINGS_MODULE=pyquest_api.settings.dev ../$(VENV_PY) manage.py runserver 8001 --noreload) & \
 	pid=$$!; trap "kill $$pid" EXIT INT TERM; \
 	$(PYTHON) scripts/dev_server.py --port $(PORT) --api-upstream http://127.0.0.1:8001
+
+DOCS_VENV := .venv-docs
+
+$(DOCS_VENV)/.installed: requirements-docs.txt
+	$(PYTHON) -m venv $(DOCS_VENV)
+	$(DOCS_VENV)/bin/pip install --quiet -r requirements-docs.txt
+	touch $@
+
+docs: $(DOCS_VENV)/.installed ## Génère la documentation bilingue dans site/ (échoue sur un lien cassé)
+	$(DOCS_VENV)/bin/mkdocs build --quiet
+
+docs-serve: $(DOCS_VENV)/.installed ## Documentation en direct sur http://127.0.0.1:8003/
+	$(DOCS_VENV)/bin/mkdocs serve --dev-addr 127.0.0.1:8003
 
 validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, traductions)
 	$(VENV_PY) scripts/validate_levels.py
@@ -66,10 +79,10 @@ voice: ## Génère la narration (Piper → mp3) pour les textes de niveaux ; voi
 check-voice: $(VENV)/.installed ## Vérifie que toute la narration est générée et à jour
 	cd scripts && ../$(VENV_PY) generate_voice.py --check
 
-ci: install test typecheck build ## Enchaînement d'intégration continue (sans navigateur)
+ci: install test typecheck build docs ## Enchaînement d'intégration continue (sans navigateur)
 
 ci-e2e: ci test-e2e ## Intégration continue complète, avec les tests Chromium (CHROMIUM=…)
 
 clean: ## Supprime dist/, caches et environnement virtuel
-	rm -rf dist $(VENV) .venv-voice
+	rm -rf dist site $(VENV) .venv-voice .venv-docs
 	find . -name __pycache__ -type d -prune -exec rm -rf {} +

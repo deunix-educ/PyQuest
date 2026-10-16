@@ -26,6 +26,11 @@ make build       # produit dist/ (application statique à servir en HTTPS)
 
 `make help` liste toutes les cibles.
 
+## Documentation
+
+Documentation bilingue (guide de l'apprenant, contribution, déploiement, référence) dans `docs/site/` :
+`make docs` la génère dans `site/`, `make docs-serve` l'affiche sur http://127.0.0.1:8003/.
+
 ## Organisation
 
 | Dossier | Contenu |

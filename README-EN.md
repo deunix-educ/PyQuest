@@ -26,6 +26,11 @@ make build       # produces dist/ (static app to serve over HTTPS)
 
 `make help` lists every target.
 
+## Documentation
+
+Bilingual documentation (learner guide, contributing, deployment, reference) in `docs/site/`:
+`make docs` builds it into `site/`, `make docs-serve` serves it on http://127.0.0.1:8003/.
+
 ## Layout
 
 | Folder | Content |

@@ -27,7 +27,7 @@ flowchart TB
 
     subgraph Backend["Backend optionnel (Django, même VPS)"]
         API[API REST<br/>sync multi-appareils]
-        DB[(PostgreSQL/SQLite)]
+        DB[(MariaDB/SQLite)]
     end
 
     UI -->|clic Exécuter| PWC

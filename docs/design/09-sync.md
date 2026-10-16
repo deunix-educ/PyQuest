@@ -47,6 +47,13 @@ non JSON (serveur statique sans Django) donne `unavailable`.
 - Même origine uniquement : pas de CORS, pas d'exception COEP. En dev : `make dev-sync`.
 - nginx : limite de débit et taille de corps (voir `nginx/pyquest.conf.example`).
 
+## Backend : aussi l'accès à l'éditeur (2026-10-16)
+
+Le même backend Django porte les comptes **auteurs** (`authors/`) : page de connexion, `check` pour nginx
+`auth_request`, anti force brute (`LoginFailure`), commande `create_author` ; pas de site d'administration. Base de
+production : **MariaDB** (`mysqlclient`, `backend/requirements-prod.txt`). Les fichiers de l'éditeur ne sont ni
+pré-cachés ni interceptés par le service worker (`build.py:is_author_tool`, `service-worker.js`).
+
 ## Non fait (volontairement)
 
 - QR code du jeton (aurait demandé une dépendance) : copier/coller suffit pour l'instant.

@@ -27,7 +27,8 @@ lire en premier en reprenant une session sur ce projet.
 - **`vendor/pyodide/` est gitignored**, régénéré par `make vendor-pyodide` (script à écrire dans
   `scripts/vendor_pyodide.sh`).
 - **Backend Django = oui**, mais strictement optionnel et jamais requis pour apprendre : sert
-  uniquement à la synchronisation multi-appareils de la progression. Settings séparés dev/prod,
+  à la synchronisation multi-appareils de la progression et (décision du 2026-10-16) à l'accès authentifié à
+  l'éditeur de niveaux (comptes auteurs `create_author`, nginx `auth_request`). Base de production : MariaDB. Settings séparés dev/prod,
   traductions fr/en, doc MkDocs bilingue.
 - Validation des exercices : déclarative uniquement (`tests[].kind` en enum fermé dans le schéma de
   niveau) — jamais de code arbitraire exécuté depuis un fichier de niveau, pour garder l'isolation

@@ -130,3 +130,53 @@ test('synchronisation : sans backend, message clair et l\'application reste util
     assert.equal(await doneCount(page), 1);
     assert.deepEqual(errors, []);
 });
+
+test('éditeur : connexion d\'un auteur par le backend Django (cookie, CSRF, redirection, refus)', { skip, timeout: 120000 }, async () => {
+    const created = spawnSync(venvPython, ['manage.py', 'shell', '-c', "from django.contrib.auth.models import User; User.objects.create_user('ada', password='un-mot-de-passe-solide-42', is_staff=True); User.objects.create_user('lea', password='un-mot-de-passe-solide-42')"], {
+        cwd: `${root}backend`,
+        env: { ...process.env, DJANGO_SETTINGS_MODULE: 'pyquest_api.settings.dev', PYQUEST_DB_PATH: join(tmp, 'db.sqlite3') },
+    });
+    assert.equal(created.status, 0, String(created.stderr));
+
+    const context = await browser.newContext({ locale: 'fr-FR' });
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+
+    // Sans session : l'autorisation est refusée (c'est ce que nginx verra).
+    assert.equal((await page.request.get(`${web}api/auth/check/`)).status(), 401);
+
+    await page.goto(`${web}api/auth/login/?next=/author.html`);
+    assert.equal(await page.title(), 'Éditeur de niveaux — connexion');
+
+    // Mauvais mot de passe, puis compte non auteur : message identique, toujours pas de session.
+    await page.getByLabel('Identifiant').fill('ada');
+    await page.getByLabel('Mot de passe').fill('mauvais');
+    await page.getByRole('button', { name: 'Se connecter' }).click();
+    await page.getByRole('alert').filter({ hasText: 'incorrect' }).waitFor();
+    await page.getByLabel('Identifiant').fill('lea');
+    await page.getByLabel('Mot de passe').fill('un-mot-de-passe-solide-42');
+    await page.getByRole('button', { name: 'Se connecter' }).click();
+    await page.getByRole('alert').filter({ hasText: 'incorrect' }).waitFor();
+    assert.equal((await page.request.get(`${web}api/auth/check/`)).status(), 401);
+
+    // Bon compte : redirection vers l'éditeur, cookie de session illisible par le JavaScript de la page.
+    await page.getByLabel('Identifiant').fill('ada');
+    await page.getByLabel('Mot de passe').fill('un-mot-de-passe-solide-42');
+    await page.getByRole('button', { name: 'Se connecter' }).click();
+    await page.waitForURL(`${web}author.html`);
+    assert.equal(await page.evaluate(() => document.cookie.includes('pyquest_author')), false, 'cookie HttpOnly');
+    const cookie = (await context.cookies()).find((entry) => entry.name === 'pyquest_author');
+    assert.ok(cookie?.httpOnly);
+    assert.equal((await page.request.get(`${web}api/auth/check/`)).status(), 204);
+
+    // Un autre navigateur n'a pas la session ; la déconnexion la supprime.
+    const other = await browser.newContext({ locale: 'fr-FR' });
+    assert.equal((await other.request.get(`${web}api/auth/check/`)).status(), 401);
+    await page.goto(`${web}api/auth/login/`);
+    await page.getByText('Connecté en tant que ada').waitFor();
+    await page.getByRole('button', { name: 'Se déconnecter' }).click();
+    await page.getByRole('button', { name: 'Se connecter' }).waitFor();
+    assert.equal((await page.request.get(`${web}api/auth/check/`)).status(), 401);
+    assert.deepEqual(errors, []);
+});

@@ -1,3 +1,2 @@
-# Backend de synchronisation (optionnel). Django LTS.
+# Backend optionnel (synchronisation, accès à l'éditeur de niveaux). Django LTS.
 Django>=5.2,<5.3
-gunicorn>=22.0  # production uniquement

@@ -27,11 +27,20 @@ self.addEventListener('fetch', (event) => {
     if (request.method !== 'GET' || url.origin !== self.location.origin) {
         return;
     }
+    // L'éditeur de niveaux peut être protégé par une connexion (redirection vers une page de login) : on le laisse
+    // au navigateur, sans pré-cache ni mise en cache, pour ne jamais conserver une page de connexion à sa place.
+    if (isAuthorTool(url.pathname)) {
+        return;
+    }
     // Pyodide (versionné, immuable, lourd) : cache d'abord. Tout le reste (code, niveaux, audio) :
     // réseau d'abord, cache en repli hors ligne — jamais de code périmé servi en ligne.
     const immutable = url.pathname.startsWith('/vendor/pyodide/');
     event.respondWith(immutable ? fromCache(request) : fromNetwork(request));
 });
+
+function isAuthorTool(pathname) {
+    return pathname === '/author.html' || pathname === '/css/author.css' || pathname.startsWith('/js/author/') || /^\/js\/i18n\/author\.[a-z]+\.json$/.test(pathname);
+}
 
 async function fromCache(request) {
     const cache = await caches.open(CACHE_VERSION);
@@ -50,7 +59,7 @@ async function fromNetwork(request) {
     const cache = await caches.open(CACHE_VERSION);
     try {
         const response = await fetch(request);
-        if (response.ok) {
+        if (response.ok && !response.redirected) {
             cache.put(request, response.clone());
         }
         return response;

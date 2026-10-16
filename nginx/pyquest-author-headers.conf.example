@@ -1,0 +1,9 @@
+# À installer dans /etc/nginx/snippets/pyquest-author-headers.conf (inclus par pyquest.conf.example).
+# Pourquoi un fichier : add_header n'est pas hérité dès qu'un bloc location en déclare un, donc chaque location
+# protégée doit répéter les en-têtes d'isolation. « no-store » : une page protégée ne reste pas dans le cache partagé.
+add_header Cross-Origin-Opener-Policy "same-origin" always;
+add_header Cross-Origin-Embedder-Policy "require-corp" always;
+add_header Cross-Origin-Resource-Policy "same-origin" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header Strict-Transport-Security "max-age=31536000" always;
+add_header Cache-Control "no-store" always;

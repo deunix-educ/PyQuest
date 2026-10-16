@@ -26,7 +26,18 @@ mimetypes.add_type("application/wasm", ".wasm")
 
 # Amont Django optionnel (--api-upstream) : /api/ est relayé comme le ferait nginx en production.
 API_UPSTREAM: str | None = None
-FORWARDED_HEADERS = ("Authorization", "Content-Type", "Accept", "Accept-Language")
+FORWARDED_HEADERS = ("Authorization", "Content-Type", "Accept", "Accept-Language", "Cookie", "Origin", "Referer", "Host")
+RETURNED_HEADERS = ("Content-Type", "Location", "Cache-Control", "Vary")
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Les redirections (connexion, déconnexion) sont renvoyées telles quelles au navigateur."""
+
+    def redirect_request(self, *args: Any, **kwargs: Any) -> None:
+        return None
+
+
+_OPENER = urllib.request.build_opener(_NoRedirect)
 
 
 class DevHandler(SimpleHTTPRequestHandler):
@@ -36,16 +47,22 @@ class DevHandler(SimpleHTTPRequestHandler):
         body = self.rfile.read(length) if length else None
         headers = {name: value for name in FORWARDED_HEADERS if (value := self.headers.get(name))}
         request = urllib.request.Request(API_UPSTREAM + self.path, data=body, headers=headers, method=self.command)
+        extra: list[tuple[str, str]] = []
         try:
-            with urllib.request.urlopen(request, timeout=10) as response:
-                status, payload, content_type = response.status, response.read(), response.headers.get("Content-Type")
+            with _OPENER.open(request, timeout=10) as response:
+                status, payload, reply = response.status, response.read(), response.headers
         except urllib.error.HTTPError as error:
-            status, payload, content_type = error.code, error.read(), error.headers.get("Content-Type")
+            status, payload, reply = error.code, error.read(), error.headers
         except OSError:
-            status, payload, content_type = 502, b"Bad gateway", "text/plain"
+            status, payload, reply = 502, b"Bad gateway", None
         self.send_response(status)
-        if content_type:
-            self.send_header("Content-Type", content_type)
+        if reply is not None:
+            extra = [(name, value) for name in RETURNED_HEADERS if (value := reply.get(name))]
+            extra += [("Set-Cookie", cookie) for cookie in reply.get_all("Set-Cookie") or []]
+        else:
+            extra = [("Content-Type", "text/plain")]
+        for name, value in extra:
+            self.send_header(name, value)
         self.send_header("Content-Length", str(len(payload)))
         self.end_headers()
         self.wfile.write(payload)
@@ -58,6 +75,9 @@ class DevHandler(SimpleHTTPRequestHandler):
 
     def do_HEAD(self) -> None:
         self._proxy_api() if self._is_api() else super().do_HEAD()
+
+    def do_POST(self) -> None:
+        self._proxy_api() if self._is_api() else self.send_error(405)
 
     def do_PUT(self) -> None:
         self._proxy_api() if self._is_api() else self.send_error(405)

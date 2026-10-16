@@ -16,6 +16,17 @@ PRECACHED_SUFFIXES = {".html", ".css", ".js", ".mjs", ".json", ".svg", ".png", "
 NOT_PRECACHED = {"service-worker.js"}
 
 
+def is_author_tool(relative: str) -> bool:
+    """Fichiers propres à l'éditeur de niveaux : sur un serveur ils peuvent être protégés par authentification,
+    donc jamais pré-cachés (le service worker les récupérerait sans session et mettrait une page de connexion en cache)."""
+    return (
+        relative == "author.html"
+        or relative == "css/author.css"
+        or relative.startswith("js/author/")
+        or (relative.startswith("js/i18n/author.") and relative.endswith(".json"))
+    )
+
+
 def copy_tree(source: Path, target: Path) -> None:
     shutil.copytree(source, target, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", "*.md"))
 
@@ -29,6 +40,7 @@ def shell_files() -> list[str]:
         and path.suffix in PRECACHED_SUFFIXES
         and path.name not in NOT_PRECACHED
         and not path.relative_to(DIST).parts[0] in {"vendor", "levels"}
+        and not is_author_tool(path.relative_to(DIST).as_posix())
     ]
     return ["./", *files]
 

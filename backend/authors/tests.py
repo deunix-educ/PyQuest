@@ -210,6 +210,31 @@ class CreateAuthorCommandTest(TestCase):
             self.run_command("inconnu", "--reset")
 
 
+class MeViewTest(TestCase):
+    def test_anonymous_and_non_authors_get_401(self) -> None:
+        self.assertEqual(self.client.get("/api/auth/me/").status_code, 401)
+        make_user("lea", staff=False)
+        self.client.login(username="lea", password=PASSWORD)
+        self.assertEqual(self.client.get("/api/auth/me/").status_code, 401)
+
+    def test_author_gets_name_and_a_csrf_token_that_logs_out(self) -> None:
+        make_user("ada")
+        strict = Client(enforce_csrf_checks=True)
+        strict.login(username="ada", password=PASSWORD)
+        response = strict.get("/api/auth/me/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["username"], "ada")
+        self.assertIn("no-store", response.headers["Cache-Control"])
+        # Sans jeton, la déconnexion est refusée ; avec celui de /me/, elle réussit.
+        self.assertEqual(strict.post("/api/auth/logout/").status_code, 403)
+        done = strict.post("/api/auth/logout/", {"csrfmiddlewaretoken": response.json()["csrf"]})
+        self.assertEqual(done.status_code, 302)
+        self.assertEqual(strict.get("/api/auth/me/").status_code, 401)
+
+    def test_me_refuses_post(self) -> None:
+        self.assertEqual(self.client.post("/api/auth/me/").status_code, 405)
+
+
 class EditorPermissionTest(TestCase):
     def test_group_and_permission_exist_after_migrate(self) -> None:
         from django.contrib.auth.models import Group

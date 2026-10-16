@@ -287,3 +287,16 @@ pre.mono {
         max-height: none;
     }
 }
+
+/* Compte connecté (éditeur protégé par une connexion) : nom et bouton de déconnexion. */
+.author-account {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin: 0;
+}
+
+.author-account-name {
+    color: var(--muted);
+}

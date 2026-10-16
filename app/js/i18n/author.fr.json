@@ -150,5 +150,8 @@
     "author.kind.drawing_has_line.help": "Un trait entre deux points, dans un sens ou dans l'autre : « 0,0 100,0 » ou avec couleur « 0,0 100,0 red ». Tolérance 0,5.",
     "author.kind.drawing_colors": "Dessin : couleurs utilisées",
     "author.kind.drawing_colors.help": "Couleurs qui doivent toutes apparaître, séparées par des virgules : « red,blue ».",
-    "lint.drawing_value_invalid": "Valeur de test de dessin mal formée (voir l'aide du type de test ; couleurs : black, red, green, blue, orange, purple, gray)."
+    "lint.drawing_value_invalid": "Valeur de test de dessin mal formée (voir l'aide du type de test ; couleurs : black, red, green, blue, orange, purple, gray).",
+    "author.account.label": "Compte",
+    "author.account.signed_in": "Connecté : {name}",
+    "author.account.logout": "Se déconnecter"
 }

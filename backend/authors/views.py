@@ -10,7 +10,8 @@ pas versionnée.
 from __future__ import annotations
 
 from django.contrib.auth import authenticate, login, logout
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.middleware.csrf import get_token
 from django.shortcuts import redirect, render
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
@@ -110,3 +111,12 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 def check_view(request: HttpRequest) -> HttpResponse:
     """Appelé par nginx (auth_request) : 204 si la session appartient à un auteur, sinon 401."""
     return HttpResponse(status=204 if is_author(request.user) else 401)
+
+
+@never_cache
+@require_GET
+def me_view(request: HttpRequest) -> HttpResponse:
+    """Identité de l'auteur connecté (pour l'afficher dans l'éditeur) et jeton CSRF du formulaire de déconnexion."""
+    if not is_author(request.user):
+        return HttpResponse(status=401)
+    return JsonResponse({"username": request.user.get_username(), "csrf": get_token(request)})

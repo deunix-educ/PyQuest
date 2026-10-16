@@ -111,9 +111,10 @@ test('nginx : l\'éditeur exige une connexion, puis fonctionne isolé ; déconne
     assert.deepEqual(errors, []);
     assert.equal((await context.request.get(`${base}js/author/main.js`)).status(), 200);
 
-    // Déconnexion : l'accès est de nouveau refusé.
-    await page.goto(`${base}api/auth/login/`);
+    // Déconnexion depuis l'éditeur lui-même : nom affiché, bouton, retour à la page de connexion.
+    await page.getByText('Connecté : ada').waitFor();
     await page.getByRole('button', { name: 'Se déconnecter' }).click();
+    await page.waitForURL(/\/api\/auth\/login\//);
     await page.getByRole('button', { name: 'Se connecter' }).waitFor();
     const after = await context.request.get(`${base}author.html`, { maxRedirects: 0 });
     assert.equal(after.status(), 302);

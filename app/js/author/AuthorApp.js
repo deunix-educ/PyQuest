@@ -28,6 +28,7 @@ export class AuthorApp {
     #store;
     #catalogs;
     #root;
+    #account = null; // { username, csrf } si l'éditeur est protégé par une connexion (backend Django), sinon null
     #knownIds = [];
     #model = emptyLevelModel();
     #loadedId = null;
@@ -64,6 +65,7 @@ export class AuthorApp {
     }
 
     async run() {
+        this.#account = await this.#loadAccount();
         this.#knownIds = (await this.#lessons.listLevels()).map((level) => level.id);
         const draft = await this.#store.get(DRAFT_KEY).catch(() => undefined);
         if (draft) {
@@ -76,6 +78,38 @@ export class AuthorApp {
         if (draft) {
             this.#setStatus(this.#i18n.t('author.status.draft_restored'));
         }
+    }
+
+    /**
+     * Auteur connecté, si l'éditeur est servi derrière la connexion du backend Django. Sans backend (essai local avec
+     * `make dev`, serveur statique), la requête échoue ou renvoie 404 : aucun bouton de déconnexion n'est alors affiché.
+     */
+    async #loadAccount() {
+        try {
+            const response = await fetch(new URL('api/auth/me/', document.baseURI), { cache: 'no-store', credentials: 'same-origin' });
+            if (!response.ok || !(response.headers.get('content-type') ?? '').includes('application/json')) {
+                return null;
+            }
+            const data = await response.json();
+            return typeof data.username === 'string' && typeof data.csrf === 'string' ? data : null;
+        } catch {
+            return null;
+        }
+    }
+
+    /** Formulaire de déconnexion (vrai POST protégé par CSRF : la page de connexion s'affiche ensuite). */
+    #accountControl() {
+        if (!this.#account) {
+            return null;
+        }
+        const t = this.#t;
+        return el(
+            'form',
+            { class: 'author-account', method: 'post', action: new URL('api/auth/logout/', document.baseURI).href, 'aria-label': t('author.account.label') },
+            el('input', { type: 'hidden', name: 'csrfmiddlewaretoken', value: this.#account.csrf }),
+            el('span', { class: 'author-account-name', text: t('author.account.signed_in', { name: this.#account.username }) }),
+            el('button', { type: 'submit', class: 'btn', id: 'author-logout', text: t('author.account.logout') }),
+        );
     }
 
     // ---- Construction de l'interface -----------------------------------------------------------------------
@@ -120,6 +154,7 @@ export class AuthorApp {
                 languages,
                 el('a', { class: 'btn', href: './', text: t('author.toolbar.back') }),
             ),
+            this.#accountControl(),
             this.#status,
         );
     }

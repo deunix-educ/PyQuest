@@ -150,5 +150,8 @@
     "author.kind.drawing_has_line.help": "A line between two points, either direction: “0,0 100,0” or with a colour “0,0 100,0 red”. Tolerance 0.5.",
     "author.kind.drawing_colors": "Drawing: colours used",
     "author.kind.drawing_colors.help": "Colours that must all appear, comma-separated: “red,blue”.",
-    "lint.drawing_value_invalid": "Malformed drawing test value (see the test type help; colours: black, red, green, blue, orange, purple, gray)."
+    "lint.drawing_value_invalid": "Malformed drawing test value (see the test type help; colours: black, red, green, blue, orange, purple, gray).",
+    "author.account.label": "Account",
+    "author.account.signed_in": "Signed in: {name}",
+    "author.account.logout": "Sign out"
 }

@@ -1,0 +1,25 @@
+# Exemple d'intégration continue pour GitHub Actions : à copier dans .github/workflows/ci.yml.
+# Le projet n'impose aucune plateforme : tout passe par `make ci` (ou `make ci-e2e` avec Chromium).
+name: ci
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+            - run: sudo apt-get update && sudo apt-get install -y ffmpeg chromium-browser
+            # Pyodide est téléchargé par `make install` (version épinglée, somme de contrôle vérifiée).
+            - run: make ci-e2e
+              env:
+                  CHROMIUM: /usr/bin/chromium-browser

@@ -1,0 +1,10 @@
+# Exemple d'intégration continue pour GitLab CI : à copier dans .gitlab-ci.yml.
+# Le projet n'impose aucune plateforme : tout passe par `make ci` (ou `make ci-e2e` avec Chromium).
+test:
+    image: python:3.12-bookworm
+    before_script:
+        - apt-get update && apt-get install -y --no-install-recommends make nodejs npm ffmpeg chromium
+    script:
+        - make ci-e2e
+    variables:
+        CHROMIUM: /usr/bin/chromium

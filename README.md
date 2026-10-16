@@ -49,7 +49,7 @@ Pyodide est servi depuis le même domaine (jamais depuis un CDN) : c'est une con
 
 ## Contribuer
 
-Voir [CONTRIBUTING.md](CONTRIBUTING.md), notamment pour ajouter un niveau.
+Voir [CONTRIBUTING.md](CONTRIBUTING.md) (flux de contribution, ajout d'un niveau avec l'éditeur) et [docs/MAINTAINERS.md](docs/MAINTAINERS.md) (relecture, publication). `make ci` lance toute la chaîne de vérification.
 
 ## Licence
 

@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend test-e2e typecheck icons voice check-voice clean
+.PHONY: help install vendor-pyodide dev validate-levels build test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -59,6 +59,10 @@ voice: ## Génère la narration (Piper → mp3) pour les textes de niveaux ; voi
 
 check-voice: $(VENV)/.installed ## Vérifie que toute la narration est générée et à jour
 	cd scripts && ../$(VENV_PY) generate_voice.py --check
+
+ci: install test typecheck build ## Enchaînement d'intégration continue (sans navigateur)
+
+ci-e2e: ci test-e2e ## Intégration continue complète, avec les tests Chromium (CHROMIUM=…)
 
 clean: ## Supprime dist/, caches et environnement virtuel
 	rm -rf dist $(VENV) .venv-voice

@@ -49,7 +49,7 @@ Pyodide is served from the same domain (never from a CDN): this is a COEP requir
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md), in particular to add a level.
+See [CONTRIBUTING.md](CONTRIBUTING.md) (contribution flow, adding a level with the editor) and [docs/MAINTAINERS.md](docs/MAINTAINERS.md) (review, release; in French). `make ci` runs the whole verification chain.
 
 ## License
 

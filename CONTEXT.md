@@ -45,8 +45,8 @@ Décision de l'utilisateur : ouvrir à des contributeurs + éditeur en mode aute
 seulement). Voir `docs/design/08-author-editor.md`. Page `app/author.html`, code `app/js/author/`,
 vérifications `core/LevelLinter.js` + `core/LevelChecker.js` (partagées avec `make test`), schéma validé
 dans le navigateur par `lib/json-schema`. `scripts/validate_levels.py --file` valide un fichier seul.
-**Reste** : documenter le flux de pull request / CI (pas de remote git), audit accessibilité réel de
-l'éditeur (lecteur d'écran), éventuelle génération de narration côté CI.
+Flux de contribution documenté (`CONTRIBUTING.md`, `docs/MAINTAINERS.md`, `docs/ci/*.example`, `make ci` / `make ci-e2e`).
+**Reste** : audit accessibilité réel de l'éditeur (lecteur d'écran), éventuelle génération de narration côté CI.
 
 ## Décisions actées (ne pas redemander)
 

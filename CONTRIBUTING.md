@@ -2,6 +2,31 @@
 
 Français d'abord, English below.
 
+## Flux de contribution
+
+1. **Fork ou branche** : une branche par contribution (`level-08-functions`, `fix-hint-typo`…). Un niveau
+   par pull request, c'est plus simple à relire.
+2. **Prépare** : `make install` (outils + Pyodide), puis `make dev` pour essayer dans le navigateur.
+3. **Écris** ton niveau (de préférence avec l'éditeur, voir plus bas) ou ton correctif.
+4. **Vérifie en local** : `make ci` (tests, vérification de toutes les solutions de référence, typage,
+   build). Avec Chromium installé : `make ci-e2e`.
+5. **Commits** : messages en anglais, courts et à l'impératif (« Add level 08 functions »).
+6. **Propose** ta contribution (pull request / merge request). Le modèle de description est dans
+   `docs/ci/pull_request_template.md`. La relecture suit `docs/MAINTAINERS.md`.
+7. **Intégration continue** : le projet n'impose aucune plateforme ; des exemples de configuration
+   (GitHub Actions, GitLab CI) sont dans `docs/ci/`, ils appellent simplement `make ci`.
+
+En contribuant, tu acceptes que ta contribution soit publiée sous la licence du projet (MIT).
+
+### Narration
+
+Une étape `explain` avec `voice: true` a besoin de ses fichiers audio, générés avec Piper (`make voice`,
+qui télécharge des voix et demande `ffmpeg`). `make ci` échoue si un fichier manque (`make check-voice`).
+Deux possibilités :
+
+- **Tu peux lancer `make voice`** : fais-le et inclus les fichiers `levels/<id>/audio/` dans ta contribution.
+- **Tu ne peux pas** : mets `voice: false` sur tes étapes ; un mainteneur activera la narration avant la fusion.
+
 ## Conventions
 
 - Code, identifiants, noms de fichiers et messages de commit en **anglais** ; commentaires en

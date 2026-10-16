@@ -154,6 +154,9 @@ def main() -> int:
         for job in todo:
             print(f"manquant ou périmé : {job.group}/{job.lang}/{job.key}  « {job.text[:50]} »")
         print(f"{len(todo)} fichier(s) à générer sur {len(jobs)}.")
+        if todo:
+            print("Lance `make voice` pour les générer, ou mets `voice: false` sur les étapes concernées")
+            print("(un mainteneur pourra activer la narration ensuite). Voir CONTRIBUTING.md, « Narration ».")
         return 1 if todo else 0
 
     print(f"{len(todo)} fichier(s) à générer sur {len(jobs)}.")

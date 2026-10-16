@@ -1,0 +1,153 @@
+id: 04-math
+title:
+    fr: Calculer
+    en: Calculating
+difficulty: 1
+xp: 40
+requires:
+    - 03-input
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Python calcule comme une calculatrice : `+` ajoute, `-` retire, `*` multiplie, `/` divise. Attention : `/` donne toujours un nombre à virgule."
+          en: "Python calculates like a calculator: `+` adds, `-` subtracts, `*` multiplies, `/` divides. Careful: `/` always gives a decimal number."
+    - type: code
+      starter: |
+          price = 12
+          quantity = 3
+          print(price + quantity)
+      instruction:
+          fr: Ce code additionne le prix et la quantité. Corrige-le pour afficher le prix total.
+          en: This code adds the price and the quantity. Fix it to show the total price.
+      tests:
+          - kind: stdout_equals
+            value: "36\n"
+            message:
+                fr: Le prix total est le prix multiplié par la quantité.
+                en: The total price is the price multiplied by the quantity.
+      hints:
+          fr:
+              - Le signe de la multiplication est `*`.
+          en:
+              - The multiplication sign is `*`.
+      solution: |
+          price = 12
+          quantity = 3
+          print(price * quantity)
+    - type: explain
+      voice: true
+      text:
+          fr: "Deux opérateurs très utiles : `//` donne le quotient entier et `%` donne le reste. Par exemple, 17 // 5 vaut 3 et 17 % 5 vaut 2. Il y a aussi `**` pour les puissances."
+          en: "Two very useful operators: `//` gives the whole quotient and `%` gives the remainder. For example, 17 // 5 is 3 and 17 % 5 is 2. There is also `**` for powers."
+    - type: code
+      starter: |
+          minutes = 135
+          hours = 0
+          remaining = 0
+          print(hours, "h", remaining, "min")
+      instruction:
+          fr: "Calcule `hours` avec `//` et `remaining` avec `%` pour afficher 2 h 15 min."
+          en: "Compute `hours` with `//` and `remaining` with `%` to show 2 h 15 min."
+      tests:
+          - kind: var_equals
+            name: hours
+            value: 2
+          - kind: var_equals
+            name: remaining
+            value: 15
+          - kind: stdout_equals
+            value: "2 h 15 min\n"
+      hints:
+          fr:
+              - "Une heure, c'est 60 minutes : divise `minutes` par 60."
+              - "`hours = minutes // 60` puis `remaining = minutes % 60`."
+          en:
+              - "One hour is 60 minutes: divide `minutes` by 60."
+              - "`hours = minutes // 60` then `remaining = minutes % 60`."
+      solution: |
+          minutes = 135
+          hours = minutes // 60
+          remaining = minutes % 60
+          print(hours, "h", remaining, "min")
+    - type: explain
+      voice: true
+      text:
+          fr: "Python respecte les priorités, comme en maths : d'abord `**`, puis `*` `/` `//` `%`, puis `+` et `-`. Les parenthèses passent avant tout."
+          en: "Python follows priorities, like in maths: first `**`, then `*` `/` `//` `%`, then `+` and `-`. Parentheses come before everything."
+    - type: code
+      starter: |
+          result = 2 + 3 * 4
+          print(result)
+      instruction:
+          fr: Ce code affiche 14. Ajoute des parenthèses pour qu'il affiche 20.
+          en: This code shows 14. Add parentheses so that it shows 20.
+      tests:
+          - kind: var_equals
+            name: result
+            value: 20
+          - kind: stdout_equals
+            value: "20\n"
+      hints:
+          fr:
+              - "Il faut que l'addition soit calculée en premier."
+              - "Écris `(2 + 3) * 4`."
+          en:
+              - "The addition has to be calculated first."
+              - "Write `(2 + 3) * 4`."
+      solution: |
+          result = (2 + 3) * 4
+          print(result)
+mission:
+    title:
+        fr: Convertisseur d'unités
+        en: Unit converter
+    goal:
+        fr: "Demande des degrés Celsius et une distance en km (avec `float(input(...))`). Calcule `fahrenheit` (celsius * 9 / 5 + 32) et `miles` (1 km = 0.621371 mile), puis affiche les deux résultats."
+        en: "Ask for degrees Celsius and a distance in km (with `float(input(...))`). Compute `fahrenheit` (celsius * 9 / 5 + 32) and `miles` (1 km = 0.621371 mile), then print both results."
+    starter: |
+        # Demande les deux valeurs, puis calcule fahrenheit et miles
+    tests:
+        - kind: var_equals
+          name: fahrenheit
+          value: 212
+          inputs:
+              - "100"
+              - "10"
+          message:
+              fr: "Avec 100 °C, `fahrenheit` doit valoir 212."
+              en: "With 100 °C, `fahrenheit` must be 212."
+        - kind: var_equals
+          name: miles
+          value: 6.21371
+          inputs:
+              - "100"
+              - "10"
+          message:
+              fr: "Avec 10 km, `miles` doit valoir 6.21371."
+              en: "With 10 km, `miles` must be 6.21371."
+        - kind: var_equals
+          name: fahrenheit
+          value: 32
+          inputs:
+              - "0"
+              - "1"
+          message:
+              fr: "Avec 0 °C, `fahrenheit` doit valoir 32."
+              en: "With 0 °C, `fahrenheit` must be 32."
+        - kind: stdout_contains
+          value: "212"
+          inputs:
+              - "100"
+              - "10"
+          message:
+              fr: Le programme doit afficher les résultats.
+              en: The program must print the results.
+    solution: |
+        celsius = float(input("Température en °C ? "))
+        km = float(input("Distance en km ? "))
+        fahrenheit = celsius * 9 / 5 + 32
+        miles = km * 0.621371
+        print(fahrenheit, "°F")
+        print(miles, "miles")
+    reward_sound: success_small

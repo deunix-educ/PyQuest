@@ -195,3 +195,48 @@ test('narration : fichier Piper lu jusqu\'au bout (politique autoplay par défau
     assert.equal(await page.evaluate(() => window.__audio.errors), 0);
     assert.deepEqual(errors, []);
 });
+
+test('niveau 07 : boucle while avec plusieurs saisies successives dans l\'interface', { skip, timeout: 120000 }, async () => {
+    const page = await (await browser.newContext()).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(base);
+    await page.waitForSelector('.progress-map .level-button', { timeout: 60000 });
+    await page.locator('.level-button', { hasText: 'Répéter avec une condition' }).click();
+    await page.waitForSelector('.explain');
+
+    const next = () => page.locator('.notebook-action button').last().click();
+    // Passe les étapes jusqu'à la mission (explications seulement : on saute les exercices en les validant).
+    const solveStep = async (code, answers = []) => {
+        const cell = page.locator('.cell').last();
+        await cell.locator('textarea').fill(code);
+        await cell.locator('.cell-run').click();
+        for (const answer of answers) {
+            await cell.locator('.cell-input-field').waitFor({ state: 'visible', timeout: 15000 });
+            await cell.locator('.cell-input-field').fill(answer);
+            await cell.locator('.cell-input-field').press('Enter');
+        }
+        await page.waitForFunction(() => document.querySelector('.cell:last-of-type')?.getAttribute('aria-busy') !== 'true');
+        await page.waitForTimeout(150);
+        return (await cell.locator('.cell-feedback').textContent()).trim();
+    };
+
+    await next();
+    assert.match(await solveStep('count = 5\nwhile count > 0:\n    print(count)\n    count = count - 1\nprint("Partez !")'), /correct/);
+    await next();
+    await next();
+    assert.match(await solveStep('total = 0\nnumber = 1\nwhile total < 50:\n    total = total + number\n    number = number + 1\nprint(total, number)'), /correct/);
+    await next();
+    await next();
+    const password = 'while True:\n    word = input("Mot de passe ? ")\n    if word == "python":\n        break\n    else:\n        print("Essaie encore")\nprint("Bienvenue")';
+    assert.match(await solveStep(password, ['nope', 'python']), /correct/);
+    await next();
+    await next();
+
+    // Mission : trois saisies interactives successives (3, 9, 7) dans la même exécution.
+    const mission = 'secret = 7\nattempts = 0\nwhile True:\n    guess = int(input("Ton choix (1-10) ? "))\n    attempts = attempts + 1\n    if guess == secret:\n        print("Bravo, trouvé en", attempts, "essais")\n        break\n    elif guess < secret:\n        print("Trop petit")\n    else:\n        print("Trop grand")';
+    assert.match(await solveStep(mission, ['3', '9', '7']), /correct/);
+    await page.waitForSelector('.toast');
+    assert.match(await page.textContent('.toast-region'), /\+70 XP/);
+    assert.deepEqual(errors, []);
+});

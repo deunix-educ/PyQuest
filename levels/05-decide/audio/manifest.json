@@ -1,0 +1,30 @@
+{
+    "en": {
+        "6fea2cc5252c6f6f": {
+            "text": "A comparison asks a question whose answer is True or False. We compare with == (equal), != (different), <, >, <= and >=. Careful: = stores a value, == compares.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "9fcb323dcc1d8114": {
+            "text": "For more than two cases, add elif (else if). Python tests the conditions in order and stops at the first true one. You can also combine them with and, or and not.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "e2c1d81c6f239864": {
+            "text": "With if, the program chooses what to do. The line ends with a colon, and the block that follows is shifted by 4 spaces. else gives the other case.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "1d0b4f20705e76da": {
+            "text": "Une comparaison pose une question dont la réponse est True (vrai) ou False (faux). On compare avec == (égal), != (différent), <, >, <= et >=. Attention : = range une valeur, == compare.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "e4a397a8d71a6682": {
+            "text": "Avec if, le programme choisit quoi faire. La ligne finit par deux-points, et le bloc qui suit est décalé de 4 espaces. else donne l'autre cas.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "f3ef37b4feceb432": {
+            "text": "Pour plus de deux cas, ajoute elif (sinon si). Python teste les conditions dans l'ordre et s'arrête à la première vraie. Tu peux aussi combiner avec and (et), or (ou) et not (non).",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

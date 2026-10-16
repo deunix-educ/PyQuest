@@ -10,7 +10,8 @@ Français d'abord, English below.
 - JavaScript : classes ES2022 et modules ES natifs, pas de framework sans justification écrite.
 - Python : typé, compatible `pyright` (`make typecheck`).
 - Interface et contenus pédagogiques **bilingues fr/en** (fr par défaut).
-- `make test` doit passer avant toute demande de fusion.
+- `make test` doit passer avant toute demande de fusion (inclut la vérification de toutes les
+  solutions de référence des niveaux).
 
 ## Ajouter un niveau
 
@@ -38,6 +39,7 @@ Français d'abord, English below.
 | `stdout_matches_regex` | `value` | la sortie complète correspond à l'expression régulière |
 | `var_equals` | `name`, `value` | variable égale à la valeur |
 | `var_type_is` | `name`, `value` | type de la variable (`str`, `int`, `float`…) |
+| `code_contains` | `value` | le code de l'apprenant contient cette chaîne (ex. `random.choice`, `while`) |
 
 Tout test accepte un champ optionnel `inputs` (liste de chaînes). Pour un code qui appelle
 `input()`, le test est alors évalué sur un **rejeu** du code (sur une copie de l'état) où chaque
@@ -48,6 +50,14 @@ L'invite de `input()` est écrite dans la sortie standard (comme en Python), pas
 Un niveau ne contient **jamais de code exécutable** autre que le code de départ et la solution
 affichés à l'apprenant : toute nouvelle sorte de validation passe par le moteur
 (`app/js/core/ValidationEngine.js`), pas par un fichier de niveau.
+
+### Solutions de référence
+
+Chaque étape `code` et chaque mission avec tests doit avoir une `solution`. `make test` exécute
+(avec le vrai Pyodide) toutes les solutions : elles doivent passer leurs tests, et le code de
+départ ne doit **pas** les passer (sauf pour une étape « exécute pour voir », où départ et
+solution ne diffèrent que par des commentaires). Pour du code aléatoire, testez la forme de la
+sortie (regex) et l'usage de la fonction (`code_contains`), pas une valeur précise.
 
 ### Narration vocale
 

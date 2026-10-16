@@ -3,7 +3,7 @@
 Schéma complet et à jour : [`levels/schema/level.schema.json`](../../levels/schema/level.schema.json).
 
 Exemples complets conformes au schéma : `levels/00-intro`, `levels/01-hello`,
-`levels/02-variables` (validés avec `jsonschema`) ainsi que `levels/03-input`.
+`levels/02-variables` (validés avec `jsonschema`) ainsi que `levels/03-input` et `04` à `07`.
 
 ## Forme des tests (`tests[]`) utilisée par les niveaux
 
@@ -18,6 +18,7 @@ Le schéma laisse `additionalProperties: true` ; les champs ci-dessous sont la c
 | `stdout_matches_regex` | `value` (regex) | la sortie complète correspond à la regex |
 | `var_equals` | `name`, `value` | variable globale égale à la valeur (`10.0` = float, `10` = int) |
 | `var_type_is` | `name`, `value` (`str`/`int`/`float`…) | type de la variable |
+| `code_contains` | `value` | sous-chaîne présente dans le code de l'apprenant (ex. `random.choice`) ; ne s'évalue pas sur un rejeu, donc sans `inputs` utile |
 
 **`inputs` (optionnel, tout test)** : liste de saisies scriptées pour `input()`. Le test est évalué
 sur un rejeu isolé du code (copie de l'état d'avant l'exécution) ; sans `inputs`, sur l'exécution

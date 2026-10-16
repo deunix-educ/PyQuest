@@ -1,0 +1,176 @@
+id: 06-lists
+title:
+    fr: Répéter avec une liste
+    en: Repeating with a list
+difficulty: 2
+xp: 60
+requires:
+    - 05-decide
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Une liste range plusieurs valeurs entre crochets : `fruits = [\"pomme\", \"poire\"]`. On lit un élément avec sa position, qui commence à 0 : `fruits[0]` est \"pomme\". `len(fruits)` donne la taille."
+          en: "A list stores several values between square brackets: `fruits = [\"apple\", \"pear\"]`. We read an item with its position, which starts at 0: `fruits[0]` is \"apple\". `len(fruits)` gives the size."
+    - type: code
+      starter: |
+          fruits = ["pomme", "poire", "cerise"]
+          print(fruits[0])
+      instruction:
+          fr: Ce code affiche le premier fruit. Modifie-le pour afficher le dernier, cerise.
+          en: This code shows the first fruit. Change it to show the last one, cerise.
+      tests:
+          - kind: stdout_equals
+            value: "cerise\n"
+      hints:
+          fr:
+              - "Les positions sont 0, 1 et 2."
+              - "Utilise `fruits[2]`, ou `fruits[-1]` pour le dernier."
+          en:
+              - "The positions are 0, 1 and 2."
+              - "Use `fruits[2]`, or `fruits[-1]` for the last one."
+      solution: |
+          fruits = ["pomme", "poire", "cerise"]
+          print(fruits[2])
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour traiter chaque élément, on utilise `for`. `for fruit in fruits:` répète le bloc décalé, une fois par élément, en mettant l'élément dans `fruit`."
+          en: "To handle every item, we use `for`. `for fruit in fruits:` repeats the indented block, once per item, putting the item in `fruit`."
+    - type: code
+      starter: |
+          fruits = ["pomme", "poire", "cerise"]
+          for fruit in fruits:
+              print(fruit)
+      instruction:
+          fr: "Change le `print` pour afficher J'aime pomme, J'aime poire, J'aime cerise (une ligne par fruit)."
+          en: "Change the `print` to show J'aime pomme, J'aime poire, J'aime cerise (one line per fruit)."
+      tests:
+          - kind: stdout_equals
+            value: "J'aime pomme\nJ'aime poire\nJ'aime cerise\n"
+          - kind: code_contains
+            value: "for "
+            message:
+                fr: Utilise une boucle for.
+                en: Use a for loop.
+      hints:
+          fr:
+              - "Mets plusieurs valeurs dans `print`, séparées par des virgules."
+              - "`print(\"J'aime\", fruit)`"
+          en:
+              - "Put several values in `print`, separated by commas."
+              - "`print(\"J'aime\", fruit)`"
+      solution: |
+          fruits = ["pomme", "poire", "cerise"]
+          for fruit in fruits:
+              print("J'aime", fruit)
+    - type: explain
+      voice: true
+      text:
+          fr: "Une boucle peut aussi accumuler un résultat. On prépare une variable à 0, puis on y ajoute chaque élément : `total = total + n`. Pour répéter un nombre fixe de fois, `for i in range(3):` fait trois tours."
+          en: "A loop can also build up a result. We prepare a variable at 0, then add each item to it: `total = total + n`. To repeat a fixed number of times, `for i in range(3):` makes three turns."
+    - type: code
+      starter: |
+          numbers = [4, 8, 15, 16]
+          total = 0
+          for n in numbers:
+              pass
+          print(total)
+      instruction:
+          fr: "Remplace `pass` pour que `total` contienne la somme des nombres (43)."
+          en: "Replace `pass` so that `total` holds the sum of the numbers (43)."
+      tests:
+          - kind: var_equals
+            name: total
+            value: 43
+          - kind: stdout_equals
+            value: "43\n"
+      hints:
+          fr:
+              - "À chaque tour, ajoute `n` à `total`."
+              - "`total = total + n`"
+          en:
+              - "At each turn, add `n` to `total`."
+              - "`total = total + n`"
+      solution: |
+          numbers = [4, 8, 15, 16]
+          total = 0
+          for n in numbers:
+              total = total + n
+          print(total)
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour tirer au hasard, Python a un module `random`. On l'importe avec `import random`, puis `random.choice(liste)` renvoie un élément pris au hasard. Chaque exécution peut donner un résultat différent."
+          en: "To pick at random, Python has a `random` module. We import it with `import random`, then `random.choice(list)` returns an item picked at random. Each run can give a different result."
+    - type: code
+      starter: |
+          import random
+          colors = ["rouge", "bleu", "vert"]
+          color = colors[0]
+          print(color)
+      instruction:
+          fr: Utilise `random.choice` pour choisir la couleur au hasard. Exécute plusieurs fois pour voir le résultat changer.
+          en: Use `random.choice` to pick the color at random. Run it several times to see the result change.
+      tests:
+          - kind: code_contains
+            value: random.choice
+            message:
+                fr: Utilise random.choice(colors).
+                en: Use random.choice(colors).
+          - kind: stdout_matches_regex
+            value: "^(rouge|bleu|vert)\\n$"
+      hints:
+          fr:
+              - "Remplace `colors[0]` par un appel à `random.choice`."
+              - "`color = random.choice(colors)`"
+          en:
+              - "Replace `colors[0]` with a call to `random.choice`."
+              - "`color = random.choice(colors)`"
+      solution: |
+          import random
+          colors = ["rouge", "bleu", "vert"]
+          color = random.choice(colors)
+          print(color)
+mission:
+    title:
+        fr: Générateur de mots de passe
+        en: Password generator
+    goal:
+        fr: "Construis dans `password` trois mots tirés au hasard dans `words`, séparés par des tirets (par exemple lune-chat-vent), avec une boucle for et `random.choice`. Puis affiche-le."
+        en: "Build in `password` three words picked at random from `words`, separated by dashes (for example lune-chat-vent), with a for loop and `random.choice`. Then print it."
+    starter: |
+        import random
+        words = ["chat", "lune", "pomme", "soleil", "vent"]
+        password = ""
+        # Ajoute 3 mots tirés au hasard, séparés par des tirets
+        print(password)
+    tests:
+        - kind: stdout_matches_regex
+          value: "^(chat|lune|pomme|soleil|vent)(-(chat|lune|pomme|soleil|vent)){2}\\n$"
+          message:
+              fr: "Le mot de passe doit contenir exactement 3 mots de la liste séparés par des tirets."
+              en: "The password must contain exactly 3 words from the list separated by dashes."
+        - kind: var_type_is
+          name: password
+          value: str
+        - kind: code_contains
+          value: random.choice
+          message:
+              fr: Utilise random.choice(words).
+              en: Use random.choice(words).
+        - kind: code_contains
+          value: "for "
+          message:
+              fr: Utilise une boucle for.
+              en: Use a for loop.
+    solution: |
+        import random
+        words = ["chat", "lune", "pomme", "soleil", "vent"]
+        password = ""
+        for i in range(3):
+            if i > 0:
+                password = password + "-"
+            password = password + random.choice(words)
+        print(password)
+    reward_sound: success_big

@@ -117,6 +117,7 @@
                         "stdout_matches_regex",
                         "var_equals",
                         "var_type_is",
+                        "code_contains",
                         "function_called_with",
                         "no_syntax_error"
                     ]
@@ -146,6 +147,10 @@
                 "tests": {
                     "type": "array",
                     "items": { "$ref": "#/$defs/test" }
+                },
+                "solution": {
+                    "type": "string",
+                    "description": "Code de référence de la mission. Non affiché à l'apprenant : sert aux tests automatiques (make test vérifie que la solution passe tous les tests)."
                 },
                 "reward_sound": {
                     "type": "string",

@@ -1,0 +1,186 @@
+id: 05-decide
+title:
+    fr: Décider
+    en: Deciding
+difficulty: 2
+xp: 50
+requires:
+    - 04-math
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "Une comparaison pose une question dont la réponse est `True` (vrai) ou `False` (faux). On compare avec `==` (égal), `!=` (différent), `<`, `>`, `<=` et `>=`. Attention : `=` range une valeur, `==` compare."
+          en: "A comparison asks a question whose answer is `True` or `False`. We compare with `==` (equal), `!=` (different), `<`, `>`, `<=` and `>=`. Careful: `=` stores a value, `==` compares."
+    - type: code
+      starter: |
+          age = 15
+          print(age >= 18)
+      instruction:
+          fr: Ce code affiche False. Change la valeur de `age` pour qu'il affiche True.
+          en: This code shows False. Change the value of `age` so that it shows True.
+      tests:
+          - kind: stdout_equals
+            value: "True\n"
+          - kind: var_type_is
+            name: age
+            value: int
+      hints:
+          fr:
+              - "Il faut que `age` soit au moins égal à 18."
+          en:
+              - "`age` has to be at least 18."
+      solution: |
+          age = 20
+          print(age >= 18)
+    - type: explain
+      voice: true
+      text:
+          fr: "Avec `if`, le programme choisit quoi faire. La ligne finit par deux-points, et le bloc qui suit est décalé de 4 espaces. `else` donne l'autre cas."
+          en: "With `if`, the program chooses what to do. The line ends with a colon, and the block that follows is shifted by 4 spaces. `else` gives the other case."
+    - type: code
+      starter: |
+          age = int(input("Ton âge ? "))
+          if age < 18:
+              print("Mineur")
+          else:
+              print("Majeur")
+      instruction:
+          fr: "Transforme ce programme : il doit afficher Gratuit si l'âge est inférieur à 12, et Payant sinon."
+          en: "Change this program: it must show Gratuit if the age is under 12, and Payant otherwise."
+      tests:
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Gratuit\\n$"
+            inputs:
+                - "8"
+            message:
+                fr: "Avec 8 ans, il faut afficher Gratuit."
+                en: "With age 8, it must show Gratuit."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Payant\\n$"
+            inputs:
+                - "30"
+            message:
+                fr: "Avec 30 ans, il faut afficher Payant."
+                en: "With age 30, it must show Payant."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Payant\\n$"
+            inputs:
+                - "12"
+            message:
+                fr: "À 12 ans, c'est déjà Payant."
+                en: "At 12, it is already Payant."
+      hints:
+          fr:
+              - "Change le nombre dans la condition et les deux textes."
+              - "`if age < 12:` puis `print(\"Gratuit\")`, et `print(\"Payant\")` dans le `else`."
+          en:
+              - "Change the number in the condition and both texts."
+              - "`if age < 12:` then `print(\"Gratuit\")`, and `print(\"Payant\")` in the `else`."
+      solution: |
+          age = int(input("Ton âge ? "))
+          if age < 12:
+              print("Gratuit")
+          else:
+              print("Payant")
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour plus de deux cas, ajoute `elif` (sinon si). Python teste les conditions dans l'ordre et s'arrête à la première vraie. Tu peux aussi combiner avec `and` (et), `or` (ou) et `not` (non)."
+          en: "For more than two cases, add `elif` (else if). Python tests the conditions in order and stops at the first true one. You can also combine them with `and`, `or` and `not`."
+    - type: code
+      starter: |
+          score = int(input("Ta note sur 20 ? "))
+          print("À compléter")
+      instruction:
+          fr: "Avec `if`, `elif` et `else`, affiche Excellent (16 ou plus), Bien (12 ou plus), Passable (10 ou plus), sinon Insuffisant."
+          en: "With `if`, `elif` and `else`, show Excellent (16 or more), Bien (12 or more), Passable (10 or more), otherwise Insuffisant."
+      tests:
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Excellent\\n$"
+            inputs:
+                - "18"
+            message:
+                fr: "Avec 18, il faut afficher Excellent."
+                en: "With 18, it must show Excellent."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Bien\\n$"
+            inputs:
+                - "13"
+            message:
+                fr: "Avec 13, il faut afficher Bien."
+                en: "With 13, it must show Bien."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Passable\\n$"
+            inputs:
+                - "10"
+            message:
+                fr: "Avec 10, il faut afficher Passable."
+                en: "With 10, it must show Passable."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Insuffisant\\n$"
+            inputs:
+                - "4"
+            message:
+                fr: "Avec 4, il faut afficher Insuffisant."
+                en: "With 4, it must show Insuffisant."
+      hints:
+          fr:
+              - "Commence par la condition la plus exigeante : `if score >= 16:`."
+              - "Enchaîne avec `elif score >= 12:` puis `elif score >= 10:` et termine par `else:`."
+          en:
+              - "Start with the most demanding condition: `if score >= 16:`."
+              - "Continue with `elif score >= 12:` then `elif score >= 10:` and finish with `else:`."
+      solution: |
+          score = int(input("Ta note sur 20 ? "))
+          if score >= 16:
+              print("Excellent")
+          elif score >= 12:
+              print("Bien")
+          elif score >= 10:
+              print("Passable")
+          else:
+              print("Insuffisant")
+mission:
+    title:
+        fr: Le nombre mystère
+        en: The mystery number
+    goal:
+        fr: "Le nombre secret est 7. Demande un choix entre 1 et 10, puis affiche Bravo si c'est le bon, Trop petit si le choix est plus petit, Trop grand sinon. Un seul essai !"
+        en: "The secret number is 7. Ask for a choice between 1 and 10, then show Bravo if it is right, Trop petit if the choice is smaller, Trop grand otherwise. One try only!"
+    starter: |
+        secret = 7
+        guess = int(input("Ton choix (1-10) ? "))
+        # Compare guess et secret
+    tests:
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*Bravo\\n$"
+          inputs:
+              - "7"
+          message:
+              fr: "Avec 7, il faut afficher Bravo."
+              en: "With 7, it must show Bravo."
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*Trop petit\\n$"
+          inputs:
+              - "3"
+          message:
+              fr: "Avec 3, il faut afficher Trop petit."
+              en: "With 3, it must show Trop petit."
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*Trop grand\\n$"
+          inputs:
+              - "9"
+          message:
+              fr: "Avec 9, il faut afficher Trop grand."
+              en: "With 9, it must show Trop grand."
+    solution: |
+        secret = 7
+        guess = int(input("Ton choix (1-10) ? "))
+        if guess == secret:
+            print("Bravo")
+        elif guess < secret:
+            print("Trop petit")
+        else:
+            print("Trop grand")
+    reward_sound: success_small

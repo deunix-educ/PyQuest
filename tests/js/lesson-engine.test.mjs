@@ -5,7 +5,7 @@ const root = new URL('../../', import.meta.url).pathname.replace(/\/$/, '');
 const e = new LessonEngine({ levelsUrl: 'http://x/levels/', fetchFn: async (u) => {
     try { const t = await readFile(root + new URL(u).pathname, 'utf8'); return { ok: true, text: async () => t }; }
     catch { return { ok: false, status: 404 }; } } });
-assert.deepEqual((await e.listLevels()).map((l) => l.id), ['00-intro', '01-hello', '02-variables', '03-input']);
+assert.deepEqual((await e.listLevels()).map((l) => l.id), ['00-intro', '01-hello', '02-variables', '03-input', '04-math', '05-decide', '06-lists', '07-while']);
 const s = await e.startLevel('02-variables', 'en');
 assert.equal(s.title, 'Variables and types'); assert.equal(s.stepCount, 7);
 assert.equal(s.step.type, 'explain');

@@ -1,0 +1,184 @@
+id: 07-while
+title:
+    fr: Répéter avec une condition
+    en: Repeating with a condition
+difficulty: 3
+xp: 70
+requires:
+    - 06-lists
+steps:
+    - type: explain
+      voice: true
+      text:
+          fr: "`while` répète un bloc tant qu'une condition est vraie. Python teste la condition avant chaque tour. Dès qu'elle devient fausse, la boucle s'arrête."
+          en: "`while` repeats a block as long as a condition is true. Python tests the condition before each turn. As soon as it becomes false, the loop stops."
+    - type: code
+      starter: |
+          count = 3
+          while count > 0:
+              print(count)
+              count = count - 1
+          print("Partez !")
+      instruction:
+          fr: Exécute ce compte à rebours, puis fais-le partir de 5.
+          en: Run this countdown, then make it start from 5.
+      tests:
+          - kind: stdout_equals
+            value: "5\n4\n3\n2\n1\nPartez !\n"
+      hints:
+          fr:
+              - "Change seulement la première ligne."
+          en:
+              - "Only change the first line."
+      solution: |
+          count = 5
+          while count > 0:
+              print(count)
+              count = count - 1
+          print("Partez !")
+    - type: explain
+      voice: true
+      text:
+          fr: "Attention à la boucle infinie ! Si la condition ne devient jamais fausse, par exemple si tu oublies `count = count - 1`, le programme tourne sans fin. Dans ce cas, clique sur Arrêter. Pour l'éviter, vérifie toujours que quelque chose change dans la boucle."
+          en: "Beware of the infinite loop! If the condition never becomes false, for example if you forget `count = count - 1`, the program runs forever. In that case, click Stop. To avoid it, always check that something changes inside the loop."
+    - type: code
+      starter: |
+          total = 0
+          number = 1
+          while total < 20:
+              total = total + number
+              number = number + 1
+          print(total, number)
+      instruction:
+          fr: "Cette boucle additionne 1, 2, 3… jusqu'à dépasser 20. Change la limite pour qu'elle s'arrête dès que le total atteint au moins 50."
+          en: "This loop adds 1, 2, 3… until it goes past 20. Change the limit so it stops as soon as the total reaches at least 50."
+      tests:
+          - kind: var_equals
+            name: total
+            value: 55
+          - kind: var_equals
+            name: number
+            value: 11
+      hints:
+          fr:
+              - "La condition de la boucle contient la limite."
+              - "Écris `while total < 50:`."
+          en:
+              - "The loop condition contains the limit."
+              - "Write `while total < 50:`."
+      solution: |
+          total = 0
+          number = 1
+          while total < 50:
+              total = total + number
+              number = number + 1
+          print(total, number)
+    - type: explain
+      voice: true
+      text:
+          fr: "Parfois, on ne sait pas à l'avance combien de tours il faudra, par exemple tant que l'utilisateur n'a pas trouvé. On écrit alors `while True:` et on sort de la boucle avec `break` quand c'est le bon moment."
+          en: "Sometimes we don't know in advance how many turns will be needed, for example until the user finds the answer. We then write `while True:` and leave the loop with `break` at the right moment."
+    - type: code
+      starter: |
+          while True:
+              word = input("Mot de passe ? ")
+              print("Essaie encore")
+              break
+          print("Bienvenue")
+      instruction:
+          fr: "Le mot de passe est python. Redemande tant que ce n'est pas le bon, en affichant Essaie encore. Quand c'est bon, sors de la boucle : le programme affiche Bienvenue."
+          en: "The password is python. Ask again until it is right, showing Essaie encore. When it is right, leave the loop: the program shows Bienvenue."
+      tests:
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Bienvenue\\n$"
+            inputs:
+                - python
+            message:
+                fr: "Avec le bon mot de passe du premier coup, il ne faut afficher que Bienvenue."
+                en: "With the right password at the first try, only Bienvenue must be shown."
+          - kind: stdout_matches_regex
+            value: "^[^\\n]*Essaie encore\\n[^\\n]*Bienvenue\\n$"
+            inputs:
+                - nope
+                - python
+            message:
+                fr: "Avec un mauvais mot de passe puis le bon, il faut afficher Essaie encore puis Bienvenue."
+                en: "With a wrong password then the right one, it must show Essaie encore then Bienvenue."
+      hints:
+          fr:
+              - "Teste le mot avec `if word == \"python\":` et mets `break` dedans."
+              - "Mets le `print(\"Essaie encore\")` dans le `else`."
+          en:
+              - "Test the word with `if word == \"python\":` and put `break` inside."
+              - "Put the `print(\"Essaie encore\")` in the `else`."
+      solution: |
+          while True:
+              word = input("Mot de passe ? ")
+              if word == "python":
+                  break
+              else:
+                  print("Essaie encore")
+          print("Bienvenue")
+    - type: explain
+      voice: true
+      text:
+          fr: "Pour la mission, ton jeu comparera le choix au nombre secret, compteur d'essais en plus. Quand il fonctionnera, remplace `secret = 7` par `import random` et `secret = random.randint(1, 10)` pour jouer pour de vrai."
+          en: "For the mission, your game will compare the choice with the secret number, with an attempts counter. When it works, replace `secret = 7` with `import random` and `secret = random.randint(1, 10)` to really play."
+mission:
+    title:
+        fr: Le nombre mystère, version complète
+        en: The mystery number, full version
+    goal:
+        fr: "Le nombre secret est 7. Redemande un choix tant que ce n'est pas le bon. Affiche Trop petit ou Trop grand à chaque erreur, compte les essais dans `attempts`, et affiche Bravo quand c'est trouvé."
+        en: "The secret number is 7. Ask again until the choice is right. Show Trop petit or Trop grand after each mistake, count the tries in `attempts`, and show Bravo when found."
+    starter: |
+        secret = 7
+        attempts = 0
+        # Boucle : redemande jusqu'à trouver le nombre secret
+    tests:
+        - kind: var_equals
+          name: attempts
+          value: 3
+          inputs:
+              - "3"
+              - "9"
+              - "7"
+          message:
+              fr: "Avec les choix 3, 9 puis 7, `attempts` doit valoir 3."
+              en: "With the choices 3, 9 then 7, `attempts` must be 3."
+        - kind: stdout_matches_regex
+          value: "^[^\\n]*Trop petit\\n[^\\n]*Trop grand\\n[^\\n]*Bravo[^\\n]*\\n$"
+          inputs:
+              - "3"
+              - "9"
+              - "7"
+          message:
+              fr: "Avec 3, 9 puis 7, il faut afficher Trop petit, Trop grand, puis Bravo."
+              en: "With 3, 9 then 7, it must show Trop petit, Trop grand, then Bravo."
+        - kind: var_equals
+          name: attempts
+          value: 1
+          inputs:
+              - "7"
+          message:
+              fr: "Avec 7 du premier coup, `attempts` doit valoir 1."
+              en: "With 7 at the first try, `attempts` must be 1."
+        - kind: code_contains
+          value: while
+          message:
+              fr: Utilise une boucle while.
+              en: Use a while loop.
+    solution: |
+        secret = 7
+        attempts = 0
+        while True:
+            guess = int(input("Ton choix (1-10) ? "))
+            attempts = attempts + 1
+            if guess == secret:
+                print("Bravo, trouvé en", attempts, "essais")
+                break
+            elif guess < secret:
+                print("Trop petit")
+            else:
+                print("Trop grand")
+    reward_sound: success_big

@@ -84,4 +84,8 @@ mission:
           message:
               fr: Il faut exactement trois lignes affichées, non vides.
               en: Exactly three non-empty lines must be shown.
+    solution: |
+        print("Léa")
+        print("Lyon")
+        print("vélo")
     reward_sound: success_small

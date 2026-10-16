@@ -14,12 +14,13 @@ export class ValidationEngine {
      * @param {object[]} tests  Tests du niveau (kind, value, name, message).
      * @param {object} execution
      * @param {string} execution.stdout  Sortie standard cumulée de la cellule.
+     * @param {string} [execution.code]  Code exécuté (pour `code_contains`).
      * @param {{ok: boolean, error: object|null, variables: object}} execution.result
      * @returns {{passed: boolean, results: {kind: string, passed: boolean, reason: string|null, message: string|null}[]}}
      */
-    validate(tests, { stdout, result }) {
+    validate(tests, { stdout, result, code = '' }) {
         const results = tests.map((test) => {
-            const reason = this.#check(test, stdout, result);
+            const reason = this.#check(test, stdout, result, code);
             return { kind: test.kind, passed: reason === null, reason, message: test.message ?? null };
         });
         // Une erreur d'exécution fait toujours échouer l'étape, même si les tests passent.
@@ -28,7 +29,7 @@ export class ValidationEngine {
     }
 
     /** Renvoie null si le test passe, sinon un code de raison (traduit par l'UI). */
-    #check(test, stdout, result) {
+    #check(test, stdout, result, code) {
         switch (test.kind) {
             case 'no_syntax_error':
                 return result.error?.type === 'SyntaxError' ? 'syntax_error' : null;
@@ -36,6 +37,8 @@ export class ValidationEngine {
                 return stdout === test.value ? null : 'stdout_mismatch';
             case 'stdout_contains':
                 return stdout.includes(test.value) ? null : 'stdout_missing';
+            case 'code_contains':
+                return code.includes(test.value) ? null : 'code_missing';
             case 'stdout_matches_regex':
                 return this.#matchesRegex(test.value, stdout);
             case 'var_equals':

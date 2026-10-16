@@ -1,11 +1,13 @@
 // Orchestre un niveau : affiche les étapes, exécute les cellules, valide, attribue la progression.
 // Émet 'levelcomplete' (detail: résultat de ProgressStore.completeLevel).
 
+import { StepValidator } from '../core/StepValidator.js';
 import { ValidationEngine } from '../core/ValidationEngine.js';
 import { CellView } from './CellView.js';
 
 export class CellManager extends EventTarget {
     #deps;
+    #stepValidator;
     #session = null;
 
     /**
@@ -22,6 +24,7 @@ export class CellManager extends EventTarget {
     constructor(deps) {
         super();
         this.#deps = deps;
+        this.#stepValidator = new StepValidator({ client: deps.client, validator: deps.validator });
     }
 
     /** Démarre (ou redémarre) un niveau à partir d'une LevelSession. */
@@ -120,7 +123,7 @@ export class CellManager extends EventTarget {
      * Les tests qui déclarent `inputs` rejouent le code, en isolation, avec ces saisies scriptées.
      */
     async #execute(cell, code, tests) {
-        const { client, validator, translator, audio, i18n } = this.#deps;
+        const { client, translator, audio, i18n } = this.#deps;
         await audio.unlock(); // le clic sur « Exécuter » est le geste utilisateur requis
         cell.clearOutput();
         cell.setBusy(true);
@@ -142,51 +145,11 @@ export class CellManager extends EventTarget {
             audio.play('error');
             return false;
         }
-        const validation = await this.#validate(code, tests, { stdout, result });
+        const validation = await this.#stepValidator.validate(code, tests, { stdout, result });
         cell.setBusy(false);
         cell.showValidation(validation);
         audio.play(validation.passed ? 'success_small' : 'error');
         return validation.passed;
-    }
-
-    /** Valide : tests sans `inputs` sur l'exécution de l'apprenant, les autres sur des rejeux scriptés. */
-    async #validate(code, tests, interactive) {
-        const { validator, client } = this.#deps;
-        const groups = new Map();
-        tests.forEach((test, index) => {
-            const key = JSON.stringify(test.inputs ?? null);
-            groups.set(key, [...(groups.get(key) ?? []), { test, index }]);
-        });
-
-        const results = new Array(tests.length);
-        for (const [key, members] of groups) {
-            const inputs = JSON.parse(key);
-            let execution = interactive;
-            if (inputs !== null) {
-                execution = await this.#replay(code, inputs, ValidationEngine.variablesToCollect(members.map((m) => m.test)), client);
-            }
-            const { results: partial } = validator.validate(
-                members.map((m) => m.test),
-                execution,
-            );
-            partial.forEach((entry, i) => (results[members[i].index] = entry));
-        }
-        const passed = interactive.result.ok && results.every((entry) => entry.passed);
-        return { passed, results };
-    }
-
-    /** Rejoue le code sur une copie de l'état, en répondant aux input() avec `inputs`. */
-    async #replay(code, inputs, collect, client) {
-        let stdout = '';
-        const queue = [...inputs];
-        const result = await client.run(code, {
-            collect,
-            isolated: true,
-            onStdout: (text) => (stdout += text),
-            onStderr: (text) => (stdout += text),
-            onInput: async () => (queue.length > 0 ? queue.shift() : null),
-        });
-        return { stdout, result };
     }
 
     async #completeLevel(mission) {

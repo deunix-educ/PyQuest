@@ -26,7 +26,7 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Moteur Python | `app/js/workers/python-worker.js` (Pyodide, stdout, interruption, input), `app/python/pyquest_runner.py` (exécution de cellule, JSON de résultat, namespace persistant, exécution isolée) |
 | Client du worker | `app/js/core/PyodideWorkerClient.js` (run/interrupt/reset, buffers partagés, repli `terminate()`) |
 | Niveaux | `app/js/core/LessonEngine.js`, `LevelSession.js`, `app/js/lib/js-yaml/` (vendorisé, dossier `lib/` car `vendor/` est gitignoré) |
-| Validation | `app/js/core/ValidationEngine.js` (kinds déclaratifs), rejeux à `inputs` dans `app/js/ui/CellManager.js` |
+| Validation | `app/js/core/ValidationEngine.js` (kinds déclaratifs, dont `code_contains`), `StepValidator.js` (rejeux à `inputs`) ; `tests/js/level-solutions.integration.test.mjs` vérifie toutes les solutions de référence avec le vrai Pyodide |
 | Erreurs | `app/js/core/ErrorTranslator.js` + `app/js/i18n/errors.{fr,en}.json` |
 | Progression | `app/js/core/ProgressStore.js`, `KeyValueStores.js` (IndexedDB/mémoire), `SettingsStore.js` |
 | Audio / voix | `app/js/core/AudioEngine.js` (sons synthétisés), `VoiceEngine.js` (mp3 Piper + repli speechSynthesis), `speechKey.js` ; `scripts/generate_voice.py`, `voice_key.py` |
@@ -75,9 +75,14 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
      immédiatement. Piper = GPL-3.0 mais outil de build seulement.
    - Whisper (dictée) et pyannote (diarisation) : écartés (hors besoin ; pyannote = modèles à accès
      restreint). Whisper reste une option d'accessibilité lointaine (dicter une réponse à `input()`).
-2. **Niveaux 04 à 14** (tableau dans `docs/design/05-curriculum.md`). Méthode : écrire le YAML
-   (fr + en obligatoires), `make validate-levels`, ajouter au manifeste, parcours e2e. Prochain :
-   **04 Calculer** (opérateurs, `%`, priorités ; mission convertisseur d'unités).
+2. **Phase de design (décidée le 2026-10-16, après les niveaux 04-07)** : identité visuelle
+   (palette, typo, logo), découpage CSS (`base`/`themes`/`cells`), coloration syntaxique de
+   l'éditeur, carte de progression graphique, personnage-guide aux messages variés fr/en,
+   badges illustrés, feedback coloré (vert/rouge, toujours doublé d'un texte). Procéder en 3
+   temps avec validation à chaque étape (propositions → CSS/éditeur → carte + personnage).
+3. **Niveaux 08 à 14** (tableau dans `docs/design/05-curriculum.md`). Méthode : écrire le YAML
+   (fr + en obligatoires), `make validate-levels`, ajouter au manifeste, parcours e2e. Niveaux **00 à 07 faits**
+   (cœur impératif). Prochain : **08 Découper en fonctions** (après la phase de design, voir 2).
 3. **Navigateurs** : validé dans Chromium 155 seulement. Reste Firefox, Safari desktop et surtout
    **iOS Safari** (mémoire WASM, autoplay audio, `SharedArrayBuffer` + `Atomics.wait`).
 4. Icônes PNG (iOS) en plus de `app/icons/icon.svg`.
@@ -130,6 +135,8 @@ Contrôle d'un son/UI à la main : `make dev` puis ouvrir l'URL dans un navigate
 - Messages d'erreur Python : validés sur Python 3.14.2 (Pyodide) ; à recontrôler si la version
   de Pyodide change (`tests/js/error-translator.test.mjs` utilise le `python3` du poste).
 - Après tout ajout/modification d'un texte `explain` avec `voice: true` : `make voice` puis commit des mp3.
+- Aide aux tests de niveaux : un test `inputs` ne peut qu'affirmer (pas de négation) → utiliser des
+  regex ancrées (`^[^\\n]*Mot\\n$`) ; l'invite de `input()` est dans stdout, sans retour à la ligne.
 - Ne pas lancer de `pkill -f` large : il peut tuer le shell de l'outil.
 
 ## Git

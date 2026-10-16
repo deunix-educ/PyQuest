@@ -31,6 +31,7 @@
     "reason.type_mismatch": "A variable does not have the right type.",
     "reason.invalid_regex": "This test is badly defined (tell the level authors).",
     "reason.unsupported_kind": "This test is not handled by the app yet.",
+    "reason.code_missing": "The code does not use what is asked.",
     "reason.runtime_error": "The code stopped on an error.",
     "mission.label": "Mission",
     "mission.understand": "I understand",

@@ -133,4 +133,10 @@ mission:
               en: "total must equal bill + tip."
         - kind: stdout_equals
           value: "57.5\n"
+    solution: |
+        bill = 50
+        rate = 0.15
+        tip = bill * rate
+        total = bill + tip
+        print(total)
     reward_sound: success_small

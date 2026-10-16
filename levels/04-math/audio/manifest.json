@@ -1,0 +1,30 @@
+{
+    "en": {
+        "651b31ddd9a7a34e": {
+            "text": "Python follows priorities, like in maths: first **, then * / // %, then + and -. Parentheses come before everything.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "9cd7a2aa73d6a258": {
+            "text": "Two very useful operators: // gives the whole quotient and % gives the remainder. For example, 17 // 5 is 3 and 17 % 5 is 2. There is also ** for powers.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "f949912b9c04e712": {
+            "text": "Python calculates like a calculator: + adds, - subtracts, * multiplies, / divides. Careful: / always gives a decimal number.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "633829630ac4c3d5": {
+            "text": "Python respecte les priorités, comme en maths : d'abord **, puis * / // %, puis + et -. Les parenthèses passent avant tout.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "baf63c4bda6a8543": {
+            "text": "Python calcule comme une calculatrice : + ajoute, - retire, * multiplie, / divise. Attention : / donne toujours un nombre à virgule.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "f2b33e527a6a90f1": {
+            "text": "Deux opérateurs très utiles : // donne le quotient entier et % donne le reste. Par exemple, 17 // 5 vaut 3 et 17 % 5 vaut 2. Il y a aussi ** pour les puissances.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

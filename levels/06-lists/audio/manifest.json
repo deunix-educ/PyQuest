@@ -1,0 +1,38 @@
+{
+    "en": {
+        "77e4a68d5c84d685": {
+            "text": "A list stores several values between square brackets: fruits = [\"apple\", \"pear\"]. We read an item with its position, which starts at 0: fruits[0] is \"apple\". len(fruits) gives the size.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "ab4815897e7a1a8a": {
+            "text": "A loop can also build up a result. We prepare a variable at 0, then add each item to it: total = total + n. To repeat a fixed number of times, for i in range(3): makes three turns.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "af52d6975b6bf775": {
+            "text": "To pick at random, Python has a random module. We import it with import random, then random.choice(list) returns an item picked at random. Each run can give a different result.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "f06ad642fd408e38": {
+            "text": "To handle every item, we use for. for fruit in fruits: repeats the indented block, once per item, putting the item in fruit.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "33efc1d313b78e67": {
+            "text": "Pour traiter chaque élément, on utilise for. for fruit in fruits: répète le bloc décalé, une fois par élément, en mettant l'élément dans fruit.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "512174193b912753": {
+            "text": "Pour tirer au hasard, Python a un module random. On l'importe avec import random, puis random.choice(liste) renvoie un élément pris au hasard. Chaque exécution peut donner un résultat différent.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "b6a7a3515f42c372": {
+            "text": "Une boucle peut aussi accumuler un résultat. On prépare une variable à 0, puis on y ajoute chaque élément : total = total + n. Pour répéter un nombre fixe de fois, for i in range(3): fait trois tours.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "cc9727a5aaabaf51": {
+            "text": "Une liste range plusieurs valeurs entre crochets : fruits = [\"pomme\", \"poire\"]. On lit un élément avec sa position, qui commence à 0 : fruits[0] est \"pomme\". len(fruits) donne la taille.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

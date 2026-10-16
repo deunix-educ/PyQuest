@@ -64,7 +64,7 @@ lire en premier en reprenant une session sur ce projet.
 
 ## État d'avancement
 
-Livrables 1 à 8 du brief écrits ; l'app tourne dans Chromium (4 niveaux : 00 à 03). Détail,
+Livrables 1 à 8 du brief écrits ; l'app tourne dans Chromium (8 niveaux : 00 à 07). Détail,
 architecture du code, priorités et pièges : [CONTEXT.md](CONTEXT.md).
 
 Commandes : `make test` (JS `node:test`, Python `unittest`, backend Django, validation des
@@ -73,11 +73,13 @@ Pyodide épinglé 314.0.7 (Python 3.14.2) via `make vendor-pyodide`.
 
 **À traiter en premier à la reprise** : recueillir le retour d'écoute de l'utilisateur sur les
 nouveaux effets sonores et la voix Piper (retour initial : « inaudible et de mauvaise qualité »),
-ajuster si besoin (voir CONTEXT.md) ; puis niveaux 04 et suivants.
+ajuster si besoin (voir CONTEXT.md). Ensuite : **phase de design** (décidée : après les niveaux
+04-07, qui sont faits), puis niveaux 08 et suivants.
 
 ## Règles de travail apprises
 
-- Chaque niveau ajouté : `fr` **et** `en`, `make validate-levels`, `make voice` si des étapes ont
+- Chaque niveau ajouté : une `solution` pour chaque étape code et pour la mission (vérifiées par
+  `make test` avec le vrai Pyodide), `fr` **et** `en`, `make validate-levels`, `make voice` si des étapes ont
   `voice: true` (commiter les mp3), entrée dans `levels/manifest.json`, parcours e2e si le niveau introduit un comportement nouveau.
 - Tester dans un vrai navigateur dès qu'un comportement dépend d'API navigateur : des écarts
   Node/Chromium (ex. `encodeInto` sur `SharedArrayBuffer`) ne se voient qu'ainsi.

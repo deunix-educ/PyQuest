@@ -1,0 +1,38 @@
+{
+    "en": {
+        "034c78ada8b29572": {
+            "text": "while repeats a block as long as a condition is true. Python tests the condition before each turn. As soon as it becomes false, the loop stops.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "62833437feb2d118": {
+            "text": "For the mission, your game will compare the choice with the secret number, with an attempts counter. When it works, replace secret = 7 with import random and secret = random.randint(1, 10) to really play.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "6b7bb567006dc055": {
+            "text": "Beware of the infinite loop! If the condition never becomes false, for example if you forget count = count - 1, the program runs forever. In that case, click Stop. To avoid it, always check that something changes inside the loop.",
+            "voice": "en_US-ljspeech-high"
+        },
+        "ad16cce1989900ce": {
+            "text": "Sometimes we don't know in advance how many turns will be needed, for example until the user finds the answer. We then write while True: and leave the loop with break at the right moment.",
+            "voice": "en_US-ljspeech-high"
+        }
+    },
+    "fr": {
+        "1bbc90eeb69a0608": {
+            "text": "Parfois, on ne sait pas à l'avance combien de tours il faudra, par exemple tant que l'utilisateur n'a pas trouvé. On écrit alors while True: et on sort de la boucle avec break quand c'est le bon moment.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "79d5a83c13821a3b": {
+            "text": "Pour la mission, ton jeu comparera le choix au nombre secret, compteur d'essais en plus. Quand il fonctionnera, remplace secret = 7 par import random et secret = random.randint(1, 10) pour jouer pour de vrai.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "c38225571258a2d0": {
+            "text": "while répète un bloc tant qu'une condition est vraie. Python teste la condition avant chaque tour. Dès qu'elle devient fausse, la boucle s'arrête.",
+            "voice": "fr_FR-siwis-medium"
+        },
+        "d221fc8d58c319da": {
+            "text": "Attention à la boucle infinie ! Si la condition ne devient jamais fausse, par exemple si tu oublies count = count - 1, le programme tourne sans fin. Dans ce cas, clique sur Arrêter. Pour l'éviter, vérifie toujours que quelque chose change dans la boucle.",
+            "voice": "fr_FR-siwis-medium"
+        }
+    }
+}

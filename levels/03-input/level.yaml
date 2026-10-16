@@ -143,4 +143,9 @@ mission:
           message:
               fr: Le programme doit afficher l'âge.
               en: The program must print the age.
+    solution: |
+        current_year = 2025
+        year = int(input("Année de naissance ? "))
+        age = current_year - year
+        print(age)
     reward_sound: success_small

@@ -13,7 +13,6 @@ PyQuest aims at **WCAG 2.2 AA**. The **Settings** button opens the following pan
 | Sound effects / Volume | success and error sounds, can be turned off; "Test the sound" |
 | Voice / Speed | the "Listen" button of explanations, can be turned off; "Test the voice" |
 | Offline voices | downloads the quality voices so you can hear them without a connection (see below) |
-| Author mode | shows the link to the [level editor](../contribute/author-editor.md) |
 
 Sound and voice **never** start on their own. No information is conveyed by sound or colour alone: every result is
 also written ("Well done, that's correct!", "Not yet.").

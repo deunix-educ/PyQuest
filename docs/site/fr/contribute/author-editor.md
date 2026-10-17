@@ -5,10 +5,7 @@ Un outil intégré pour écrire un niveau **sans écrire de YAML à la main**, e
 ## Y accéder
 
 1. Lance `make dev` (ou ouvre ton instance).
-2. Dans **Réglages**, active **Mode auteur**.
-3. Clique sur **Ouvrir l'éditeur de niveaux** (page `/author.html`).
-
-Les apprenants ne voient pas ce lien tant que le mode auteur est désactivé.
+2. Ouvre la page `/author.html` (aucun lien ne la propose dans l'application des apprenants).
 
 !!! note "Sur un serveur protégé"
     Si l'instance a le backend Django, l'accès à `/author.html` demande une connexion (compte autorisé par un

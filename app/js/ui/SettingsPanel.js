@@ -47,10 +47,8 @@ export class SettingsPanel extends EventTarget {
             this.#testButton('settings.testVoice', 'voice'),
             this.#voicesRoot,
             this.#field('settings.voiceRate', 'range', { value: settings.voiceRate, min: 0.5, max: 2, step: 0.1, key: 'voiceRate', number: true }),
-            this.#field('settings.author', 'checkbox', { value: settings.authorMode, key: 'authorMode' }),
             this.#backupSection(),
             this.#syncRoot,
-            settings.authorMode ? el('a', { class: 'btn author-link', href: 'author.html', text: t('settings.authorOpen') }) : null,
         );
         this.#renderSync();
         this.#renderVoices();

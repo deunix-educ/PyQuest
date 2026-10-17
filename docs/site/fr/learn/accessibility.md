@@ -13,7 +13,6 @@ PyQuest vise le niveau **WCAG 2.2 AA**. Le bouton **Réglages** ouvre le panneau
 | Effets sonores / Volume | sons de réussite et d'erreur, désactivables ; « Tester le son » |
 | Voix / Vitesse | bouton « Écouter » des explications, désactivable ; « Tester la voix » |
 | Voix hors ligne | télécharge les voix de qualité pour les entendre sans connexion (voir ci-dessous) |
-| Mode auteur | affiche le lien vers l'[éditeur de niveaux](../contribute/author-editor.md) |
 
 Le son et la voix ne démarrent **jamais** tout seuls. Aucune information n'est transmise uniquement par le son ou
 par la couleur : chaque résultat est aussi écrit (« Bravo, c'est correct ! », « Pas encore. »).

@@ -5,10 +5,7 @@ A built-in tool to write a level **without hand-writing YAML**, and without a se
 ## Opening it
 
 1. Run `make dev` (or open your instance).
-2. In **Settings**, turn on **Author mode**.
-3. Click **Open the level editor** (page `/author.html`).
-
-Learners do not see this link while author mode is off.
+2. Open the page `/author.html` (the learners' application has no link to it).
 
 !!! note "On a protected server"
     If the instance has the Django backend, opening `/author.html` requires signing in (an account authorised by an

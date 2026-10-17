@@ -56,7 +56,12 @@ fi
 if [[ "${PULL}" == 1 ]]; then
     step "Récupération de la dernière version (git pull --ff-only)"
     # --ff-only : jamais de fusion surprise sur le serveur ; un dépôt modifié localement est signalé.
-    git -C "${REPO}" diff --quiet HEAD || { echo "Le dépôt contient des modifications locales : les annuler ou les mettre de côté (git status)." >&2; exit 1; }
+    if ! git -C "${REPO}" diff --quiet HEAD; then
+        echo "Le dépôt contient des modifications locales (fichiers édités ou supprimés sur le serveur) :" >&2
+        git -C "${REPO}" status --short >&2
+        echo "Pour les annuler et repartir de la version du dépôt : git -C ${REPO} restore .   (les réglages du serveur sont dans /etc/pyquest/env, pas dans le dépôt)" >&2
+        exit 1
+    fi
     run git -C "${REPO}" pull --ff-only
 fi
 COMMIT="$(git -C "${REPO}" rev-parse --short HEAD 2>/dev/null || echo nogit)"

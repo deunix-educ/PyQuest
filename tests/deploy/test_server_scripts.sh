@@ -50,7 +50,7 @@ SETUP="${ROOT}/deploy/server_setup.sh"
 "${SETUP}" --domain pyquest.example.org >/dev/null 2>&1 && fail "doit exiger root hors --dry-run" || true
 out="$("${SETUP}" --domain pyquest.example.org --dry-run 2>&1)"
 echo "${out}" | grep -q "\[dry-run\] .*apt-get install" || fail "le dry-run doit annoncer l'installation des paquets"
-echo "${out}" | grep -q "mariadb-setup.sql" || fail "les étapes restantes (base de données) doivent être listées"
+echo "${out}" | grep -q "db_setup.sh" || fail "les étapes restantes (base de données) doivent être listées"
 echo "${out}" | grep -q "server_update.sh" || fail "la publication du site doit être indiquée"
 echo "${out}" | grep -q "vhost complet" || fail "le dry-run doit traiter nginx"
 echo "${out}" | grep -q "${ROOT}/.venv-prod" || fail "l'environnement Python doit être dans le dépôt cloné (.venv-prod)"

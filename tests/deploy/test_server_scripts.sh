@@ -63,8 +63,11 @@ sleep 1
 trap 'kill ${BUSY_PID} 2>/dev/null || true; rm -rf "${WORK}"' EXIT
 busy_out="$(PYQUEST_ENV_FILE="${WORK}/no-such-env" "${SETUP}" --domain pyquest.example.org --dry-run 2>&1)"
 echo "${busy_out}" | grep -q "port 8001 déjà utilisé" || fail "un port occupé doit être signalé"
-echo "${busy_out}" | grep -q "port choisi : 8002" || fail "le premier port libre (8002) doit être choisi"
-echo "${busy_out}" | grep -q "127.0.0.1:8002" || fail "nginx doit viser le port choisi"
+# Premier port libre au-dessus de 8001 sur cette machine (d'autres programmes peuvent déjà occuper 8002, 8003…).
+expected=8002
+while ss -ltnH | awk '{print $4}' | grep -qE "[:.]${expected}\$"; do expected=$((expected + 1)); done
+echo "${busy_out}" | grep -q "port choisi : ${expected}" || fail "le premier port libre (${expected}) doit être choisi"
+echo "${busy_out}" | grep -q "127.0.0.1:${expected}" || fail "nginx doit viser le port choisi"
 explicit="$("${SETUP}" --domain pyquest.example.org --port 8123 --dry-run 2>&1)"
 echo "${explicit}" | grep -q "PYQUEST_PORT=8123" || fail "--port doit être enregistré dans l'environnement"
 kill "${BUSY_PID}" 2>/dev/null || true

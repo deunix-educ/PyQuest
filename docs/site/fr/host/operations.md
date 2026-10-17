@@ -104,6 +104,8 @@ une expiration proche.
 | `input()` indisponible | en-têtes COOP/COEP absents | `./scripts/check_deploy.sh` ; vérifier les extraits nginx |
 | 502 sur `/api/` | service arrêté ou port différent | `systemctl status pyquest` ; relancer `server_setup.sh` (réaligne nginx et le service) |
 | le service ne démarre pas, « Address already in use » | port du backend pris | `./deploy/server_setup.sh --domain … --port 8011` |
+| `vps_doctor.sh` : « API répond 400 » | domaine non accepté par Django | `PYQUEST_ALLOWED_HOSTS` dans `/etc/pyquest/env` doit contenir exactement le domaine |
+| `vps_doctor.sh` : renouvellement du certificat absent | minuteur `certbot` inactif | `systemctl enable --now certbot.timer`, puis `certbot renew --dry-run` |
 | 503 sur la connexion | limite de débit nginx dépassée | attendre une minute |
 | connexion refusée « Trop d'essais » | 5 échecs en 15 minutes | attendre 15 minutes |
 | `ERROR 1045 Access denied for user 'root'` | le compte `root` de MariaDB exige un mot de passe | `./deploy/db_setup.sh` le demande ; autre compte administrateur : `--admin-user nom` |

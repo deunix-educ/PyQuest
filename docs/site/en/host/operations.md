@@ -103,6 +103,8 @@ restarts the service. The certificate renews itself (`certbot` timer); `vps_doct
 | `input()` unavailable | COOP/COEP headers missing | `./scripts/check_deploy.sh`; check the nginx snippets |
 | 502 on `/api/` | service stopped or different port | `systemctl status pyquest`; rerun `server_setup.sh` (realigns nginx and the service) |
 | the service does not start, "Address already in use" | backend port taken | `./deploy/server_setup.sh --domain … --port 8011` |
+| `vps_doctor.sh`: "API answers 400" | domain not accepted by Django | `PYQUEST_ALLOWED_HOSTS` in `/etc/pyquest/env` must contain exactly the domain |
+| `vps_doctor.sh`: certificate renewal missing | `certbot` timer inactive | `systemctl enable --now certbot.timer`, then `certbot renew --dry-run` |
 | 503 on the login | nginx rate limit exceeded | wait a minute |
 | login refused "Too many attempts" | 5 failures in 15 minutes | wait 15 minutes |
 | `ERROR 1045 Access denied for user 'root'` | MariaDB's `root` account requires a password | `./deploy/db_setup.sh` asks for it; another administrator account: `--admin-user name` |

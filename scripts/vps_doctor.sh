@@ -10,6 +10,11 @@ REPO="${PYQUEST_REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pw
 VENV="${REPO}/.venv-prod"
 PORT="$(grep -E '^PYQUEST_PORT=' /etc/pyquest/env 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
 PORT="${PORT:-8001}"
+# Django n'accepte que le domaine de PYQUEST_ALLOWED_HOSTS et redirige vers HTTPS sans l'en-tête du proxy : on se présente
+# comme nginx (Host et X-Forwarded-Proto), sinon la réponse serait 400 ou 301 même quand tout fonctionne.
+SITE_HOST="$(grep -E '^PYQUEST_ALLOWED_HOSTS=' /etc/pyquest/env 2>/dev/null | tail -n1 | cut -d= -f2- | cut -d, -f1 || true)"
+SITE_HOST="${SITE_HOST:-localhost}"
+api() { curl -s -o /dev/null -w '%{http_code}' --max-time 10 -H "Host: ${SITE_HOST}" -H 'X-Forwarded-Proto: https' "$@"; }
 ok() { printf '  ok     %s\n' "$1"; }
 ko() { printf '  ÉCHEC  %s\n' "$1"; FAILED=1; }
 info() { printf '  info   %s\n' "$1"; }
@@ -61,13 +66,14 @@ fi
 if systemctl is-active --quiet pyquest 2>/dev/null; then
     ok "service pyquest actif (port ${PORT})"
     # Un jeton au bon format interroge la base : 404 = base joignable, 500 = base en panne.
-    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -H 'Authorization: Bearer aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' http://127.0.0.1:${PORT}/api/sync/)"
+    code="$(api -H 'Authorization: Bearer aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' "http://127.0.0.1:${PORT}/api/sync/")"
     case "${code}" in
         404) ok "API répond et la base de données est joignable (404 attendu)" ;;
         500) ko "l'API répond 500 : base de données injoignable ? (journalctl -u pyquest)" ;;
+        400) ko "l'API répond 400 : le domaine « ${SITE_HOST} » n'est pas accepté (PYQUEST_ALLOWED_HOSTS dans /etc/pyquest/env)" ;;
         *) info "API répond ${code}" ;;
     esac
-    [[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:${PORT}/api/auth/check/)" == 401 ]] && ok "contrôle d'accès de l'éditeur répond (401 sans session)" || ko "/api/auth/check/ ne répond pas 401"
+    [[ "$(api "http://127.0.0.1:${PORT}/api/auth/check/")" == 401 ]] && ok "contrôle d'accès de l'éditeur répond (401 sans session)" || ko "/api/auth/check/ ne répond pas 401"
 else
     ko "service pyquest inactif (systemctl enable --now pyquest ; journalctl -u pyquest -n 50)"
 fi
@@ -90,7 +96,11 @@ if [[ -n "${domain}" ]]; then
     else
         info "certificat ${domain} non lisible sans root"
     fi
-    systemctl list-timers 2>/dev/null | grep -q certbot && ok "renouvellement automatique (minuteur certbot)" || info "minuteur certbot non trouvé : vérifier le renouvellement"
+    if systemctl is-active --quiet certbot.timer 2>/dev/null || [[ -f /etc/cron.d/certbot ]]; then
+        ok "renouvellement automatique du certificat (certbot.timer ou cron)"
+    else
+        ko "renouvellement automatique absent : « systemctl enable --now certbot.timer » (puis « certbot renew --dry-run » pour tester)"
+    fi
 else
     info "aucun certificat Let's Encrypt trouvé"
 fi

@@ -17,10 +17,11 @@ NOT_PRECACHED = {"service-worker.js"}
 
 
 def is_author_tool(relative: str) -> bool:
-    """Fichiers propres à l'éditeur de niveaux : sur un serveur ils peuvent être protégés par authentification,
-    donc jamais pré-cachés (le service worker les récupérerait sans session et mettrait une page de connexion en cache)."""
+    """Fichiers propres à l'éditeur de niveaux et documentation en ligne (/docs/) : sur un serveur ils peuvent être
+    protégés par authentification, donc jamais pré-cachés (le service worker les récupérerait sans session et mettrait une page de connexion en cache)."""
     return (
-        relative == "author.html"
+        relative.startswith("docs/")
+        or relative == "author.html"
         or relative == "css/author.css"
         or relative.startswith("js/author/")
         or (relative.startswith("js/i18n/author.") and relative.endswith(".json"))
@@ -54,6 +55,14 @@ def content_hash(paths: list[str]) -> str:
 
 
 def main() -> int:
+    # --docs DOSSIER : documentation déjà générée (mkdocs build), copiée dans dist/docs/ (non pré-cachée).
+    docs: Path | None = None
+    if "--docs" in sys.argv:
+        index = sys.argv.index("--docs")
+        docs = Path(sys.argv[index + 1]) if index + 1 < len(sys.argv) else None
+        if docs is None or not (docs / "index.html").is_file():
+            print("--docs : dossier de documentation générée introuvable (make docs).", file=sys.stderr)
+            return 1
     pyodide = ROOT / "vendor" / "pyodide"
     if not pyodide.exists():
         print("vendor/pyodide absent : lancez `make vendor-pyodide` d'abord.", file=sys.stderr)
@@ -64,6 +73,8 @@ def main() -> int:
     copy_tree(ROOT / "app", DIST)
     copy_tree(ROOT / "levels", DIST / "levels")
     shutil.copytree(pyodide, DIST / "vendor" / "pyodide")
+    if docs is not None:
+        shutil.copytree(docs, DIST / "docs")
 
     precache = shell_files()
     worker = DIST / "service-worker.js"

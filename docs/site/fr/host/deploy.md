@@ -53,6 +53,20 @@ cd /opt/PyQuest
 Toute la marche à suivre (base MariaDB, démarrage du service, premier administrateur, publication, sauvegardes,
 retour arrière, dépannage) est dans [Mise en service et exploitation](operations.md).
 
+## La documentation en ligne (`/docs/`)
+
+Le site publie sa propre documentation sous `https://ton-domaine/docs/` (français et anglais). Elle est **réservée aux
+comptes connectés** : les **auteurs** (permission de l'éditeur) et les **administrateurs** (comptes `is_staff`). Sans
+session, nginx renvoie vers la page de connexion, qui ramène ensuite sur la documentation. Les liens se trouvent dans
+l'éditeur de niveaux (bouton **Documentation**) et dans l'administration Django (en haut à droite).
+
+- Elle est construite avec le site : `make build` (et `./scripts/server_update.sh`, ou l'image Docker) génèrent
+  `dist/docs/`. `./scripts/server_update.sh --no-docs` publie sans elle.
+- Un administrateur qui n'est **pas** auteur s'identifie d'abord sur `/api/admin/` : la session est la même.
+- La documentation n'a rien de secret : pour la **rendre publique**, supprimer `auth_request` et `error_page` du bloc
+  `location ^~ /docs/` dans `nginx/pyquest-locations.conf.example`.
+- Les pages ne sont jamais conservées par le service worker (hors de l'application, toujours en ligne).
+
 ## Tester en local avant de déployer
 
 Trois niveaux d'essai, du plus simple au plus fidèle à la production :

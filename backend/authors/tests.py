@@ -136,6 +136,36 @@ class CheckAndLogoutTest(TestCase):
         self.assertEqual(response.status_code, 204)
         self.assertIn("no-store", response.headers["Cache-Control"])
 
+    def test_docs_check_admits_authors_and_administrators_only(self) -> None:
+        url = "/api/auth/check-docs/"
+        self.assertEqual(self.client.get(url).status_code, 401)
+        make_user("lea", staff=False)
+        self.client.login(username="lea", password=PASSWORD)
+        self.assertEqual(self.client.get(url).status_code, 401)
+        make_user("ada")
+        self.client.login(username="ada", password=PASSWORD)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 204)
+        self.assertIn("no-store", response.headers["Cache-Control"])
+        admin = make_user("root", staff=False)
+        admin.is_staff = True
+        admin.save()
+        self.client.login(username="root", password=PASSWORD)
+        self.assertEqual(self.client.get(url).status_code, 204)
+        # L'éditeur, lui, reste réservé à la permission d'auteur.
+        self.assertEqual(self.client.get(CHECK).status_code, 401)
+        admin.is_active = False
+        admin.save()
+        self.assertEqual(self.client.get(url).status_code, 401)
+        self.assertEqual(self.client.post(url).status_code, 405)
+
+    def test_admin_pages_link_to_the_documentation(self) -> None:
+        admin = make_user("root", staff=False)
+        admin.is_staff = admin.is_superuser = True
+        admin.save()
+        self.client.login(username="root", password=PASSWORD)
+        self.assertContains(self.client.get("/api/admin/"), 'href="/docs/"')
+
     def test_check_refuses_other_methods(self) -> None:
         self.assertEqual(self.client.post(CHECK).status_code, 405)
 

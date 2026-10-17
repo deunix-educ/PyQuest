@@ -2,6 +2,15 @@
 # Contexte de construction : la racine du dépôt (voir docker/compose.*.yaml).
 # syntax=docker/dockerfile:1
 
+# ---- Documentation en ligne (mkdocs) : servie sous /docs/ pour les auteurs et les administrateurs -----------------------
+FROM python:3.12-slim-bookworm AS docs
+WORKDIR /src
+COPY requirements-docs.txt .
+RUN pip install --no-cache-dir -r requirements-docs.txt
+COPY mkdocs.yml .
+COPY docs/site docs/site
+RUN mkdocs build --quiet --site-dir /site
+
 # ---- Site statique : moteur Python (Pyodide, version épinglée et vérifiée) puis construction de dist/ -------------------
 FROM python:3.12-slim-bookworm AS site
 RUN apt-get update && apt-get install -y --no-install-recommends curl bzip2 ca-certificates \
@@ -12,7 +21,8 @@ RUN ./scripts/vendor_pyodide.sh
 COPY app app
 COPY levels levels
 COPY scripts/build.py scripts/
-RUN python scripts/build.py
+COPY --from=docs /site site
+RUN python scripts/build.py --docs site
 
 # ---- Serveur web : nginx (>= 1.25.1 pour http2 on) ---------------------------------------------------------------------
 FROM nginx:1.27-alpine AS web

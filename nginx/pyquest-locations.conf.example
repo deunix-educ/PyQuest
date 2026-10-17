@@ -76,6 +76,16 @@
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
+    # Idem pour la documentation en ligne : auteurs ET administrateurs (comptes is_staff) y accèdent.
+    location = /_docs_check {
+        internal;
+        proxy_pass http://127.0.0.1:8001/api/auth/check-docs/;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     # Non connecté : page de connexion, qui ramène ensuite sur l'éditeur.
     location @author_login {
         return 302 /api/auth/login/?next=$request_uri;
@@ -99,6 +109,14 @@
     }
     location ~ ^/js/i18n/author\.[a-z]+\.json$ {
         auth_request /_auth_check;
+        error_page 401 = @author_login;
+        include snippets/pyquest-author-headers.conf;
+    }
+
+    # Documentation en ligne (mkdocs, copiée dans dist/docs/ par make build) : réservée aux comptes connectés.
+    # Pour la rendre publique, supprimer les deux lignes auth_request et error_page de ce bloc.
+    location ^~ /docs/ {
+        auth_request /_docs_check;
         error_page 401 = @author_login;
         include snippets/pyquest-author-headers.conf;
     }
@@ -138,6 +156,9 @@
 
     # Le reste de l'API (synchronisation, déconnexion) ; /api/auth/check/ n'est joignable que par la sous-requête interne.
     location = /api/auth/check/ {
+        return 404;
+    }
+    location = /api/auth/check-docs/ {
         return 404;
     }
     location /api/ {

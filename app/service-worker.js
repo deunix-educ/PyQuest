@@ -55,7 +55,8 @@ function isNarration(pathname) {
 }
 
 function isAuthorTool(pathname) {
-    return pathname === '/author.html' || pathname === '/css/author.css' || pathname.startsWith('/js/author/') || /^\/js\/i18n\/author\.[a-z]+\.json$/.test(pathname);
+    // /docs/ : documentation en ligne, éventuellement protégée par connexion, hors application (jamais mise en cache).
+    return pathname.startsWith('/docs/') || pathname === '/docs' || pathname === '/author.html' || pathname === '/css/author.css' || pathname.startsWith('/js/author/') || /^\/js\/i18n\/author\.[a-z]+\.json$/.test(pathname);
 }
 
 async function fromCache(request, cacheName) {

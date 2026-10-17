@@ -28,6 +28,7 @@ export class AuthorApp {
     #store;
     #catalogs;
     #root;
+    #hasDocs = false; // documentation en ligne publiée par le serveur (/docs/)
     #account = null; // { username, csrf } si l'éditeur est protégé par une connexion (backend Django), sinon null
     #knownIds = [];
     #model = emptyLevelModel();
@@ -66,6 +67,7 @@ export class AuthorApp {
 
     async run() {
         this.#account = await this.#loadAccount();
+        await this.#detectDocs();
         this.#knownIds = (await this.#lessons.listLevels()).map((level) => level.id);
         const draft = await this.#store.get(DRAFT_KEY).catch(() => undefined);
         if (draft) {
@@ -95,6 +97,23 @@ export class AuthorApp {
         } catch {
             return null;
         }
+    }
+
+    /**
+     * Lien vers la documentation en ligne (/docs/), seulement si le serveur la publie : sinon (essai local sans
+     * documentation) pas de lien mort. La vérification est faite une fois, à l'ouverture.
+     */
+    async #detectDocs() {
+        try {
+            const response = await fetch(new URL('docs/', document.baseURI), { method: 'HEAD', cache: 'no-store', credentials: 'same-origin', redirect: 'manual' });
+            this.#hasDocs = response.ok;
+        } catch {
+            this.#hasDocs = false;
+        }
+    }
+
+    #docsLink() {
+        return this.#hasDocs ? el('a', { class: 'btn', id: 'author-docs', href: 'docs/', target: '_blank', rel: 'noopener', text: this.#t('author.toolbar.docs') }) : null;
     }
 
     /** Formulaire de déconnexion (vrai POST protégé par CSRF : la page de connexion s'affiche ensuite). */
@@ -152,6 +171,7 @@ export class AuthorApp {
                 fileInput,
                 el('button', { type: 'button', class: 'btn btn-primary', id: 'author-download', text: t('author.toolbar.download'), onclick: () => this.#download() }),
                 languages,
+                this.#docsLink(),
                 el('a', { class: 'btn', href: './', text: t('author.toolbar.back') }),
             ),
             this.#accountControl(),

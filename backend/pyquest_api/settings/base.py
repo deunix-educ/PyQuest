@@ -11,9 +11,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "authors.apps.AuthorsConfig",  # avant l'administration : ses gabarits (lien vers la documentation) la surchargent
     "django.contrib.admin",
     "sync",
-    "authors.apps.AuthorsConfig",
 ]
 
 MIDDLEWARE = [

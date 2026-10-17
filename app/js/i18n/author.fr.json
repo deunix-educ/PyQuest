@@ -151,6 +151,7 @@
     "author.kind.drawing_colors": "Dessin : couleurs utilisées",
     "author.kind.drawing_colors.help": "Couleurs qui doivent toutes apparaître, séparées par des virgules : « red,blue ».",
     "lint.drawing_value_invalid": "Valeur de test de dessin mal formée (voir l'aide du type de test ; couleurs : black, red, green, blue, orange, purple, gray).",
+    "author.toolbar.docs": "Documentation (nouvel onglet)",
     "author.account.label": "Compte",
     "author.account.signed_in": "Connecté : {name}",
     "author.account.logout": "Se déconnecter"

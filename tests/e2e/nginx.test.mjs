@@ -83,8 +83,15 @@ test('nginx : l\'éditeur exige une connexion, puis fonctionne isolé ; déconne
         assert.equal(response.status, 302, path);
         assert.match(response.headers.get('location'), /\/api\/auth\/login\/\?next=\//, path);
     }
+    // La documentation en ligne exige elle aussi une connexion (aucune page servie).
+    for (const path of ['docs/', 'docs/fr/', 'docs/assets/stylesheets/main.css']) {
+        const response = await fetch(`${base}${path}`, { redirect: 'manual' });
+        assert.equal(response.status, 302, path);
+        assert.match(response.headers.get('location'), /\/api\/auth\/login\/\?next=\/docs\//, path);
+    }
     // Le contrôle interne n'est pas joignable de l'extérieur.
     assert.equal((await fetch(`${base}api/auth/check/`)).status, 404);
+    assert.equal((await fetch(`${base}api/auth/check-docs/`)).status, 404);
 
     const context = await browser.newContext({ locale: 'fr-FR' });
     const page = await context.newPage();
@@ -111,6 +118,13 @@ test('nginx : l\'éditeur exige une connexion, puis fonctionne isolé ; déconne
     assert.deepEqual(errors, []);
     assert.equal((await context.request.get(`${base}js/author/main.js`)).status(), 200);
 
+    // La documentation est lisible avec la session, isolée comme le reste, et l'éditeur y renvoie par un lien.
+    await page.locator('#author-docs').waitFor();
+    const docs = await context.request.get(`${base}docs/`);
+    assert.equal(docs.status(), 200);
+    assert.match(await docs.text(), /PyQuest/);
+    assert.equal(docs.headers()['cross-origin-opener-policy'], 'same-origin');
+
     // Déconnexion depuis l'éditeur lui-même : nom affiché, bouton, retour à la page de connexion.
     await page.getByText('Connecté : ada').waitFor();
     await page.getByRole('button', { name: 'Se déconnecter' }).click();
@@ -118,6 +132,7 @@ test('nginx : l\'éditeur exige une connexion, puis fonctionne isolé ; déconne
     await page.getByRole('button', { name: 'Se connecter' }).waitFor();
     const after = await context.request.get(`${base}author.html`, { maxRedirects: 0 });
     assert.equal(after.status(), 302);
+    assert.equal((await context.request.get(`${base}docs/`, { maxRedirects: 0 })).status(), 302, 'la documentation se referme avec la session');
 });
 
 test('nginx : l\'application apprenant est isolée, exécute Python et synchronise par le proxy', { skip, timeout: 120000 }, async () => {
@@ -156,6 +171,9 @@ test('nginx : l\'administrateur autorise un compte à utiliser l\'éditeur depui
     await admin.getByLabel('Mot de passe :').fill(PASSWORD);
     await admin.getByRole('button', { name: 'Connexion' }).click();
     await admin.getByText('PyQuest — administration').first().waitFor();
+    // Le lien « Documentation » de l'administration mène à la documentation, ouverte à l'administrateur.
+    await admin.getByRole('link', { name: 'Documentation' }).waitFor();
+    assert.equal((await admin.context().request.get(`${base}docs/`)).status(), 200);
     await admin.goto(`${base}api/admin/auth/user/`);
     await admin.locator('tr', { hasText: 'lea' }).locator('input[type=checkbox]').check();
     await admin.locator('select[name=action]').selectOption('grant_editor');

@@ -17,7 +17,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from .access import is_author
+from .access import can_read_docs, is_author
 from .throttle import client_ip, is_locked, record_failure, record_success
 
 DEFAULT_NEXT = "/author.html"
@@ -111,6 +111,13 @@ def logout_view(request: HttpRequest) -> HttpResponse:
 def check_view(request: HttpRequest) -> HttpResponse:
     """Appelé par nginx (auth_request) : 204 si la session appartient à un auteur, sinon 401."""
     return HttpResponse(status=204 if is_author(request.user) else 401)
+
+
+@never_cache
+@require_GET
+def check_docs_view(request: HttpRequest) -> HttpResponse:
+    """Appelé par nginx (auth_request) pour /docs/ : 204 pour un auteur ou un administrateur, sinon 401."""
+    return HttpResponse(status=204 if can_read_docs(request.user) else 401)
 
 
 @never_cache

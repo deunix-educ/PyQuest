@@ -5,7 +5,7 @@
 #
 #   ./scripts/server_update.sh                # tout
 #   ./scripts/server_update.sh --rollback     # revient à la version précédente du site
-#   Options : --no-pull  --no-build  --no-restart  --no-check  --dry-run
+#   Options : --no-pull  --no-build  --no-docs  --no-restart  --no-check  --dry-run
 #
 # Variables : PYQUEST_WEB_ROOT (défaut /var/www/pyquest), PYQUEST_KEEP (versions conservées, défaut 3),
 # PYQUEST_ENV_FILE (défaut /etc/pyquest/env), PYQUEST_SERVICE (défaut pyquest).
@@ -17,12 +17,13 @@ KEEP="${PYQUEST_KEEP:-3}"
 ENV_FILE="${PYQUEST_ENV_FILE:-/etc/pyquest/env}"
 SERVICE="${PYQUEST_SERVICE:-pyquest}"
 VENV="${REPO}/.venv-prod"
-PULL=1; BUILD=1; RESTART=1; CHECK=1; DRY_RUN=0; ROLLBACK=0
+PULL=1; BUILD=1; DOCS=1; RESTART=1; CHECK=1; DRY_RUN=0; ROLLBACK=0
 
 for arg in "$@"; do
     case "${arg}" in
         --no-pull) PULL=0 ;;
         --no-build) BUILD=0 ;;
+        --no-docs) DOCS=0 ;;
         --no-restart) RESTART=0 ;;
         --no-check) CHECK=0 ;;
         --dry-run) DRY_RUN=1 ;;
@@ -69,7 +70,21 @@ COMMIT="$(git -C "${REPO}" rev-parse --short HEAD 2>/dev/null || echo nogit)"
 if [[ "${BUILD}" == 1 ]]; then
     step "Moteur Python (Pyodide) et construction du site"
     run "${REPO}/scripts/vendor_pyodide.sh"
-    run python3 "${REPO}/scripts/build.py"
+    BUILD_ARGS=()
+    if [[ "${DOCS}" == 1 ]]; then
+        # Documentation en ligne (/docs/, réservée aux comptes connectés) : un échec ne bloque pas la mise à jour du site.
+        DOCS_VENV="${REPO}/.venv-docs"
+        if [[ "${DRY_RUN}" == 1 ]]; then
+            echo "[dry-run] mkdocs build (documentation, ${DOCS_VENV})"
+            BUILD_ARGS=(--docs "${REPO}/site")
+        elif { [[ -x "${DOCS_VENV}/bin/mkdocs" ]] || { python3 -m venv "${DOCS_VENV}" && "${DOCS_VENV}/bin/pip" install --quiet -r "${REPO}/requirements-docs.txt"; }; } \
+            && (cd "${REPO}" && "${DOCS_VENV}/bin/mkdocs" build --quiet 2>/dev/null); then
+            BUILD_ARGS=(--docs "${REPO}/site")
+        else
+            echo "ATTENTION : la documentation n'a pas pu être construite (paquet python3-venv, accès à PyPI ?) : le site est publié sans elle." >&2
+        fi
+    fi
+    run python3 "${REPO}/scripts/build.py" "${BUILD_ARGS[@]}"
 fi
 [[ "${DRY_RUN}" == 1 || -f "${REPO}/dist/index.html" ]] || { echo "dist/ est absent : relancer sans --no-build." >&2; exit 1; }
 [[ "${DRY_RUN}" == 1 || -f "${REPO}/dist/vendor/pyodide/pyodide.asm.wasm" ]] || { echo "Pyodide manque dans dist/." >&2; exit 1; }

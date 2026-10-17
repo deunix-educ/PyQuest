@@ -13,6 +13,11 @@ def is_author(user: object) -> bool:
     return isinstance(user, User) and user.is_active and user.has_perm(EDITOR_PERMISSION)
 
 
+def can_read_docs(user: object) -> bool:
+    """Documentation en ligne (/docs/) : auteurs et administrateurs (comptes `is_staff`) actifs."""
+    return isinstance(user, User) and user.is_active and (user.is_staff or is_author(user))
+
+
 def authors_group() -> Group:
     """Groupe « Auteurs », créé au besoin avec la permission de l'éditeur."""
     group, _created = Group.objects.get_or_create(name=GROUP_NAME)

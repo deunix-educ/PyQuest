@@ -52,6 +52,20 @@ cd /opt/PyQuest
 The whole procedure (MariaDB database, starting the service, first administrator, publishing, backups, rollback,
 troubleshooting) is in [Going live and operations](operations.md).
 
+## Online documentation (`/docs/`)
+
+The site publishes its own documentation under `https://your-domain/docs/` (French and English). It is **restricted to
+signed-in accounts**: **authors** (editor permission) and **administrators** (`is_staff` accounts). Without a session,
+nginx redirects to the sign-in page, which then returns to the documentation. Links are in the level editor
+(**Documentation** button) and in the Django administration (top right).
+
+- It is built with the site: `make build` (and `./scripts/server_update.sh`, or the Docker image) generate `dist/docs/`.
+  `./scripts/server_update.sh --no-docs` publishes without it.
+- An administrator who is **not** an author signs in on `/api/admin/` first: the session is the same.
+- The documentation holds no secret: to make it **public**, remove `auth_request` and `error_page` from the
+  `location ^~ /docs/` block in `nginx/pyquest-locations.conf.example`.
+- Pages are never kept by the service worker (outside the application, always online).
+
 ## Testing locally before deploying
 
 Three levels of testing, from the simplest to the most faithful to production:

@@ -62,6 +62,16 @@ else
     ko "author.html : 200 (public) ou 302 vers la connexion attendus, reçu ${author_code}"
 fi
 
+# Documentation en ligne : réservée aux comptes connectés derrière le backend (302 vers la connexion) ; sinon publique.
+docs_code="$(status "${BASE}/docs/")"
+if [[ "${author_code}" == 302 ]]; then
+    docs_location="$(header "${BASE}/docs/" Location)"
+    if [[ "${docs_code}" == 302 && "${docs_location}" == *"/api/auth/login/?next=/docs/"* ]]; then ok "documentation protégée par connexion (/docs/)"; else ko "/docs/ : 302 vers la connexion attendu, reçu ${docs_code}"; fi
+    expect_status "${BASE}/api/auth/check-docs/" 404
+else
+    echo "  info  /docs/ répond ${docs_code} (200 = documentation publiée, 404 = absente)"
+fi
+
 if [[ "${BASE}" == https://* ]]; then
     redirect="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "http://${BASE#https://}/")"
     if [[ "${redirect}" == 301 || "${redirect}" == 308 ]]; then ok "HTTP redirige vers HTTPS (${redirect})"; else ko "HTTP devrait rediriger vers HTTPS, code ${redirect}"; fi

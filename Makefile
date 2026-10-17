@@ -70,8 +70,8 @@ dev-author: $(VENV)/.installed ## Compte local direct : NAME=x, RESET=--reset (m
 validate-levels: $(VENV)/.installed ## Valide les niveaux (schéma, manifeste, traductions)
 	$(VENV_PY) scripts/validate_levels.py
 
-build: $(VENV)/.installed ## Construit dist/ pour la production
-	$(VENV_PY) scripts/build.py
+build: $(VENV)/.installed docs ## Construit dist/ pour la production (avec la documentation, servie sous /docs/)
+	$(VENV_PY) scripts/build.py --docs site
 
 test: test-js test-python test-backend test-deploy validate-levels check-voice ## Lance tous les tests
 

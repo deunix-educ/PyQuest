@@ -43,6 +43,13 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Accès éditeur | `backend/authors/` (login, `check` pour nginx `auth_request`, administration `/api/admin/` : groupe « Auteurs » / permission `use_editor`, `create_author`, anti force brute) ; nginx `pyquest.conf.example` ; prod = MariaDB |
 | Synchronisation | `core/SyncClient.js` + section Réglages ; export/import fichier ; voir `docs/design/09-sync.md` ; `make dev-sync` |
 
+## Documentation en ligne (/docs/)
+
+mkdocs construit dans `dist/docs/` (`make build` dépend de `make docs` ; `server_update.sh` et l'image Docker aussi),
+protégée par nginx `auth_request` → `/api/auth/check-docs/` : auteurs **et** comptes `is_staff`. Hors précache du service
+worker (`is_author_tool`, `isAuthorTool`). Liens : bouton « Documentation » de l'éditeur (affiché si `/docs/` existe) et
+gabarit `backend/authors/templates/admin/base_site.html` (`authors` est avant `admin` dans INSTALLED_APPS).
+
 ## Déploiement sur le VPS — état et reprise (mis à jour 2026-10-17)
 
 **État : rien n'est déployé.** Tout est préparé et testé sans serveur. **Flux retenu par l'utilisateur : il est root sur le

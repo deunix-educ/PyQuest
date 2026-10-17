@@ -130,8 +130,8 @@ fi
 cat <<NEXT
 
 ==> Installation du serveur terminée. Restent, dans l'ordre :
-  1. Base MariaDB : adapter puis exécuter ${REPO}/deploy/mariadb-setup.sql.example (mariadb < …), puis mettre le mot de
-     passe dans ${ENV_FILE} (PYQUEST_DB_PASSWORD).
+  1. Base MariaDB : ./deploy/db_setup.sh (demande le mot de passe administrateur de MariaDB, crée la base et
+     l'utilisateur, génère le mot de passe et l'écrit dans ${ENV_FILE}). Autre compte : --admin-user nom.
   2. Démarrer le service : systemctl enable --now pyquest ; systemctl status pyquest
      (il applique les migrations et collecte les fichiers statiques au démarrage).
   3. Premier administrateur : cd ${REPO}/backend && set -a && . ${ENV_FILE} && set +a && ${VENV}/bin/python manage.py createsuperuser

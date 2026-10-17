@@ -103,6 +103,43 @@ echo "${managed}" | grep -q 'ARGS=manage.py create_author ada' || fail "server_m
 echo "${managed}" | grep -qF 'PW=mot de passe avec $ et "guillemets"' || fail "server_manage doit transmettre le mot de passe tel quel"
 PYQUEST_ENV_FILE="${WORK}/absent" "${MANAGE_REPO}/scripts/server_manage.sh" check >/dev/null 2>&1 && fail "fichier d'environnement absent accepté"
 
+# ---- db_setup.sh : base et utilisateur MariaDB, mot de passe généré ------------------------------------------------
+cat > "${WORK}/bin/mariadb" <<SH
+#!/usr/bin/env bash
+echo "\$*" > "${WORK}/mariadb.args"
+cat > "${WORK}/mariadb.stdin"
+SH
+chmod +x "${WORK}/bin/mariadb"
+cat > "${WORK}/env3" <<'ENV'
+PYQUEST_SECRET_KEY=abc
+PYQUEST_DB_NAME=pyquest
+PYQUEST_DB_USER=pyquest
+PYQUEST_DB_PASSWORD=__A_REMPLIR__
+PYQUEST_DB_HOST=127.0.0.1
+ENV
+chmod 640 "${WORK}/env3"
+DBSETUP="${ROOT}/deploy/db_setup.sh"
+dry="$(PYQUEST_ENV_FILE="${WORK}/env3" "${DBSETUP}" --dry-run 2>&1)"
+echo "${dry}" | grep -q "CREATE DATABASE" || fail "le dry-run doit montrer le SQL"
+echo "${dry}" | grep -q "\*\*\*\*\*\*\*\*" || fail "le dry-run doit masquer le mot de passe"
+grep -q "__A_REMPLIR__" "${WORK}/env3" || fail "le dry-run ne doit pas modifier le fichier d'environnement"
+PYQUEST_ENV_FILE="${WORK}/env3" "${DBSETUP}" --admin-user admin >/dev/null
+grep -q -- "-u admin -p" "${WORK}/mariadb.args" || fail "le client doit demander le mot de passe administrateur (-p)"
+grep -q "PASS\|password" "${WORK}/mariadb.args" && fail "aucun mot de passe ne doit apparaître dans les arguments du client"
+grep -q "CREATE DATABASE IF NOT EXISTS \`pyquest\`" "${WORK}/mariadb.stdin" || fail "le SQL de création est absent"
+grep -q "ALTER USER 'pyquest'@'localhost'" "${WORK}/mariadb.stdin" || fail "le mot de passe doit être (ré)appliqué à l'utilisateur"
+generated="$(grep '^PYQUEST_DB_PASSWORD=' "${WORK}/env3" | cut -d= -f2-)"
+[[ "${generated}" =~ ^[A-Za-z0-9]{32}$ ]] || fail "le mot de passe généré doit être alphanumérique de 32 caractères"
+grep -q "${generated}" "${WORK}/mariadb.stdin" || fail "le mot de passe écrit doit être celui appliqué à MariaDB"
+[[ "$(stat -c %a "${WORK}/env3")" == 640 ]] || fail "les droits du fichier d'environnement doivent être conservés"
+grep -q '^PYQUEST_SECRET_KEY=abc$' "${WORK}/env3" || fail "les autres variables doivent être conservées"
+PYQUEST_ENV_FILE="${WORK}/env3" "${DBSETUP}" >/dev/null
+[[ "$(grep '^PYQUEST_DB_PASSWORD=' "${WORK}/env3" | cut -d= -f2-)" == "${generated}" ]] || fail "un mot de passe existant doit être conservé à la relance"
+sed -i 's/^PYQUEST_DB_HOST=.*/PYQUEST_DB_HOST=db.example.org/' "${WORK}/env3"
+PYQUEST_ENV_FILE="${WORK}/env3" "${DBSETUP}" >/dev/null 2>&1 && fail "une base distante doit être refusée"
+sed -i "s/^PYQUEST_DB_NAME=.*/PYQUEST_DB_NAME=x; DROP DATABASE y/; s/^PYQUEST_DB_HOST=.*/PYQUEST_DB_HOST=127.0.0.1/" "${WORK}/env3"
+PYQUEST_ENV_FILE="${WORK}/env3" "${DBSETUP}" >/dev/null 2>&1 && fail "un nom de base dangereux doit être refusé"
+
 # ---- vps_doctor.sh : s'exécute en lecture seule et signale ce qui manque -----------------------------------------
 doctor="$("${ROOT}/scripts/vps_doctor.sh" 2>&1 || true)"
 echo "${doctor}" | grep -q "^Système" || fail "le diagnostic doit s'exécuter"

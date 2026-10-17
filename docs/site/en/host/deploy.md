@@ -97,8 +97,9 @@ level editor** (`author.html`) with a login. The learning application works enti
 
 `./deploy/server_setup.sh` (see above) does most of the work; here is what it sets up, and what is left to do by hand.
 
-1. **Database: MariaDB** (or MySQL; Django 5.2 requires MariaDB 10.5 or later), to create **by hand** with a dedicated
-   database and user (`utf8mb4`): adapt then run `deploy/mariadb-setup.sql.example` (`mariadb < …`).
+1. **Database: MariaDB** (or MySQL; Django 5.2 requires MariaDB 10.5 or later), with a dedicated database and user
+   (`utf8mb4`): `./deploy/db_setup.sh` creates them and stores the generated password (manual method:
+   `deploy/mariadb-setup.sql.example`, to copy outside the repository).
 2. **Python environment** inside the repository (`/opt/PyQuest/.venv-prod`), with `backend/requirements-prod.txt`
    (Django, gunicorn, `mysqlclient` which is compiled: packages `pkg-config libmariadb-dev build-essential python3-dev`).
 3. **Environment variables** in `/etc/pyquest/env` (mode 640, `root:pyquest`, never committed; template:

@@ -20,12 +20,11 @@ tried for real before the first installation: start with `--dry-run` and `vps_do
 | 1 | `git clone git@github.com:deunix-educ/PyQuest.git /opt/PyQuest && cd /opt/PyQuest` | the code, in a folder named `PyQuest` outside `/root` and `/home` |
 | 2 | `./deploy/server_setup.sh --domain pyquest.example.org --dry-run` | **simulation**: nothing is written |
 | 3 | `./deploy/server_setup.sh --domain pyquest.example.org --certbot you@mail` | packages, `pyquest` user, folders, Python environment, `/etc/pyquest/env` (secret key generated), systemd service, nginx, certificate |
-| 4 | adapt then `mariadb < deploy/mariadb-setup.sql.example` | `pyquest` database and its user |
-| 5 | put the database password in `/etc/pyquest/env` (`PYQUEST_DB_PASSWORD`) | the service can connect |
-| 6 | `systemctl enable --now pyquest` | migrations and static files applied at startup |
-| 7 | `./scripts/server_manage.sh createsuperuser` | first administrator |
-| 8 | `./scripts/server_update.sh` | the site is built, published, checked |
-| 9 | `./scripts/vps_doctor.sh` | everything is "ok" |
+| 4 | `./deploy/db_setup.sh` | asks for the **MariaDB administrator** password, creates the `pyquest` database and its user, generates a password and writes it to `/etc/pyquest/env` |
+| 5 | `systemctl enable --now pyquest` | migrations and static files applied at startup |
+| 6 | `./scripts/server_manage.sh createsuperuser` | first administrator |
+| 7 | `./scripts/server_update.sh` | the site is built, published, checked |
+| 8 | `./scripts/vps_doctor.sh` | everything is "ok" |
 
 Then, in a browser: level 03 (`input()`), `/author.html` (redirects to the login), `/api/admin/` (administration), and
 **Settings → Sync → Turn on**.
@@ -97,6 +96,8 @@ restarts the service. The certificate renews itself (`certbot` timer); `vps_doct
 | 502 on `/api/` | service stopped | `systemctl status pyquest` |
 | 503 on the login | nginx rate limit exceeded | wait a minute |
 | login refused "Too many attempts" | 5 failures in 15 minutes | wait 15 minutes |
+| `ERROR 1045 Access denied for user 'root'` | MariaDB's `root` account requires a password | `./deploy/db_setup.sh` asks for it; another administrator account: `--admin-user name` |
+| `server_update.sh`: "local modifications" | a repository file was edited on the server | `git status`; `git checkout -- file` (settings live in `/etc/pyquest/env`, not in the repository) |
 | `server_setup.sh`: "pyquest cannot read" | repository in an inaccessible folder | clone under `/opt` |
 
 ## Resuming work later

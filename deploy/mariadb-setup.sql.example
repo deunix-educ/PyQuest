@@ -1,5 +1,8 @@
+-- Méthode manuelle. Le plus simple est ./deploy/db_setup.sh (mot de passe généré et enregistré tout seul).
+-- Si tu utilises ce fichier : COPIE-LE HORS du dépôt (cp deploy/mariadb-setup.sql.example /root/pyquest.sql) avant de
+-- mettre un vrai mot de passe, sinon le dépôt est modifié et server_update.sh refuse de continuer.
 -- Base et utilisateur dédiés à PyQuest sur le MariaDB existant (MariaDB 10.5 ou plus).
--- À exécuter en administrateur : sudo mariadb < deploy/mariadb-setup.sql   (après avoir remplacé le mot de passe).
+-- À exécuter en administrateur : mariadb -u root -p < /root/pyquest.sql   (après avoir remplacé le mot de passe).
 -- Le mot de passe va ensuite dans /etc/pyquest/env (PYQUEST_DB_PASSWORD).
 CREATE DATABASE IF NOT EXISTS pyquest CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS 'pyquest'@'localhost' IDENTIFIED BY 'REMPLACER-PAR-UN-MOT-DE-PASSE-LONG';

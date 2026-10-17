@@ -101,8 +101,9 @@ fonctionne entièrement sans lui.
 
 `./deploy/server_setup.sh` (voir ci-dessus) fait l'essentiel ; voici ce qu'il met en place, et ce qui reste à faire à la main.
 
-1. **Base de données : MariaDB** (ou MySQL ; Django 5.2 exige MariaDB 10.5 ou plus), à créer **à la main** avec une base et
-   un utilisateur dédiés (`utf8mb4`) : adapte puis exécute `deploy/mariadb-setup.sql.example` (`mariadb < …`).
+1. **Base de données : MariaDB** (ou MySQL ; Django 5.2 exige MariaDB 10.5 ou plus), avec une base et un utilisateur dédiés
+   (`utf8mb4`) : `./deploy/db_setup.sh` les crée et enregistre le mot de passe généré (méthode manuelle :
+   `deploy/mariadb-setup.sql.example`, à copier hors du dépôt).
 2. **Environnement Python** dans le dépôt (`/opt/PyQuest/.venv-prod`), avec `backend/requirements-prod.txt` (Django,
    gunicorn, `mysqlclient` qui se compile : paquets `pkg-config libmariadb-dev build-essential python3-dev`).
 3. **Variables d'environnement** dans `/etc/pyquest/env` (droits 640, `root:pyquest`, jamais commité ; modèle :

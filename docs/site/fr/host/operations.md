@@ -20,12 +20,11 @@ du dépôt** (nom du dossier : `PyQuest`). Les scripts sont testés sans serveur
 | 1 | `git clone git@github.com:deunix-educ/PyQuest.git /opt/PyQuest && cd /opt/PyQuest` | le code, dans un dossier nommé `PyQuest` hors de `/root` et `/home` |
 | 2 | `./deploy/server_setup.sh --domain pyquest.example.org --dry-run` | **simulation** : rien n'est écrit |
 | 3 | `./deploy/server_setup.sh --domain pyquest.example.org --certbot toi@mail` | paquets, utilisateur `pyquest`, dossiers, environnement Python, `/etc/pyquest/env` (clé secrète générée), service systemd, nginx, certificat |
-| 4 | adapter puis `mariadb < deploy/mariadb-setup.sql.example` | base `pyquest` et son utilisateur |
-| 5 | mettre le mot de passe de la base dans `/etc/pyquest/env` (`PYQUEST_DB_PASSWORD`) | le service pourra se connecter |
-| 6 | `systemctl enable --now pyquest` | migrations et statiques appliqués au démarrage |
-| 7 | `./scripts/server_manage.sh createsuperuser` | premier administrateur |
-| 8 | `./scripts/server_update.sh` | le site est construit, publié, contrôlé |
-| 9 | `./scripts/vps_doctor.sh` | tout est « ok » |
+| 4 | `./deploy/db_setup.sh` | demande le mot de passe **administrateur de MariaDB**, crée la base `pyquest` et son utilisateur, génère un mot de passe et l'écrit dans `/etc/pyquest/env` |
+| 5 | `systemctl enable --now pyquest` | migrations et statiques appliqués au démarrage |
+| 6 | `./scripts/server_manage.sh createsuperuser` | premier administrateur |
+| 7 | `./scripts/server_update.sh` | le site est construit, publié, contrôlé |
+| 8 | `./scripts/vps_doctor.sh` | tout est « ok » |
 
 Puis, dans un navigateur : le niveau 03 (`input()`), `/author.html` (renvoie vers la connexion), `/api/admin/`
 (administration), et **Réglages → Synchronisation → Activer**.
@@ -98,6 +97,8 @@ une expiration proche.
 | 502 sur `/api/` | service arrêté | `systemctl status pyquest` |
 | 503 sur la connexion | limite de débit nginx dépassée | attendre une minute |
 | connexion refusée « Trop d'essais » | 5 échecs en 15 minutes | attendre 15 minutes |
+| `ERROR 1045 Access denied for user 'root'` | le compte `root` de MariaDB exige un mot de passe | `./deploy/db_setup.sh` le demande ; autre compte administrateur : `--admin-user nom` |
+| `server_update.sh` : « modifications locales » | un fichier du dépôt a été édité sur le serveur | `git status` ; `git checkout -- fichier` (les réglages vivent dans `/etc/pyquest/env`, pas dans le dépôt) |
 | `server_setup.sh` : « pyquest ne peut pas lire » | dépôt dans un dossier non accessible | cloner sous `/opt` |
 
 ## Reprendre le travail plus tard

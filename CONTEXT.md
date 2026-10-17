@@ -56,13 +56,14 @@ seul le dossier du dépôt est `PyQuest`.
 sur le VPS ou HTTPS). Il exécute lui-même les commandes ; ne pas supposer d'accès SSH.
 
 **Feuille de route** (détail et dépannage : `docs/site/fr/host/operations.md`), en root sur le VPS : `git clone` →
-`./deploy/server_setup.sh --domain … --dry-run` puis `--certbot mail` → base MariaDB (`deploy/mariadb-setup.sql.example`) +
-mot de passe dans `/etc/pyquest/env` → `systemctl enable --now pyquest` → `./scripts/server_manage.sh createsuperuser` →
+`./deploy/server_setup.sh --domain … --dry-run` puis `--certbot mail` → `./deploy/db_setup.sh` (base MariaDB + mot de
+passe dans `/etc/pyquest/env`) → `systemctl enable --now pyquest` → `./scripts/server_manage.sh createsuperuser` →
 `./scripts/server_update.sh` → `./scripts/vps_doctor.sh`.
 
 | Outil (sur le VPS, en root, dans le clone) | Rôle | Testé |
 |---|---|---|
 | `deploy/server_setup.sh` | première installation idempotente (`--dry-run`) | arguments et dry-run seulement |
+| `deploy/db_setup.sh` | base + utilisateur MariaDB, mot de passe généré dans `/etc/pyquest/env` (le mot de passe admin MariaDB est demandé) | faux `mariadb` |
 | `scripts/server_update.sh` (`--rollback`, `--dry-run`, `--no-*`) | git pull --ff-only, build, publication atomique, pip, redémarrage, contrôle | dossiers temporaires (`tests/deploy/test_server_scripts.sh`) |
 | `scripts/server_manage.sh` | `manage.py` de production (lit `/etc/pyquest/env` sans `source`) | faux Python |
 | `scripts/vps_doctor.sh` | diagnostic en lecture seule | exécution locale |

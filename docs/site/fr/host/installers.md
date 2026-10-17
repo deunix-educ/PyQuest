@@ -72,8 +72,14 @@ dix ans) ne change pas.
   distribuer : seuls `ca.crt` et la page `/ca` sont publics.
 - **Comptes** : les élèves n'ont pas de compte (la progression reste dans leur navigateur, la synchronisation est
   facultative). Les enseignants-auteurs se créent dans `https://pyquest.lycee.local/api/admin/`.
-- **Postes partagés** : la progression est enregistrée par navigateur et par session ; sur un poste commun, utiliser un
-  profil de navigateur par élève, ou la sauvegarde / synchronisation de la progression.
+- **Postes partagés : un profil de navigateur par élève.** La progression est enregistrée dans le navigateur, par profil.
+  Le plus simple est une **session par élève** (Windows ou Linux), chacun ayant ainsi son profil Chrome, Edge ou Firefox ;
+  si les sessions sont sur un profil itinérant (dossier personnel sur le réseau), la progression suit l'élève d'un poste à
+  l'autre. Sans session individuelle, créer un profil de navigateur par élève (Chrome : icône de profil › *Ajouter* ; Firefox :
+  `about:profiles`). Un seul profil partagé par toute la classe mélangerait les progressions, et la fonction « Effacer »
+  des données du navigateur les supprimerait.
+- **Si l'élève change de poste sans profil itinérant** : la **synchronisation** (Réglages › Synchronisation) relie les
+  appareils par un code secret que l'élève note ; la sauvegarde en fichier (Réglages › Sauvegarde) sert de secours.
 - **Mises à jour** : `cd /opt/PyQuest && git pull && ./scripts/server_update.sh` (accès à Internet requis seulement pour
   `git pull` et un éventuel nouveau moteur Python).
 - **Diagnostic** : `./scripts/vps_doctor.sh` (reconnaît l'installation intranet : validité du certificat, tâche de

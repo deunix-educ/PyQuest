@@ -72,8 +72,14 @@ change.
   `ca.crt` and the `/ca` page are public.
 - **Accounts**: students have no account (progress stays in their browser, synchronisation is optional). Teacher-authors
   are created in `https://pyquest.school.lan/api/admin/`.
-- **Shared computers**: progress is stored per browser and per session; on a shared computer, use one browser profile per
-  student, or the progress backup / synchronisation.
+- **Shared computers: one browser profile per student.** Progress is stored in the browser, per profile. The simplest
+  setup is **one user session per student** (Windows or Linux), so each has their own Chrome, Edge or Firefox profile; if
+  sessions use a roaming profile (home folder on the network), progress follows the student from computer to computer.
+  Without individual sessions, create one browser profile per student (Chrome: profile icon › *Add*; Firefox:
+  `about:profiles`). One profile shared by the whole class would mix progress, and clearing the browser data would delete
+  it.
+- **If a student changes computer without a roaming profile**: **synchronisation** (Settings › Synchronisation) links
+  devices with a secret code the student keeps; the file backup (Settings › Backup) is the fallback.
 - **Updates**: `cd /opt/PyQuest && git pull && ./scripts/server_update.sh` (Internet access is only needed for `git pull`
   and a possible new Python engine).
 - **Diagnosis**: `./scripts/vps_doctor.sh` (recognises the intranet installation: certificate validity, renewal task,

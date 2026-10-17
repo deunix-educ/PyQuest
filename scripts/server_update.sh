@@ -91,7 +91,10 @@ fi
 
 if [[ -x "${VENV}/bin/pip" ]]; then
     step "Dépendances du backend"
-    run "${VENV}/bin/pip" install --quiet -r "${REPO}/backend/requirements-prod.txt"
+    # SQLite (installation intranet) : rien à compiler ; MariaDB : pilote mysqlclient en plus.
+    REQUIREMENTS=requirements-prod.txt
+    [[ "$(grep -E '^PYQUEST_DB_ENGINE=' "${ENV_FILE}" 2>/dev/null | tail -n1 | cut -d= -f2- || true)" != sqlite ]] || REQUIREMENTS=requirements-server.txt
+    run "${VENV}/bin/pip" install --quiet -r "${REPO}/backend/${REQUIREMENTS}"
 else
     echo "(pas d'environnement ${VENV} : backend non installé, ./deploy/server_setup.sh d'abord)"
     RESTART=0
@@ -108,8 +111,13 @@ fi
 
 if [[ "${CHECK}" == 1 && "${DRY_RUN}" == 0 && -r "${ENV_FILE}" ]]; then
     ORIGIN="$(grep -E '^PYQUEST_ORIGIN=' "${ENV_FILE}" | tail -n1 | cut -d= -f2- || true)"
+    ORIGIN="${ORIGIN%%,*}"   # plusieurs noms possibles (intranet) : on contrôle le premier
     if [[ -n "${ORIGIN}" ]]; then
         step "Contrôle du site publié (${ORIGIN})"
+        # Intranet : certificat de l'autorité interne, que curl ne connaît pas par défaut.
+        if [[ "$(grep -E '^PYQUEST_TLS=' "${ENV_FILE}" | tail -n1 | cut -d= -f2- || true)" == internal ]]; then
+            export CURL_CA_BUNDLE="$(grep -E '^PYQUEST_TLS_DIR=' "${ENV_FILE}" | tail -n1 | cut -d= -f2-)/ca.crt"
+        fi
         "${REPO}/scripts/check_deploy.sh" "${ORIGIN}" || echo "Des contrôles ont échoué : voir ci-dessus (retour arrière : $0 --rollback)." >&2
     fi
 fi

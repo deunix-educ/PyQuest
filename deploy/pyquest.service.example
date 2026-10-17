@@ -24,12 +24,12 @@ Environment=PYTHONDONTWRITEBYTECODE=1
 Restart=on-failure
 RestartSec=3
 
-# Durcissement : le service n'écrit que dans les statiques et n'a accès à rien d'autre.
+# Durcissement : le service n'écrit que dans les statiques et, avec SQLite, dans /var/lib/pyquest (ignoré s'il n'existe pas).
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/var/www/pyquest/static
+ReadWritePaths=/var/www/pyquest/static -/var/lib/pyquest
 ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictSUIDSGID=true

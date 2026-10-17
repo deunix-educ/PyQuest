@@ -1,6 +1,6 @@
 # Going live and operations
 
-Procedure to install PyQuest on a VPS, then run it. Everything is done **on the VPS, as root, from a clone of the
+The installers ([VPS and intranet](installers.md)) automate everything below. Procedure to install PyQuest on a VPS, then run it. Everything is done **on the VPS, as root, from a clone of the
 repository** (folder name: `PyQuest`). The scripts are tested without a server; what touches the VPS itself could not be
 tried for real before the first installation: start with `--dry-run` and `vps_doctor.sh`.
 

@@ -1,5 +1,4 @@
-# Production : -r requirements.txt, serveur d'application et pilote MariaDB/MySQL.
+# Production avec MariaDB/MySQL : requirements-server.txt et le pilote mysqlclient.
 # mysqlclient se compile : sur Debian/Ubuntu, `sudo apt install pkg-config libmariadb-dev build-essential python3-dev`.
--r requirements.txt
-gunicorn>=22.0
+-r requirements-server.txt
 mysqlclient>=2.2

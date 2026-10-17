@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PyQuest — certificat du réseau / network certificate</title>
+<style>
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; line-height: 1.5; }
+body { max-width: 46rem; margin: 0 auto; padding: 1rem 16px 3rem; }
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.1rem; margin-top: 1.5rem; }
+a.button { display: inline-block; padding: 0.6rem 1rem; border-radius: 0.4rem; background: #1f4eb4; color: #fff; text-decoration: none; font-weight: 600; }
+a.button:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
+code { background: rgba(127, 127, 127, 0.2); padding: 0 0.25rem; border-radius: 0.2rem; }
+</style>
+</head>
+<body>
+<main>
+<h1>PyQuest — certificat du réseau</h1>
+<p>Ce serveur utilise le certificat de l'établissement, que votre navigateur ne connaît pas encore. À faire <strong>une seule fois par poste</strong> (ou une fois pour tous par l'administrateur du réseau) :</p>
+<p><a class="button" href="/pyquest-ca.crt" download>Télécharger le certificat (pyquest-ca.crt)</a></p>
+<h2>Windows (Chrome, Edge)</h2>
+<p>Ouvrir le fichier, <em>Installer le certificat</em>, <em>Ordinateur local</em>, <em>Placer tous les certificats dans le magasin suivant</em> : <em>Autorités de certification racines de confiance</em>. Redémarrer le navigateur.</p>
+<h2>Firefox</h2>
+<p><em>Paramètres</em> › <em>Vie privée et sécurité</em> › <em>Afficher les certificats</em> › <em>Autorités</em> › <em>Importer</em>, cocher « Confirmer cette AC pour identifier des sites web ».</p>
+<h2>Linux</h2>
+<p>Debian/Ubuntu : copier le fichier dans <code>/usr/local/share/ca-certificates/pyquest-ca.crt</code> puis <code>sudo update-ca-certificates</code>. Chromium : <code>certutil -d sql:$HOME/.pki/nssdb -A -t "C,," -n PyQuest -i pyquest-ca.crt</code>.</p>
+<h2>Android, iPhone, iPad</h2>
+<p>Ouvrir le fichier et l'installer dans les réglages (Android : <em>Sécurité › Installer un certificat CA</em> ; iOS : installer le profil, puis <em>Réglages › Général › Informations › Réglages des certificats</em> : activer la confiance totale).</p>
+<h2>Administrateur du réseau</h2>
+<p>Le déploiement groupé (stratégie de groupe Windows, gestion des postes) évite toute manipulation : importer <code>pyquest-ca.crt</code> dans les autorités racines de confiance des postes.</p>
+<hr>
+<h1 lang="en">PyQuest — network certificate</h1>
+<p lang="en">This server uses your school's certificate, which browsers do not know yet. Do this <strong>once per computer</strong> (or once for all by the network administrator): download <a href="/pyquest-ca.crt" download>pyquest-ca.crt</a> and add it to the trusted root certificate authorities — Windows: open the file › <em>Install certificate</em> › <em>Local machine</em> › <em>Trusted Root Certification Authorities</em>; Firefox: <em>Settings › Privacy &amp; Security › View certificates › Authorities › Import</em>; Linux: <code>/usr/local/share/ca-certificates/</code> then <code>sudo update-ca-certificates</code>; Android/iOS: open the file and install it in the settings. Then restart the browser and open the PyQuest address.</p>
+</main>
+</body>
+</html>

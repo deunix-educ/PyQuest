@@ -1,6 +1,6 @@
 # Mise en service et exploitation
 
-Marche à suivre pour installer PyQuest sur un VPS, puis l'exploiter. Tout se fait **sur le VPS, en root, depuis un clone
+Les installateurs ([VPS et intranet](installers.md)) automatisent tout ce qui suit. Marche à suivre pour installer PyQuest sur un VPS, puis l'exploiter. Tout se fait **sur le VPS, en root, depuis un clone
 du dépôt** (nom du dossier : `PyQuest`). Les scripts sont testés sans serveur ; ce qui touche le VPS lui-même n'a pas pu
 être essayé en réel avant la première installation : commence par `--dry-run` et `vps_doctor.sh`.
 

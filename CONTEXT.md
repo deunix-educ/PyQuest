@@ -67,7 +67,9 @@ passe dans `/etc/pyquest/env`) → `systemctl enable --now pyquest` → `./scrip
 | `deploy/db_setup.sh` | base + utilisateur MariaDB, mot de passe généré dans `/etc/pyquest/env` (le mot de passe admin MariaDB est demandé) | faux `mariadb` |
 | `scripts/server_update.sh` (`--rollback`, `--dry-run`, `--no-*`) | git pull --ff-only, build, publication atomique, pip, redémarrage, contrôle | dossiers temporaires (`tests/deploy/test_server_scripts.sh`) |
 | `scripts/server_manage.sh` | `manage.py` de production (lit `/etc/pyquest/env` sans `source`) | faux Python |
-| `scripts/vps_doctor.sh` | diagnostic en lecture seule | exécution locale |
+| `scripts/vps_doctor.sh` | diagnostic en lecture seule (reconnaît l'installation intranet) | exécution locale |
+| `deploy/install_vps.sh` | installateur VPS tout-en-un : contrôles, server_setup, MariaDB, service, admin, publication, cron | `--dry-run` + `tests/deploy/test_intranet.sh` |
+| `deploy/install_intranet.sh` | installateur réseau interne (lycée) : autorité de certification interne (`scripts/intranet_cert.sh`), SQLite (`PYQUEST_DB_ENGINE=sqlite`), vhost `nginx/pyquest-intranet.conf.example`, page `/ca` (`deploy/intranet-ca.html`), cron certificat mensuel + sauvegarde | vrai openssl et vrai nginx (`tests/deploy/test_intranet.sh`) ; **jamais lancé sur un vrai serveur** |
 | `scripts/backup_db.sh` | sauvegarde MariaDB vérifiée + rotation | faux `mariadb-dump` |
 | `scripts/check_deploy.sh URL` | contrôle du site publié | serveur local et vrai nginx (`make dev-nginx`) |
 | `deploy/pyquest.service.example`, `pyquest.env.example`, `mariadb-setup.sql.example` | unité systemd (migrate + collectstatic au démarrage), variables, base | syntaxe de l'unité |

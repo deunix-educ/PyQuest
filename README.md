@@ -65,6 +65,9 @@ secret (sans compte) si le backend Django est déployé sur le même domaine, de
 Scripts testés d'installation, de mise à jour par versions atomiques, de diagnostic et de sauvegarde : voir
 [docs/site/fr/host/operations.md](docs/site/fr/host/operations.md) (`./deploy/server_setup.sh`, `./scripts/server_update.sh`,
 `./scripts/vps_doctor.sh`, à lancer en root sur le VPS depuis le clone `/opt/PyQuest`).
+Installation en une commande : `./deploy/install_vps.sh --domain …` (VPS public, Let's Encrypt, MariaDB) ou
+`./deploy/install_intranet.sh --host …` (réseau de lycée : autorité de certification interne, SQLite), voir
+[docs/site/fr/host/installers.md](docs/site/fr/host/installers.md).
 Essai local fidèle à la production : `make dev-nginx`.
 
 ## Contribuer

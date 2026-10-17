@@ -1,0 +1,46 @@
+# Vhost PyQuest pour un réseau interne (lycée, entreprise) : HTTPS avec l'autorité de certification interne créée par
+# scripts/intranet_cert.sh (pas de Let's Encrypt : le serveur n'a pas de nom public). Installé par deploy/install_intranet.sh,
+# qui remplace __SERVER_NAMES__ (noms et adresses IP du serveur) et les chemins.
+# HTTPS est indispensable même en intranet : sans lui le navigateur désactive le service worker (hors ligne, installation)
+# et l'isolation COOP/COEP nécessaire à l'arrêt des boucles infinies et à input().
+# Les types MIME, en-têtes, éditeur protégé et API sont dans snippets/pyquest-locations.conf (partagé avec le VPS).
+
+limit_req_zone $binary_remote_addr zone=pyquest_sync:10m rate=30r/m;
+limit_req_zone $binary_remote_addr zone=pyquest_login:10m rate=6r/m;
+limit_req_zone $binary_remote_addr zone=pyquest_admin:10m rate=60r/m;
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    # Les postes téléchargent ici l'autorité de certification (avant de lui faire confiance) : en HTTP, par nécessité.
+    location = /pyquest-ca.crt {
+        alias __WEB_ROOT__/ca/pyquest-ca.crt;
+        default_type application/x-x509-ca-cert;
+        add_header Content-Disposition 'attachment; filename="pyquest-ca.crt"';
+    }
+    location = /ca {
+        alias __WEB_ROOT__/ca/index.html;
+        default_type text/html;
+    }
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    http2 on;   # nginx >= 1.25.1 ; avant : « listen 443 ssl http2; » ci-dessus
+    server_name __SERVER_NAMES__;
+
+    ssl_certificate     __TLS_DIR__/server.crt;
+    ssl_certificate_key __TLS_DIR__/server.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    root __WEB_ROOT__/current;
+    index index.html;
+
+    include snippets/pyquest-locations.conf;
+}

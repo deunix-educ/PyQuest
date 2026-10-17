@@ -202,6 +202,8 @@ if [[ "${DRY_RUN}" == 0 ]] && systemctl is-active --quiet pyquest 2>/dev/null; t
     systemctl restart pyquest
 fi
 
+# Lancé par deploy/install_vps.sh, qui enchaîne lui-même les étapes suivantes : pas de rappel.
+[[ -z "${PYQUEST_FROM_INSTALLER:-}" ]] || exit 0
 cat <<NEXT
 
 ==> Installation du serveur terminée. Restent, dans l'ordre :

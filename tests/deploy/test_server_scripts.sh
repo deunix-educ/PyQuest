@@ -43,6 +43,23 @@ FAKE_DUMP_EMPTY=1 "${ROOT}/scripts/backup_db.sh" >/dev/null 2>&1 && fail "une sa
 echo "PYQUEST_DB_NAME=x" > "${WORK}/env-incomplete"
 PYQUEST_ENV_FILE="${WORK}/env-incomplete" "${ROOT}/scripts/backup_db.sh" >/dev/null 2>&1 && fail "variables incomplètes acceptées"
 
+# Base SQLite (installation intranet) : copie cohérente et compressée, restaurable, rotation, base absente refusée.
+python3 - "${WORK}/live.sqlite3" <<'PY'
+import sqlite3, sys
+db = sqlite3.connect(sys.argv[1])
+db.execute("create table sync_syncprofile (id integer primary key, token_hash text)")
+db.executemany("insert into sync_syncprofile (token_hash) values (?)", [("h%03d" % i * 3,) for i in range(200)])
+db.commit()
+PY
+printf 'PYQUEST_DB_ENGINE=sqlite\nPYQUEST_DB_PATH=%s\n' "${WORK}/live.sqlite3" > "${WORK}/env-sqlite"
+rm -rf "${WORK}/sqlite-backups"
+for _ in 1 2 3; do sleep 1; PYQUEST_ENV_FILE="${WORK}/env-sqlite" PYQUEST_BACKUP_DIR="${WORK}/sqlite-backups" "${ROOT}/scripts/backup_db.sh" >/dev/null; done
+[[ "$(ls "${WORK}/sqlite-backups" | wc -l)" == 2 ]] || fail "la rotation SQLite doit garder 2 sauvegardes"
+gunzip -c "$(ls "${WORK}/sqlite-backups"/*.sqlite.gz | sort | tail -n1)" > "${WORK}/restored.sqlite3"
+[[ "$(python3 -c "import sqlite3,sys; print(sqlite3.connect(sys.argv[1]).execute('select count(*) from sync_syncprofile').fetchone()[0])" "${WORK}/restored.sqlite3")" == 200 ]] || fail "la sauvegarde SQLite doit être restaurable"
+printf 'PYQUEST_DB_ENGINE=sqlite\nPYQUEST_DB_PATH=%s\n' "${WORK}/absente.sqlite3" > "${WORK}/env-sqlite-missing"
+PYQUEST_ENV_FILE="${WORK}/env-sqlite-missing" PYQUEST_BACKUP_DIR="${WORK}/sqlite-backups" "${ROOT}/scripts/backup_db.sh" >/dev/null 2>&1 && fail "une base SQLite absente doit être refusée"
+
 # ---- server_setup.sh : arguments et --dry-run -------------------------------------------------------------------
 SETUP="${ROOT}/deploy/server_setup.sh"
 "${SETUP}" --domain "pas un domaine" --dry-run >/dev/null 2>&1 && fail "domaine invalide accepté"

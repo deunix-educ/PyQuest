@@ -34,6 +34,10 @@ A complete nginx configuration example (MIME types, headers, cache, API) is prov
 
 ## Installing on a VPS
 
+!!! tip "One command"
+    `./deploy/install_vps.sh` (public VPS) and `./deploy/install_intranet.sh` (school network, no public domain) do
+    everything end to end: see [The installers](installers.md). What follows details the steps.
+
 The server is set up **from a clone of the repository, directly on the VPS, as root**: the site is built in place,
 then published as successive versions with an atomic switch of the `current` link. The repository is cloned under the
 name `PyQuest` (for example `/opt/PyQuest`, outside `/root` and `/home`).

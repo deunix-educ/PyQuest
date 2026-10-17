@@ -35,8 +35,9 @@ check-deploy: ## Contrôle un site publié (URL=https://domaine)
 vps-doctor: ## Diagnostic en lecture seule du serveur (à lancer sur le VPS, depuis le dépôt cloné)
 	./scripts/vps_doctor.sh
 
-test-deploy: ## Teste les scripts d'installation et d'exploitation du serveur (dossiers temporaires, faux mariadb-dump)
+test-deploy: ## Teste les scripts d'installation (VPS, intranet) et d'exploitation : dossiers temporaires, faux mariadb, vrai openssl et nginx
 	bash tests/deploy/test_server_scripts.sh
+	bash tests/deploy/test_intranet.sh
 
 DOCS_VENV := .venv-docs
 

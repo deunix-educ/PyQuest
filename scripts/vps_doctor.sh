@@ -78,8 +78,14 @@ else
     ko "service pyquest inactif (systemctl enable --now pyquest ; journalctl -u pyquest -n 50)"
 fi
 
+ENGINE="$(grep -E '^PYQUEST_DB_ENGINE=' /etc/pyquest/env 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
+TLS_MODE="$(grep -E '^PYQUEST_TLS=' /etc/pyquest/env 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
 echo "Base de données"
-if command -v mariadb >/dev/null || command -v mysql >/dev/null; then
+if [[ "${ENGINE}" == sqlite ]]; then
+    DB_PATH="$(grep -E '^PYQUEST_DB_PATH=' /etc/pyquest/env | tail -n1 | cut -d= -f2-)"
+    if [[ -f "${DB_PATH}" ]]; then ok "base SQLite présente (${DB_PATH}, $(du -h "${DB_PATH}" | cut -f1))"; else ko "base SQLite absente : ${DB_PATH} (créée au démarrage du service)"; fi
+    ls /var/backups/pyquest/pyquest-*.sqlite.gz >/dev/null 2>&1 && ok "sauvegarde la plus récente : $(ls -1 /var/backups/pyquest/pyquest-*.sqlite.gz | sort | tail -n1)" || info "aucune sauvegarde dans /var/backups/pyquest (cron : /etc/cron.d/pyquest-backup)"
+elif command -v mariadb >/dev/null || command -v mysql >/dev/null; then
     ok "client MariaDB/MySQL présent"
     systemctl is-active --quiet mariadb 2>/dev/null && ok "service mariadb actif" || info "service mariadb non local ou inactif"
 else
@@ -87,6 +93,26 @@ else
 fi
 
 echo "Certificat"
+if [[ "${TLS_MODE}" == internal ]]; then
+    TLS_DIR="$(grep -E '^PYQUEST_TLS_DIR=' /etc/pyquest/env | tail -n1 | cut -d= -f2-)"
+    TLS_DIR="${TLS_DIR:-/etc/pyquest/tls}"
+    if as_root test -r "${TLS_DIR}/server.crt"; then
+        if as_root openssl verify -CAfile "${TLS_DIR}/ca.crt" "${TLS_DIR}/server.crt" >/dev/null 2>&1; then ok "certificat du serveur signé par l'autorité interne"; else ko "le certificat du serveur n'est pas signé par ${TLS_DIR}/ca.crt"; fi
+        if as_root openssl x509 -checkend $((30 * 86400)) -noout -in "${TLS_DIR}/server.crt" >/dev/null 2>&1; then
+            ok "certificat du serveur valide encore plus de 30 jours"
+        else
+            ko "certificat du serveur expiré ou proche de l'expiration : ${REPO}/scripts/intranet_cert.sh --hosts $(as_root cat "${TLS_DIR}/hosts.txt" 2>/dev/null) --dir ${TLS_DIR} puis systemctl reload nginx"
+        fi
+        as_root openssl x509 -checkend $((365 * 86400)) -noout -in "${TLS_DIR}/ca.crt" >/dev/null 2>&1 && ok "autorité interne valide plus d'un an" || info "l'autorité interne expire dans moins d'un an : prévoir son remplacement (et la reconfiguration des postes)"
+    else
+        info "certificat de l'autorité interne non lisible sans root (${TLS_DIR})"
+    fi
+    [[ -f /etc/cron.d/pyquest-cert ]] && ok "renouvellement mensuel du certificat planifié (cron)" || ko "tâche /etc/cron.d/pyquest-cert absente : relancer ./deploy/install_intranet.sh"
+    [[ -f "${WEB}/ca/pyquest-ca.crt" ]] && ok "certificat de l'autorité téléchargeable (/pyquest-ca.crt)" || ko "${WEB}/ca/pyquest-ca.crt absent"
+    echo
+    if [[ "${FAILED}" == 0 ]]; then echo "Aucun problème détecté."; else echo "Des points demandent une action (lignes ÉCHEC)." >&2; fi
+    exit "${FAILED}"
+fi
 domain="${SITE_HOST}"
 [[ -d "/etc/letsencrypt/live/${domain}" ]] || domain="$(ls /etc/letsencrypt/live 2>/dev/null | grep -v README | head -n1 || true)"
 if [[ -n "${domain}" ]]; then

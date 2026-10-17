@@ -65,6 +65,9 @@ Details (in French): [docs/design/09-sync.md](docs/design/09-sync.md).
 Tested scripts for installation, atomic-release deployment, diagnostics and backup: see
 [docs/site/en/host/operations.md](docs/site/en/host/operations.md) (`./deploy/server_setup.sh`, `./scripts/server_update.sh`,
 `./scripts/vps_doctor.sh`, run as root on the VPS from the `/opt/PyQuest` clone).
+One-command installation: `./deploy/install_vps.sh --domain …` (public VPS, Let's Encrypt, MariaDB) or
+`./deploy/install_intranet.sh --host …` (school network: internal certificate authority, SQLite), see
+[docs/site/en/host/installers.md](docs/site/en/host/installers.md).
 Production-faithful local test: `make dev-nginx`.
 
 ## Contributing

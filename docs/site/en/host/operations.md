@@ -65,7 +65,7 @@ service if it was running). See the ports in use: `ss -ltnp`.
 | go back to the previous site version | `./scripts/server_update.sh --rollback` |
 | simulate an update | `./scripts/server_update.sh --dry-run` |
 | see the server state | `./scripts/vps_doctor.sh` |
-| check the published site | `./scripts/check_deploy.sh https://domain` |
+| check the published site | `./scripts/check_deploy.sh https://domain` (with the backend: `author.html` must answer **302** to the login, and so must the administration; without a backend, `author.html` is public) |
 | manage authors | `https://domain/api/admin/` or `./scripts/server_manage.sh create_author ada` |
 | read the logs | `journalctl -u pyquest -f`; `/var/log/nginx/error.log` |
 

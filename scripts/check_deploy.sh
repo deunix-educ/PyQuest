@@ -41,7 +41,26 @@ expect_header "${BASE}/service-worker.js" Cache-Control no-cache
 expect_header "${BASE}/css/base.css" Content-Type text/css
 expect_header "${BASE}/manifest.webmanifest" Content-Type manifest+json
 expect_status "${BASE}/levels/manifest.json" 200
-expect_status "${BASE}/author.html" 200
+
+# Éditeur de niveaux : derrière le backend il est protégé (302 vers la connexion) ; sans backend il est public (200).
+author_code="$(status "${BASE}/author.html")"
+author_location="$(header "${BASE}/author.html" Location)"
+if [[ "${author_code}" == 302 && "${author_location}" == *"/api/auth/login/"* ]]; then
+    ok "author.html protégé par connexion (302 vers /api/auth/login/)"
+    expect_status "${BASE}/api/auth/login/" 200
+    expect_header "${BASE}/api/auth/login/" Content-Type text/html
+    # Le contrôle interne réservé à nginx ne doit pas être joignable de l'extérieur.
+    expect_status "${BASE}/api/auth/check/" 404
+    # Administration : redirige vers sa connexion ; ses fichiers statiques sont servis par nginx.
+    admin_code="$(status "${BASE}/api/admin/")"
+    if [[ "${admin_code}" == 302 ]]; then ok "administration protégée (302 vers sa connexion)"; else ko "/api/admin/ : 302 attendu, reçu ${admin_code}"; fi
+    expect_status "${BASE}/api/static/admin/css/base.css" 200
+    expect_header "${BASE}/api/static/admin/css/base.css" Content-Type text/css
+elif [[ "${author_code}" == 200 ]]; then
+    info "author.html est PUBLIC (200) : normal sans backend Django, sinon l'accès authentifié n'est pas actif"
+else
+    ko "author.html : 200 (public) ou 302 vers la connexion attendus, reçu ${author_code}"
+fi
 
 if [[ "${BASE}" == https://* ]]; then
     redirect="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "http://${BASE#https://}/")"

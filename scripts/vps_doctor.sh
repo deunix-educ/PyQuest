@@ -87,7 +87,8 @@ else
 fi
 
 echo "Certificat"
-domain="$(ls /etc/letsencrypt/live 2>/dev/null | grep -v README | head -n1 || true)"
+domain="${SITE_HOST}"
+[[ -d "/etc/letsencrypt/live/${domain}" ]] || domain="$(ls /etc/letsencrypt/live 2>/dev/null | grep -v README | head -n1 || true)"
 if [[ -n "${domain}" ]]; then
     end="$(as_root openssl x509 -enddate -noout -in "/etc/letsencrypt/live/${domain}/fullchain.pem" 2>/dev/null | cut -d= -f2)"
     if [[ -n "${end}" ]]; then
@@ -96,11 +97,17 @@ if [[ -n "${domain}" ]]; then
     else
         info "certificat ${domain} non lisible sans root"
     fi
+    if [[ -f "/etc/letsencrypt/renewal/${domain}.conf" ]]; then
+        ok "configuration de renouvellement certbot présente pour ${domain}"
+    else
+        ko "pas de configuration de renouvellement pour ${domain} (certificat obtenu hors certbot ?) : voir la documentation, section certificat"
+    fi
     if systemctl is-active --quiet certbot.timer 2>/dev/null || [[ -f /etc/cron.d/certbot ]]; then
         ok "renouvellement automatique du certificat (certbot.timer ou cron)"
     else
         ko "renouvellement automatique absent : « systemctl enable --now certbot.timer » (puis « certbot renew --dry-run » pour tester)"
     fi
+    [[ -x /etc/letsencrypt/renewal-hooks/deploy/pyquest-reload-nginx ]] && ok "nginx rechargé après chaque renouvellement" || ko "hook de rechargement nginx absent : relancer ./deploy/server_setup.sh --domain ${domain}"
 else
     info "aucun certificat Let's Encrypt trouvé"
 fi

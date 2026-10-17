@@ -87,6 +87,28 @@ gunzip < /var/backups/pyquest/pyquest-YYYYMMDD-HHMMSS.sql.gz | mariadb pyquest  
 
 Remember to move the backups off the VPS (copy to another machine).
 
+### Let's Encrypt certificate: issuing and renewal
+
+`server_setup.sh --certbot you@mail` obtains the certificate (*webroot* method, without stopping nginx), installs a
+**hook** that reloads nginx after each renewal and enables `certbot.timer` (automatic renewal, twice a day, effective in
+the last 30 days of validity). Checks:
+
+```bash
+certbot certificates               # domains, expiry dates, certificate path
+systemctl status certbot.timer     # the timer is "active (waiting)"
+certbot renew --dry-run            # dry run of the renewal, changing nothing
+```
+
+If the certificate was obtained **another way** (by hand, with another tool, or copied), it has no renewal configuration
+(`/etc/letsencrypt/renewal/<domain>.conf`) and will not renew: `vps_doctor.sh` flags it. To fix (port 80 must be
+reachable, the domain must point to the server):
+
+```bash
+certbot certonly --webroot -w /var/www/pyquest/letsencrypt -d pyquest.example.org --agree-tos -m you@mail
+./deploy/server_setup.sh --domain pyquest.example.org      # reinstalls the hook and the timer
+certbot renew --dry-run
+```
+
 ### Security updates
 
 `apt update && apt upgrade` regularly. After a Django upgrade, `./scripts/server_update.sh` reinstalls the dependencies and

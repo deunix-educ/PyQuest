@@ -53,6 +53,8 @@ echo "${out}" | grep -q "\[dry-run\] .*apt-get install" || fail "le dry-run doit
 echo "${out}" | grep -q "db_setup.sh" || fail "les étapes restantes (base de données) doivent être listées"
 echo "${out}" | grep -q "server_update.sh" || fail "la publication du site doit être indiquée"
 echo "${out}" | grep -q "vhost complet" || fail "le dry-run doit traiter nginx"
+echo "${out}" | grep -q "pyquest-reload-nginx" || fail "le dry-run doit annoncer le rechargement de nginx après renouvellement"
+echo "${out}" | grep -q "certbot.timer" || fail "le dry-run doit annoncer le minuteur certbot"
 echo "${out}" | grep -q "${ROOT}/.venv-prod" || fail "l'environnement Python doit être dans le dépôt cloné (.venv-prod)"
 # Port local du backend : --port validé, et premier port libre choisi si 8001 est occupé.
 "${SETUP}" --domain pyquest.example.org --port 80 --dry-run >/dev/null 2>&1 && fail "port privilégié accepté"

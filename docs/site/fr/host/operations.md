@@ -87,6 +87,28 @@ gunzip < /var/backups/pyquest/pyquest-AAAAMMJJ-HHMMSS.sql.gz | mariadb pyquest  
 
 Pense à sortir les sauvegardes du VPS (copie vers une autre machine).
 
+### Certificat Let's Encrypt : obtention et renouvellement
+
+`server_setup.sh --certbot adresse@mail` obtient le certificat (méthode *webroot*, sans arrêter nginx), installe un
+**hook** qui recharge nginx après chaque renouvellement et active `certbot.timer` (renouvellement automatique, deux fois
+par jour, effectif dans les 30 derniers jours de validité). Vérifications :
+
+```bash
+certbot certificates               # domaines, dates d'expiration, chemin du certificat
+systemctl status certbot.timer     # le minuteur est « active (waiting) »
+certbot renew --dry-run            # essai à blanc du renouvellement, sans rien changer
+```
+
+Si le certificat a été obtenu **autrement** (à la main, par un autre outil, ou copié), il n'a pas de configuration de
+renouvellement (`/etc/letsencrypt/renewal/<domaine>.conf`) et ne se renouvellera pas : `vps_doctor.sh` le signale.
+Corriger (le port 80 doit être joignable, le domaine doit pointer vers le serveur) :
+
+```bash
+certbot certonly --webroot -w /var/www/pyquest/letsencrypt -d pyquest.example.org --agree-tos -m toi@mail
+./deploy/server_setup.sh --domain pyquest.example.org      # réinstalle le hook et le minuteur
+certbot renew --dry-run
+```
+
 ### Mises à jour de sécurité
 
 `apt update && apt upgrade` régulièrement. Après une mise à jour de Django, `./scripts/server_update.sh` réinstalle les

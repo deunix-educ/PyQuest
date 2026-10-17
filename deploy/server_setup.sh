@@ -172,6 +172,31 @@ else
     echo "Pas de certificat : relance avec --certbot adresse@mail, ou obtiens-le toi-même, puis relance ce script."
 fi
 
+step "Renouvellement automatique du certificat (certbot)"
+HOOK_DIR=/etc/letsencrypt/renewal-hooks/deploy
+if [[ "${DRY_RUN}" == 1 ]]; then
+    echo "[dry-run] hook ${HOOK_DIR}/pyquest-reload-nginx (recharge nginx après chaque renouvellement)"
+    echo "[dry-run] systemctl enable --now certbot.timer (si l'unité existe)"
+else
+    # Sans rechargement, nginx continuerait de servir l'ancien certificat jusqu'à son expiration.
+    install -d "${HOOK_DIR}"
+    printf '#!/bin/sh\nsystemctl reload nginx\n' > "${HOOK_DIR}/pyquest-reload-nginx"
+    chmod 755 "${HOOK_DIR}/pyquest-reload-nginx"
+    if systemctl list-unit-files certbot.timer >/dev/null 2>&1 && systemctl list-unit-files certbot.timer | grep -q certbot.timer; then
+        systemctl enable --now certbot.timer
+        echo "minuteur certbot actif : $(systemctl is-active certbot.timer)"
+    elif [[ -f /etc/cron.d/certbot ]]; then
+        echo "renouvellement par cron (/etc/cron.d/certbot)"
+    else
+        echo "ATTENTION : ni minuteur ni cron certbot trouvés : le certificat ne se renouvellera pas tout seul." >&2
+    fi
+    if [[ -e "${CERT_DIR}/fullchain.pem" && ! -e "/etc/letsencrypt/renewal/${DOMAIN}.conf" ]]; then
+        echo "ATTENTION : le certificat de ${DOMAIN} n'a pas de configuration de renouvellement certbot (obtenu autrement ?)." >&2
+        echo "  Pour qu'il se renouvelle : certbot certonly --webroot -w ${WEB_ROOT}/letsencrypt -d ${DOMAIN} --keep-until-expiring --agree-tos -m adresse@mail" >&2
+    fi
+    echo "Essai à blanc du renouvellement : certbot renew --dry-run"
+fi
+
 if [[ "${DRY_RUN}" == 0 ]] && systemctl is-active --quiet pyquest 2>/dev/null; then
     step "Redémarrage du service (le port ou l'unité a pu changer)"
     systemctl restart pyquest

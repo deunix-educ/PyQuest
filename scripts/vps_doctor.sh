@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-# Diagnostic en LECTURE SEULE d'un serveur PyQuest, à lancer depuis ta machine :
-#   ssh utilisateur@vps.example.org 'bash -s' < scripts/vps_doctor.sh
-# (ou directement sur le VPS). Ne modifie rien et n'affiche aucun secret. Utile pour reprendre un déploiement.
+# Diagnostic en LECTURE SEULE d'un serveur PyQuest, à lancer SUR LE VPS (de préférence en root) depuis le dépôt cloné :
+#   cd /opt/PyQuest && ./scripts/vps_doctor.sh
+# Ne modifie rien et n'affiche aucun secret. Utile pour reprendre un déploiement.
 set -uo pipefail
 
 FAILED=0
+REPO="${PYQUEST_REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)}"
+[[ -f "${REPO}/backend/manage.py" ]] || REPO=/opt/PyQuest
+VENV="${REPO}/.venv-prod"
 ok() { printf '  ok     %s\n' "$1"; }
 ko() { printf '  ÉCHEC  %s\n' "$1"; FAILED=1; }
 info() { printf '  info   %s\n' "$1"; }
@@ -21,7 +24,7 @@ if command -v nginx >/dev/null; then
     ok "nginx ${version}"
     major="${version%%.*}"; minor="$(echo "${version}" | cut -d. -f2)"
     if (( major > 1 || (major == 1 && minor >= 25) )); then ok "http2 on; pris en charge"; else info "nginx < 1.25.1 : utiliser « listen 443 ssl http2; »"; fi
-    if as_root nginx -t >/dev/null 2>&1; then ok "configuration valide (nginx -t)"; else info "nginx -t non vérifiable ou en échec (droits root requis) : lance « sudo nginx -t »"; fi
+    if as_root nginx -t >/dev/null 2>&1; then ok "configuration valide (nginx -t)"; else info "nginx -t non vérifiable ou en échec (droits root requis) : lance « nginx -t »"; fi
     systemctl is-active --quiet nginx && ok "service nginx actif" || ko "service nginx inactif"
 else
     ko "nginx n'est pas installé"
@@ -30,20 +33,21 @@ fi
 [[ -f /etc/nginx/snippets/pyquest-author-headers.conf ]] && ok "extrait pyquest-author-headers.conf installé" || ko "extrait pyquest-author-headers.conf manquant"
 
 echo "Site statique"
-WEB=/var/www/pyquest
+WEB="${PYQUEST_WEB_ROOT:-/var/www/pyquest}"
 if [[ -L "${WEB}/current" ]]; then
     ok "current -> $(readlink "${WEB}/current")"
     [[ -f "${WEB}/current/index.html" ]] && ok "index.html présent" || ko "index.html absent dans current"
-    [[ -f "${WEB}/current/vendor/pyodide/pyodide.asm.wasm" ]] && ok "moteur Python (Pyodide) présent" || ko "Pyodide absent : make vendor-pyodide puis make deploy"
+    [[ -f "${WEB}/current/vendor/pyodide/pyodide.asm.wasm" ]] && ok "moteur Python (Pyodide) présent" || ko "Pyodide absent : ./scripts/server_update.sh"
     info "versions conservées : $(ls -1 "${WEB}/releases" 2>/dev/null | wc -l)"
 else
-    ko "${WEB}/current absent : aucun déploiement du site (make deploy)"
+    ko "${WEB}/current absent : site non publié (./scripts/server_update.sh)"
 fi
 [[ -d "${WEB}/static/admin" ]] && ok "fichiers statiques de l'administration présents" || info "statiques de l'administration absents (créés au démarrage du service)"
 
 echo "Backend Django"
-[[ -x /opt/pyquest/venv/bin/gunicorn ]] && ok "environnement Python et gunicorn installés" || ko "/opt/pyquest/venv/bin/gunicorn manquant (deploy/remote_setup.sh)"
-[[ -f /opt/pyquest/backend/manage.py ]] && ok "code du backend présent" || ko "code du backend absent (make deploy-backend)"
+[[ -x "${VENV}/bin/gunicorn" ]] && ok "environnement Python et gunicorn installés" || ko "${VENV}/bin/gunicorn manquant (./deploy/server_setup.sh)"
+[[ -f "${REPO}/backend/manage.py" ]] && ok "dépôt cloné : ${REPO}" || ko "dépôt introuvable (git clone … /opt/PyQuest)"
+if git -C "${REPO}" rev-parse --short HEAD >/dev/null 2>&1; then info "version du dépôt : $(git -C "${REPO}" rev-parse --short HEAD) ($(git -C "${REPO}" log -1 --format=%cd --date=short))"; fi
 if [[ -f /etc/pyquest/env ]]; then
     perms="$(stat -c '%a %U:%G' /etc/pyquest/env)"
     ok "/etc/pyquest/env présent (${perms})"
@@ -63,7 +67,7 @@ if systemctl is-active --quiet pyquest 2>/dev/null; then
     esac
     [[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:8001/api/auth/check/)" == 401 ]] && ok "contrôle d'accès de l'éditeur répond (401 sans session)" || ko "/api/auth/check/ ne répond pas 401"
 else
-    ko "service pyquest inactif (sudo systemctl enable --now pyquest ; journalctl -u pyquest -n 50)"
+    ko "service pyquest inactif (systemctl enable --now pyquest ; journalctl -u pyquest -n 50)"
 fi
 
 echo "Base de données"

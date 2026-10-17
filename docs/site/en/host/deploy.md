@@ -32,68 +32,21 @@ CDN) and the fonts.
 A complete nginx configuration example (MIME types, headers, cache, API) is provided in
 `nginx/pyquest.conf.example`.
 
-## Deploying to a VPS, step by step
+## Installing on a VPS
 
-Assumptions: a Linux VPS with **nginx**, a **domain name** pointing to it, and **SSH key** access.
-
-**1. On the VPS (once)**
-
-```bash
-sudo mkdir -p /var/www/pyquest /var/www/letsencrypt
-sudo chown "$USER" /var/www/pyquest          # the SSH user must be able to write here
-sudo apt install nginx certbot rsync
-```
-
-Then install the vhost: copy `nginx/pyquest-static.conf.example` (no backend; with the Django backend, `nginx/pyquest.conf.example`, see below) to `/etc/nginx/sites-available/pyquest` and
-replace `pyquest.example.org` with your domain. The certificate does not exist yet: **first comment out the second
-`server` block** (the port 443 one), then:
+The server is set up **from a clone of the repository, directly on the VPS, as root**: the site is built in place,
+then published as successive versions with an atomic switch of the `current` link. The repository is cloned under the
+name `PyQuest` (for example `/opt/PyQuest`, outside `/root` and `/home`).
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/pyquest /etc/nginx/sites-enabled/pyquest
-sudo nginx -t && sudo systemctl reload nginx
-sudo certbot certonly --webroot -w /var/www/letsencrypt -d your-domain.example   # Let's Encrypt
+git clone git@github.com:deunix-educ/PyQuest.git /opt/PyQuest
+cd /opt/PyQuest
+./deploy/server_setup.sh --domain pyquest.example.org --dry-run      # simulation
+./deploy/server_setup.sh --domain pyquest.example.org --certbot you@mail
 ```
 
-Then uncomment the 443 block and reload nginx (`sudo nginx -t && sudo systemctl reload nginx`). Certificate renewal is
-automatic (the `certbot` package timer); nginx must be reloaded after each renewal:
-`sudo sh -c 'printf "#!/bin/sh\nsystemctl reload nginx\n" > /etc/letsencrypt/renewal-hooks/deploy/nginx && chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx'`.
-
-**2. On your machine: deploy**
-
-```bash
-make install
-DEPLOY_HOST=user@your-domain.example make deploy
-```
-
-`make deploy` builds `dist/`, uploads the files to `releases/<date>-<commit>/` on the VPS (only changed files
-travel), then switches the `current` link **in one atomic step**: the site is never half-updated. The last 3
-versions are kept. Variables: `DEPLOY_PATH` (default `/var/www/pyquest`), `DEPLOY_KEEP`.
-`./scripts/deploy.sh --dry-run` shows what would be sent without changing anything.
-
-**3. Check**
-
-```bash
-make check-deploy URL=https://your-domain.example
-```
-
-The check verifies the isolation headers, MIME types, the Python engine, the service worker and the HTTPS
-redirect. Then open the site: a level with `input()` (level 03) confirms isolation works.
-
-**4. Update or roll back**
-
-```bash
-DEPLOY_HOST=user@your-domain.example make deploy                    # new version
-DEPLOY_HOST=user@your-domain.example ./scripts/deploy.sh --rollback  # previous version
-```
-
-Browsers pick up the new version on reload (pages and scripts go network first).
-
-!!! warning "If something goes wrong"
-    - **`input()` unavailable, or stopping a loop restarts the engine**: the COOP/COEP/CORP headers are missing.
-      `make check-deploy` reports it.
-    - **Blank page, scripts refused**: wrong MIME type (a `types` block forgotten or incomplete).
-    - **Old version shown**: check that `service-worker.js` is served with `Cache-Control: no-cache`.
-    - The script never uses `sudo` or a password: only your SSH key is used, and nothing secret is in the repository.
+The whole procedure (MariaDB database, starting the service, first administrator, publishing, backups, rollback,
+troubleshooting) is in [Going live and operations](operations.md).
 
 ## Testing locally before deploying
 
@@ -142,33 +95,24 @@ reload), the Python engine is **cache first** (versioned, immutable files).
 The Django backend does **two things**, both optional: sync progress between devices, and **protect access to the
 level editor** (`author.html`) with a login. The learning application works entirely without it.
 
-1. **Database: MariaDB** (or MySQL). Create a dedicated database and user (`utf8mb4` character set):
+`./deploy/server_setup.sh` (see above) does most of the work; here is what it sets up, and what is left to do by hand.
 
-    ```sql
-    CREATE DATABASE pyquest CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-    CREATE USER 'pyquest'@'localhost' IDENTIFIED BY '…a long password…';
-    GRANT ALL PRIVILEGES ON pyquest.* TO 'pyquest'@'localhost';
-    ```
+1. **Database: MariaDB** (or MySQL; Django 5.2 requires MariaDB 10.5 or later), to create **by hand** with a dedicated
+   database and user (`utf8mb4`): adapt then run `deploy/mariadb-setup.sql.example` (`mariadb < …`).
+2. **Python environment** inside the repository (`/opt/PyQuest/.venv-prod`), with `backend/requirements-prod.txt`
+   (Django, gunicorn, `mysqlclient` which is compiled: packages `pkg-config libmariadb-dev build-essential python3-dev`).
+3. **Environment variables** in `/etc/pyquest/env` (mode 640, `root:pyquest`, never committed; template:
+   `deploy/pyquest.env.example`): `PYQUEST_SECRET_KEY` (**generated** at installation), `PYQUEST_ALLOWED_HOSTS`,
+   `PYQUEST_ORIGIN` (`https://your-domain.example`), `PYQUEST_DB_NAME`, `PYQUEST_DB_USER`, `PYQUEST_DB_PASSWORD` (**to
+   fill in**), `PYQUEST_DB_HOST` (default `127.0.0.1`), `PYQUEST_DB_PORT` (default `3306`), `PYQUEST_STATIC_ROOT`
+   (default `/var/www/pyquest/static`) and `DJANGO_SETTINGS_MODULE=pyquest_api.settings.production`.
+4. **systemd service `pyquest`** (`deploy/pyquest.service.example`): gunicorn on `127.0.0.1:8001`, `pyquest` system
+   user; at startup it applies the migrations and collects the administration's static files.
+5. **nginx**: `nginx/pyquest.conf.example` (vhost) and the `pyquest-locations.conf` and `pyquest-author-headers.conf`
+   snippets in `/etc/nginx/snippets/`; `/api/` is proxied to the service, **on the same domain**.
 
-2. **Install** in a dedicated virtual environment (Django 5.2 requires MariaDB 10.5 or later):
-
-    ```bash
-    sudo apt install pkg-config libmariadb-dev build-essential python3-dev   # to build mysqlclient
-    python3 -m venv /opt/pyquest/venv
-    /opt/pyquest/venv/bin/pip install -r backend/requirements-prod.txt
-    ```
-
-3. **Environment variables** (never committed; for example in a file read by the systemd unit, mode `600`):
-   `PYQUEST_SECRET_KEY` (long random string), `PYQUEST_ALLOWED_HOSTS` (your domain), `PYQUEST_ORIGIN`
-   (`https://your-domain.example`), `PYQUEST_DB_NAME`, `PYQUEST_DB_USER`, `PYQUEST_DB_PASSWORD`, and if needed
-   `PYQUEST_DB_HOST` (default `127.0.0.1`), `PYQUEST_DB_PORT` (default `3306`) and `PYQUEST_STATIC_ROOT` (default
-   `/var/www/pyquest/static`, the administration's static files). Settings:
-   `DJANGO_SETTINGS_MODULE=pyquest_api.settings.production`.
-4. **Create the tables**: `python manage.py migrate` (in `backend/`).
-5. **Run** with `gunicorn` on `127.0.0.1:8001` (`gunicorn pyquest_api.wsgi --bind 127.0.0.1:8001`), managed by
-   systemd. nginx proxies `/api/` to it, **on the same domain**: use `nginx/pyquest.conf.example`, and copy
-   `nginx/pyquest-locations.conf.example` and `nginx/pyquest-author-headers.conf.example` into `/etc/nginx/snippets/` as
-   `pyquest-locations.conf` and `pyquest-author-headers.conf`.
+Production Django commands go through `./scripts/server_manage.sh` (reads `/etc/pyquest/env` without sourcing it and
+uses the right Python environment), for example `./scripts/server_manage.sh migrate`.
 
 ### Administration and author accounts
 
@@ -182,12 +126,11 @@ Two distinct notions:
 **First administrator** (on the server, once):
 
 ```bash
-cd backend && python manage.py createsuperuser     # password of at least 12 characters
-python manage.py collectstatic --noinput           # administration files, served by nginx
+./scripts/server_manage.sh createsuperuser     # password of at least 12 characters
 ```
 
-`collectstatic` writes into `PYQUEST_STATIC_ROOT` (default `/var/www/pyquest/static`), which nginx serves under
-`/api/static/` (the `alias` in `pyquest-locations.conf`). Redo it after a Django upgrade.
+The administration's static files are collected by the service at startup into `PYQUEST_STATIC_ROOT` (default
+`/var/www/pyquest/static`), which nginx serves under `/api/static/` (the `alias` in `pyquest-locations.conf`).
 
 **Managing authors**: open `https://your-domain.example/api/admin/`, sign in, then **Users**:
 
@@ -196,7 +139,7 @@ python manage.py collectstatic --noinput           # administration files, serve
 - **Add user** creates an account (username, password); then add it to the **Auteurs** group, or use the action above;
 - deactivating an account (the "Active" box) removes all access at the next check.
 
-On the command line, `python manage.py create_author ada` creates an author account directly, bypassing the
+On the command line, `./scripts/server_manage.sh create_author ada` creates an author account directly, bypassing the
 administration; `--reset` changes its password, `--admin` makes it an administrator (access to `/api/admin/`).
 
 An administrator can also use the editor (a superuser has every permission). The `is_staff` status alone is **not

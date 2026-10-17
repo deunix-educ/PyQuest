@@ -1,6 +1,6 @@
 # Vhost PyQuest complet : application statique + backend Django (synchronisation et accès à l'éditeur de niveaux).
 # À adapter : domaine, chemins, certificat. Sans backend, utiliser pyquest-static.conf.example.
-# Contenu servi : le dossier « current » créé par scripts/deploy.sh. Django (gunicorn) écoute sur 127.0.0.1:8001.
+# Contenu servi : le dossier « current » créé par scripts/server_update.sh. Django (gunicorn) écoute sur 127.0.0.1:8001.
 # Les en-têtes COOP/COEP/CORP sont indispensables à l'interruption des boucles infinies et à input()
 # (SharedArrayBuffer). Tout est servi depuis ce domaine, y compris Pyodide (COEP interdit les CDN).
 #
@@ -42,7 +42,7 @@ server {
     ssl_certificate     /etc/letsencrypt/live/pyquest.example.org/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/pyquest.example.org/privkey.pem;
 
-    # Dossier créé par scripts/deploy.sh (lien « current » basculé à chaque déploiement).
+    # Dossier créé par scripts/server_update.sh (lien « current » basculé à chaque déploiement).
     root /var/www/pyquest/current;
     index index.html;
 

@@ -43,16 +43,65 @@ FAKE_DUMP_EMPTY=1 "${ROOT}/scripts/backup_db.sh" >/dev/null 2>&1 && fail "une sa
 echo "PYQUEST_DB_NAME=x" > "${WORK}/env-incomplete"
 PYQUEST_ENV_FILE="${WORK}/env-incomplete" "${ROOT}/scripts/backup_db.sh" >/dev/null 2>&1 && fail "variables incomplètes acceptées"
 
-# ---- remote_setup.sh : arguments et --dry-run ------------------------------------------------------------------
-SETUP="${ROOT}/deploy/remote_setup.sh"
-"${SETUP}" --domain "pas un domaine" --deploy-user denis --dry-run >/dev/null 2>&1 && fail "domaine invalide accepté"
-"${SETUP}" --domain pyquest.example.org --deploy-user 'x; rm -rf /' --dry-run >/dev/null 2>&1 && fail "utilisateur dangereux accepté"
-"${SETUP}" --domain pyquest.example.org --deploy-user denis --certbot pas-un-mail --dry-run >/dev/null 2>&1 && fail "e-mail invalide accepté"
-"${SETUP}" --domain pyquest.example.org --deploy-user denis >/dev/null 2>&1 && fail "doit exiger root hors --dry-run" || true
-out="$("${SETUP}" --domain pyquest.example.org --deploy-user "$(id -un)" --dry-run 2>&1)"
+# ---- server_setup.sh : arguments et --dry-run -------------------------------------------------------------------
+SETUP="${ROOT}/deploy/server_setup.sh"
+"${SETUP}" --domain "pas un domaine" --dry-run >/dev/null 2>&1 && fail "domaine invalide accepté"
+"${SETUP}" --domain pyquest.example.org --certbot pas-un-mail --dry-run >/dev/null 2>&1 && fail "e-mail invalide accepté"
+"${SETUP}" --domain pyquest.example.org >/dev/null 2>&1 && fail "doit exiger root hors --dry-run" || true
+out="$("${SETUP}" --domain pyquest.example.org --dry-run 2>&1)"
 echo "${out}" | grep -q "\[dry-run\] .*apt-get install" || fail "le dry-run doit annoncer l'installation des paquets"
 echo "${out}" | grep -q "mariadb-setup.sql" || fail "les étapes restantes (base de données) doivent être listées"
-echo "${out}" | grep -q "Pas de certificat\|vhost complet" || fail "le dry-run doit traiter nginx"
+echo "${out}" | grep -q "server_update.sh" || fail "la publication du site doit être indiquée"
+echo "${out}" | grep -q "vhost complet" || fail "le dry-run doit traiter nginx"
+echo "${out}" | grep -q "${ROOT}/.venv-prod" || fail "l'environnement Python doit être dans le dépôt cloné (.venv-prod)"
+# Un dépôt sous /root ou /home est refusé (le service n'y aurait pas accès) : garde-fou présent dans le script.
+grep -q '/root|/root/\*|/home|/home/\*' "${SETUP}" || fail "le refus des dépôts sous /root et /home est absent"
+
+# ---- server_update.sh : versions atomiques, rotation, retour arrière, dry-run ----------------------------------------
+FAKE_REPO="${WORK}/PyQuest"
+mkdir -p "${FAKE_REPO}/scripts" "${FAKE_REPO}/dist/vendor/pyodide" "${FAKE_REPO}/backend"
+cp "${ROOT}/scripts/server_update.sh" "${FAKE_REPO}/scripts/"
+git -C "${FAKE_REPO}" init -q
+git -C "${FAKE_REPO}" -c user.email=t@t -c user.name=t commit -q --allow-empty -m init
+echo "v1" > "${FAKE_REPO}/dist/index.html"
+touch "${FAKE_REPO}/dist/vendor/pyodide/pyodide.asm.wasm"
+export PYQUEST_WEB_ROOT="${WORK}/www" PYQUEST_KEEP=2 PYQUEST_ALLOW_NON_ROOT=1
+UPDATE="${FAKE_REPO}/scripts/server_update.sh"
+quiet=(--no-pull --no-build --no-restart --no-check)
+
+"${UPDATE}" "${quiet[@]}" >/dev/null
+[[ "$(cat "${PYQUEST_WEB_ROOT}/current/index.html")" == v1 ]] || fail "la première version n'est pas en ligne"
+sleep 1; echo "v2" > "${FAKE_REPO}/dist/index.html"; "${UPDATE}" "${quiet[@]}" >/dev/null
+[[ "$(cat "${PYQUEST_WEB_ROOT}/current/index.html")" == v2 ]] || fail "la seconde version n'est pas en ligne"
+sleep 1; echo "v3" > "${FAKE_REPO}/dist/index.html"; "${UPDATE}" "${quiet[@]}" >/dev/null
+[[ "$(ls "${PYQUEST_WEB_ROOT}/releases" | wc -l)" == 2 ]] || fail "le nettoyage doit garder 2 versions"
+[[ -L "${PYQUEST_WEB_ROOT}/current" ]] || fail "current doit être un lien"
+"${UPDATE}" --rollback >/dev/null
+[[ "$(cat "${PYQUEST_WEB_ROOT}/current/index.html")" == v2 ]] || fail "le retour arrière doit remettre v2"
+"${UPDATE}" --rollback >/dev/null 2>&1 && fail "pas de version plus ancienne : le retour arrière doit échouer"
+[[ "$(cat "${PYQUEST_WEB_ROOT}/current/index.html")" == v2 ]] || fail "un retour arrière impossible ne doit rien changer"
+before="$(ls "${PYQUEST_WEB_ROOT}/releases")"
+echo "v4" > "${FAKE_REPO}/dist/index.html"; "${UPDATE}" "${quiet[@]}" --dry-run >/dev/null
+[[ "$(ls "${PYQUEST_WEB_ROOT}/releases")" == "${before}" ]] || fail "--dry-run ne doit rien publier"
+# Un dépôt modifié localement bloque la mise à jour (git pull) au lieu de risquer une fusion.
+echo "x" > "${FAKE_REPO}/tracked.txt"; git -C "${FAKE_REPO}" add tracked.txt
+"${UPDATE}" --no-build --no-restart --no-check >/dev/null 2>&1 && fail "des modifications locales doivent bloquer le pull"
+git -C "${FAKE_REPO}" reset -q
+rm "${FAKE_REPO}/dist/index.html"; "${UPDATE}" "${quiet[@]}" >/dev/null 2>&1 && fail "dist absent accepté"
+PYQUEST_WEB_ROOT='/var/www/a b' "${UPDATE}" "${quiet[@]}" >/dev/null 2>&1 && fail "chemin avec espace accepté"
+PYQUEST_KEEP=0 "${UPDATE}" "${quiet[@]}" >/dev/null 2>&1 && fail "PYQUEST_KEEP=0 accepté"
+
+# ---- server_manage.sh : lecture sûre du fichier d'environnement ----------------------------------------------------
+MANAGE_REPO="${WORK}/PyQuestManage"
+mkdir -p "${MANAGE_REPO}/scripts" "${MANAGE_REPO}/backend" "${MANAGE_REPO}/.venv-prod/bin"
+cp "${ROOT}/scripts/server_manage.sh" "${MANAGE_REPO}/scripts/"
+printf '#!/usr/bin/env bash\necho "ARGS=$*"\necho "PW=${PYQUEST_DB_PASSWORD}"\necho "KEY=${PYQUEST_SECRET_KEY}"\n' > "${MANAGE_REPO}/.venv-prod/bin/python"
+chmod +x "${MANAGE_REPO}/.venv-prod/bin/python"
+printf '# commentaire\nPYQUEST_DB_PASSWORD=mot de passe avec $ et "guillemets"\nPYQUEST_SECRET_KEY=abc-DEF_123\n' > "${WORK}/env2"
+managed="$(PYQUEST_ENV_FILE="${WORK}/env2" "${MANAGE_REPO}/scripts/server_manage.sh" create_author ada)"
+echo "${managed}" | grep -q 'ARGS=manage.py create_author ada' || fail "server_manage doit passer les arguments à manage.py"
+echo "${managed}" | grep -qF 'PW=mot de passe avec $ et "guillemets"' || fail "server_manage doit transmettre le mot de passe tel quel"
+PYQUEST_ENV_FILE="${WORK}/absent" "${MANAGE_REPO}/scripts/server_manage.sh" check >/dev/null 2>&1 && fail "fichier d'environnement absent accepté"
 
 # ---- vps_doctor.sh : s'exécute en lecture seule et signale ce qui manque -----------------------------------------
 doctor="$("${ROOT}/scripts/vps_doctor.sh" 2>&1 || true)"

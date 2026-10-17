@@ -1,4 +1,5 @@
-# Unité systemd du backend PyQuest (gunicorn, derrière nginx). À copier en /etc/systemd/system/pyquest.service.
+# Unité systemd du backend PyQuest (gunicorn, derrière nginx). deploy/server_setup.sh l'installe en
+# /etc/systemd/system/pyquest.service en remplaçant /opt/PyQuest par l'emplacement réel du dépôt cloné.
 # Au démarrage (et donc à chaque redémarrage après un déploiement), les migrations et les fichiers statiques de
 # l'administration sont mis à jour avant de lancer le serveur.
 #
@@ -13,12 +14,12 @@ Wants=mariadb.service
 [Service]
 User=pyquest
 Group=pyquest
-WorkingDirectory=/opt/pyquest/backend
+WorkingDirectory=/opt/PyQuest/backend
 # Secrets et réglages : fichier lisible par root et le groupe pyquest seulement (voir deploy/pyquest.env.example).
 EnvironmentFile=/etc/pyquest/env
-ExecStartPre=/opt/pyquest/venv/bin/python manage.py migrate --noinput
-ExecStartPre=/opt/pyquest/venv/bin/python manage.py collectstatic --noinput --verbosity 0
-ExecStart=/opt/pyquest/venv/bin/gunicorn pyquest_api.wsgi --bind 127.0.0.1:8001 --workers 3 --access-logfile - --error-logfile -
+ExecStartPre=/opt/PyQuest/.venv-prod/bin/python manage.py migrate --noinput
+ExecStartPre=/opt/PyQuest/.venv-prod/bin/python manage.py collectstatic --noinput --verbosity 0
+ExecStart=/opt/PyQuest/.venv-prod/bin/gunicorn pyquest_api.wsgi --bind 127.0.0.1:8001 --workers 3 --access-logfile - --error-logfile -
 Environment=PYTHONDONTWRITEBYTECODE=1
 Restart=on-failure
 RestartSec=3

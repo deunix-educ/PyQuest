@@ -1,12 +1,12 @@
 # Vhost PyQuest, version statique (sans synchronisation) : à adapter (domaine, chemins, certificat).
-# Contenu servi : le dossier « current » créé par scripts/deploy.sh (lien vers la dernière version).
+# Contenu servi : le dossier « current » créé par scripts/server_update.sh (lien vers la dernière version).
 # Les en-têtes COOP/COEP/CORP sont indispensables à l'interruption des boucles infinies et à input()
 # (SharedArrayBuffer). Tout est servi depuis ce domaine, y compris Pyodide (COEP interdit les CDN).
 # Pour la synchronisation, voir pyquest.conf.example (bloc /api/ et limite de débit).
 #
 # Installation type (Debian/Ubuntu) : voir la documentation « Déploiement » (docs/site/fr/host/deploy.md).
 #   1. éditer server_name et les chemins ; commenter le second bloc server (443) tant qu'il n'y a pas de certificat
-#   2. sudo ln -s /etc/nginx/sites-available/pyquest /etc/nginx/sites-enabled/pyquest && sudo nginx -t && sudo systemctl reload nginx
+#   2. ln -s /etc/nginx/sites-available/pyquest /etc/nginx/sites-enabled/pyquest && sudo nginx -t && sudo systemctl reload nginx
 #   3. sudo certbot certonly --webroot -w /var/www/letsencrypt -d pyquest.example.org
 #   4. décommenter le bloc 443 puis sudo nginx -t && sudo systemctl reload nginx
 
@@ -33,7 +33,7 @@ server {
     ssl_certificate     /etc/letsencrypt/live/pyquest.example.org/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/pyquest.example.org/privkey.pem;
 
-    # Dossier créé par scripts/deploy.sh (lien « current » basculé à chaque déploiement).
+    # Dossier créé par scripts/server_update.sh (lien « current » basculé à chaque déploiement).
     root /var/www/pyquest/current;
     index index.html;
 

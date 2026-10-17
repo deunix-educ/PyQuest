@@ -63,7 +63,8 @@ Details (in French): [docs/design/09-sync.md](docs/design/09-sync.md).
 ### Installing on a VPS
 
 Tested scripts for installation, atomic-release deployment, diagnostics and backup: see
-[docs/site/en/host/operations.md](docs/site/en/host/operations.md) (`make vps-bootstrap`, `make deploy`, `make vps-doctor`).
+[docs/site/en/host/operations.md](docs/site/en/host/operations.md) (`./deploy/server_setup.sh`, `./scripts/server_update.sh`,
+`./scripts/vps_doctor.sh`, run as root on the VPS from the `/opt/PyQuest` clone).
 Production-faithful local test: `make dev-nginx`.
 
 ## Contributing

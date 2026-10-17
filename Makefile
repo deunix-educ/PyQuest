@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build dev-sync fetch-nginx dev-nginx dev-admin dev-author docs docs-serve deploy deploy-backend vps-bootstrap vps-doctor check-deploy test-deploy test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
+.PHONY: help install vendor-pyodide dev validate-levels build dev-sync fetch-nginx dev-nginx dev-admin dev-author docs docs-serve vps-doctor check-deploy test-deploy test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -29,23 +29,13 @@ dev-sync: $(VENV)/.installed ## Serveur de dev + backend Django relayé sur /api
 	pid=$$!; trap "kill $$pid" EXIT INT TERM; \
 	$(PYTHON) scripts/dev_server.py --port $(PORT) --api-upstream http://127.0.0.1:8001
 
-deploy: build ## Déploie dist/ sur le VPS (DEPLOY_HOST=utilisateur@hote ; voir scripts/deploy.sh)
-	./scripts/deploy.sh
-
-check-deploy: ## Contrôle un site déployé (URL=https://domaine)
+check-deploy: ## Contrôle un site publié (URL=https://domaine)
 	./scripts/check_deploy.sh $(URL)
 
-deploy-backend: ## Envoie le code du backend Django au VPS et redémarre le service (DEPLOY_HOST=utilisateur@hote)
-	./scripts/deploy.sh --backend
+vps-doctor: ## Diagnostic en lecture seule du serveur (à lancer sur le VPS, depuis le dépôt cloné)
+	./scripts/vps_doctor.sh
 
-vps-bootstrap: ## Première installation du VPS (DEPLOY_HOST=… DOMAIN=… ; ajouter ARGS=--dry-run pour simuler)
-	./scripts/vps_bootstrap.sh --domain $(DOMAIN) $(ARGS)
-
-vps-doctor: ## Diagnostic en lecture seule du VPS (DEPLOY_HOST=utilisateur@hote)
-	ssh $(DEPLOY_HOST) 'bash -s' < scripts/vps_doctor.sh
-
-test-deploy: ## Teste les scripts de déploiement et d'exploitation (faux ssh, faux mariadb-dump, --dry-run)
-	bash tests/deploy/test_deploy.sh
+test-deploy: ## Teste les scripts d'installation et d'exploitation du serveur (dossiers temporaires, faux mariadb-dump)
 	bash tests/deploy/test_server_scripts.sh
 
 DOCS_VENV := .venv-docs

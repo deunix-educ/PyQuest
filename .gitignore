@@ -17,6 +17,7 @@ backend/staticfiles/
 backend/.venv/
 .venv-voice/
 .venv-docs/
+.venv-prod/
 /site/
 .cache/
 backend/venv/

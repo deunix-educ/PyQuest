@@ -4,7 +4,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#0f766e">
-        <title>PyQuest</title>
+        <title>PyQuest — apprendre Python par la pratique</title>
+        <meta name="description" content="PyQuest : apprendre Python par la pratique, directement dans le navigateur. Sans installation, hors ligne, en français et en anglais.">
         <link rel="manifest" href="manifest.webmanifest">
         <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
         <link rel="apple-touch-icon" href="icons/icon-180.png">
@@ -22,7 +23,10 @@
                 <div class="app-heading">
                     <div class="brand">
                         <img src="icons/icon.svg" alt="" width="32" height="32">
-                        <h1 id="app-title">PyQuest</h1>
+                        <div>
+                            <h1 id="app-title">PyQuest</h1>
+                            <p class="app-tagline" id="app-tagline"></p>
+                        </div>
                     </div>
                     <nav class="level-nav" id="level-nav">
                         <button type="button" class="btn" id="level-prev"><span aria-hidden="true">‹</span></button>
@@ -33,6 +37,14 @@
                 <button type="button" class="btn" id="settings-toggle"></button>
             </header>
             <div id="notebook-region"></div>
+            <footer class="app-footer" id="app-footer">
+                <p id="footer-copyright"></p>
+                <p class="footer-links">
+                    <a id="footer-contact" href="mailto:dd@linuxtarn.org">dd@linuxtarn.org</a>
+                    <a id="footer-license" href="LICENSE.txt" target="_blank" rel="noopener"></a>
+                    <button type="button" class="link-button" id="about-toggle"></button>
+                </p>
+            </footer>
         </div>
         <div id="drawer-region"></div>
         <div id="toast-region"></div>

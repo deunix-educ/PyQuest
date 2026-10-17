@@ -242,7 +242,7 @@ test('voix hors ligne : télécharger les narrations Piper puis les écouter san
     const [, cached, total] = status.match(/(\d+) voix sur (\d+)/) ?? [];
     assert.ok(Number(total) > 40 && cached === total, `toutes les voix du français sont en cache : ${status}`);
     assert.equal(await group.getByRole('button', { name: 'Télécharger les voix pour le hors ligne' }).isDisabled(), true);
-    await page.locator('.drawer-right .drawer-close').click();
+    await page.locator('.drawer-right.is-open .drawer-close').click();
     await page.locator('.drawer-right.is-open').waitFor({ state: 'hidden' });
 
     // Hors connexion : un niveau lointain se lit avec la voix Piper (fichier du cache), pas avec la synthèse système.
@@ -256,6 +256,54 @@ test('voix hors ligne : télécharger les narrations Piper puis les écouter san
     assert.equal(await page.evaluate(() => window.__systemVoice), 0, 'la voix du système ne doit pas avoir servi');
     assert.equal(await page.evaluate(() => window.__audio.errors), 0);
     assert.doesNotMatch(await page.textContent('.toast-region'), /Impossible de lire/);
+    assert.deepEqual(errors, []);
+});
+
+test('bandeau, pied de page et « À propos » : ce que fait PyQuest, droits, licence, contact, crédits', { skip, timeout: 120000 }, async () => {
+    const page = await (await browser.newContext({ locale: 'fr-FR' })).newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(base);
+    await page.waitForSelector('.explain', { timeout: 60000 });
+
+    // Le bandeau dit ce que fait l'application ; l'onglet aussi.
+    assert.match(await page.textContent('#app-tagline'), /Apprendre Python par la pratique, dans ton navigateur/);
+    assert.match(await page.title(), /PyQuest — apprendre Python/);
+
+    // Pied de page : droits, contact, licence (texte complet servi), à propos.
+    const footer = page.locator('#app-footer');
+    assert.match(await footer.textContent(), /© 2026 PyQuest/);
+    assert.equal(await footer.getByRole('link', { name: 'dd@linuxtarn.org' }).getAttribute('href'), 'mailto:dd@linuxtarn.org');
+    const licenseLink = footer.getByRole('link', { name: 'Licence MIT' });
+    const licenseResponse = await page.request.get(new URL(await licenseLink.getAttribute('href'), base).href);
+    assert.equal(licenseResponse.status(), 200);
+    assert.match(await licenseResponse.text(), /MIT License/);
+
+    // « À propos et crédits » : panneau accessible, avec l'attribution de la voix française.
+    await footer.getByRole('button', { name: 'À propos et crédits' }).click();
+    const drawer = page.locator('.drawer-right.is-open');
+    await drawer.waitFor();
+    assert.match(await drawer.textContent(), /À propos de PyQuest/);
+    assert.match(await drawer.textContent(), /Qu'est-ce que PyQuest \?/);
+    assert.match(await drawer.textContent(), /Licence MIT|licence MIT/);
+    assert.match(await drawer.textContent(), /SIWIS.*CC BY 4\.0/s);
+    assert.equal(await drawer.getByRole('link', { name: 'dd@linuxtarn.org' }).getAttribute('href'), 'mailto:dd@linuxtarn.org');
+    for (const link of await drawer.locator('a[target=_blank]').all()) {
+        assert.match(await link.getAttribute('rel'), /noopener/);
+    }
+    assert.equal(await page.evaluate(() => document.getElementById('app-root').inert), true);
+    await page.keyboard.press('Escape');
+    await drawer.waitFor({ state: 'hidden' });
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'about-toggle', 'le focus revient sur le bouton');
+
+    // En anglais : bandeau et pied de page suivent la langue.
+    await page.locator('#settings-toggle').click();
+    await page.getByLabel('Langue').selectOption('en');
+    await page.locator('.drawer-right.is-open .drawer-close').click();
+    await page.waitForFunction(() => document.getElementById('app-tagline').textContent.startsWith('Learn Python'));
+    assert.match(await footer.textContent(), /MIT licence/);
+    await footer.getByRole('button', { name: 'About and credits' }).click();
+    assert.match(await page.locator('.drawer-right.is-open').textContent(), /What is PyQuest\?/);
     assert.deepEqual(errors, []);
 });
 
@@ -398,7 +446,7 @@ test('navigation : lien direct vers un niveau, tiroirs accessibles, précédent/
     await page.locator('.drawer-right.is-open').waitFor();
     for (let i = 0; i < 30; i++) await page.keyboard.press('Tab');
     assert.equal(await page.evaluate(() => Boolean(document.activeElement.closest('.drawer-right'))), true, 'focus piégé');
-    await page.locator('.drawer-right .drawer-close').click();
+    await page.locator('.drawer-right.is-open .drawer-close').click();
     await page.locator('.drawer-right.is-open').waitFor({ state: 'hidden' });
 
     // Choisir un niveau dans le tiroir le ferme et l'ouvre.

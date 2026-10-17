@@ -21,6 +21,7 @@ import { el } from './ui/dom.js';
 import { CellManager } from './ui/CellManager.js';
 import { NotebookView } from './ui/NotebookView.js';
 import { ProgressMap } from './ui/ProgressMap.js';
+import { AboutPanel, COPYRIGHT_YEAR } from './ui/AboutPanel.js';
 import { SettingsPanel } from './ui/SettingsPanel.js';
 
 const LANGUAGES = ['fr', 'en'];
@@ -72,6 +73,8 @@ class App {
     #map;
     #shelf;
     #panel;
+    #about;
+    #aboutDrawer;
     #levelsDrawer;
     #settingsDrawer;
     #levelIds = [];
@@ -128,6 +131,7 @@ class App {
             this.#levelsDrawer.close();
             this.#goTo(event.detail.id);
         });
+        this.#about = new AboutPanel(this.#i18n);
         this.#panel = new SettingsPanel(this.#i18n);
         this.#panel.setSync(this.#sync.state);
         this.#panel.addEventListener('change', (event) => this.#onSettingChange(event.detail));
@@ -237,12 +241,28 @@ class App {
             trigger: document.getElementById('settings-toggle'),
             inertTargets: [appRoot],
         });
-        region.append(...this.#levelsDrawer.elements, ...this.#settingsDrawer.elements);
+        this.#aboutDrawer = new Drawer({
+            side: 'right',
+            title: '',
+            closeLabel: '',
+            content: this.#about.element,
+            trigger: document.getElementById('about-toggle'),
+            inertTargets: [appRoot],
+        });
+        region.append(...this.#levelsDrawer.elements, ...this.#settingsDrawer.elements, ...this.#aboutDrawer.elements);
         this.#levelsDrawer.addEventListener('open', () => {
             this.#settingsDrawer.close({ restoreFocus: false });
+            this.#aboutDrawer.close({ restoreFocus: false });
             this.#map.scrollToCurrent();
         });
-        this.#settingsDrawer.addEventListener('open', () => this.#levelsDrawer.close({ restoreFocus: false }));
+        this.#settingsDrawer.addEventListener('open', () => {
+            this.#levelsDrawer.close({ restoreFocus: false });
+            this.#aboutDrawer.close({ restoreFocus: false });
+        });
+        this.#aboutDrawer.addEventListener('open', () => {
+            this.#levelsDrawer.close({ restoreFocus: false });
+            this.#settingsDrawer.close({ restoreFocus: false });
+        });
     }
 
     #bindLevelNav() {
@@ -263,6 +283,11 @@ class App {
     #renderChrome() {
         const t = (key) => this.#i18n.t(key);
         document.getElementById('app-title').textContent = t('app.title');
+        document.getElementById('app-tagline').textContent = t('app.tagline');
+        document.title = t('app.docTitle');
+        document.getElementById('footer-copyright').textContent = this.#i18n.t('footer.copyright', { year: COPYRIGHT_YEAR });
+        document.getElementById('footer-license').textContent = t('footer.license');
+        document.getElementById('about-toggle').textContent = t('footer.about');
         document.getElementById('levels-toggle').replaceChildren(el('span', { 'aria-hidden': 'true', text: '☰ ' }), t('nav.levels'));
         document.getElementById('settings-toggle').replaceChildren(el('span', { 'aria-hidden': 'true', text: '⚙ ' }), t('nav.settings'));
         document.getElementById('level-prev').setAttribute('aria-label', t('nav.prev'));
@@ -270,6 +295,9 @@ class App {
         document.getElementById('level-nav').setAttribute('aria-label', t('nav.label'));
         this.#levelsDrawer?.setTitle(t('progress.title'));
         this.#levelsDrawer?.setCloseLabel(t('nav.close'));
+        this.#aboutDrawer?.setTitle(t('about.title'));
+        this.#aboutDrawer?.setCloseLabel(t('nav.close'));
+        this.#about.render();
         this.#settingsDrawer?.setTitle(t('settings.title'));
         this.#settingsDrawer?.setCloseLabel(t('nav.close'));
         this.#panel.render(this.#settings.settings);

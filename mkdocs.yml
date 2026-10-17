@@ -1,5 +1,6 @@
 # Documentation bilingue (fr par défaut, en). Sources : docs/site/fr et docs/site/en. Génération : make docs.
 site_name: PyQuest
+copyright: "© 2026 PyQuest · dd@linuxtarn.org · MIT"
 site_description: Apprendre Python par la pratique, dans le navigateur / Learn Python by doing, in the browser
 docs_dir: docs/site
 site_dir: site

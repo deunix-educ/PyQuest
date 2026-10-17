@@ -54,6 +54,22 @@ echo "${out}" | grep -q "db_setup.sh" || fail "les étapes restantes (base de do
 echo "${out}" | grep -q "server_update.sh" || fail "la publication du site doit être indiquée"
 echo "${out}" | grep -q "vhost complet" || fail "le dry-run doit traiter nginx"
 echo "${out}" | grep -q "${ROOT}/.venv-prod" || fail "l'environnement Python doit être dans le dépôt cloné (.venv-prod)"
+# Port local du backend : --port validé, et premier port libre choisi si 8001 est occupé.
+"${SETUP}" --domain pyquest.example.org --port 80 --dry-run >/dev/null 2>&1 && fail "port privilégié accepté"
+"${SETUP}" --domain pyquest.example.org --port abc --dry-run >/dev/null 2>&1 && fail "port invalide accepté"
+python3 -m http.server 8001 --bind 127.0.0.1 >/dev/null 2>&1 &
+BUSY_PID=$!
+sleep 1
+trap 'kill ${BUSY_PID} 2>/dev/null || true; rm -rf "${WORK}"' EXIT
+busy_out="$(PYQUEST_ENV_FILE="${WORK}/no-such-env" "${SETUP}" --domain pyquest.example.org --dry-run 2>&1)"
+echo "${busy_out}" | grep -q "port 8001 déjà utilisé" || fail "un port occupé doit être signalé"
+echo "${busy_out}" | grep -q "port choisi : 8002" || fail "le premier port libre (8002) doit être choisi"
+echo "${busy_out}" | grep -q "127.0.0.1:8002" || fail "nginx doit viser le port choisi"
+explicit="$("${SETUP}" --domain pyquest.example.org --port 8123 --dry-run 2>&1)"
+echo "${explicit}" | grep -q "PYQUEST_PORT=8123" || fail "--port doit être enregistré dans l'environnement"
+kill "${BUSY_PID}" 2>/dev/null || true
+grep -q 'bind 127.0.0.1:${PYQUEST_PORT}' "${ROOT}/deploy/pyquest.service.example" || fail "l'unité doit lire le port dans l'environnement"
+grep -q '^PYQUEST_PORT=' "${ROOT}/deploy/pyquest.env.example" || fail "le modèle d'environnement doit déclarer PYQUEST_PORT"
 # Un dépôt sous /root ou /home est refusé (le service n'y aurait pas accès) : garde-fou présent dans le script.
 grep -q '/root|/root/\*|/home|/home/\*' "${SETUP}" || fail "le refus des dépôts sous /root et /home est absent"
 

@@ -8,6 +8,8 @@ FAILED=0
 REPO="${PYQUEST_REPO:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." 2>/dev/null && pwd)}"
 [[ -f "${REPO}/backend/manage.py" ]] || REPO=/opt/PyQuest
 VENV="${REPO}/.venv-prod"
+PORT="$(grep -E '^PYQUEST_PORT=' /etc/pyquest/env 2>/dev/null | tail -n1 | cut -d= -f2- || true)"
+PORT="${PORT:-8001}"
 ok() { printf '  ok     %s\n' "$1"; }
 ko() { printf '  ÉCHEC  %s\n' "$1"; FAILED=1; }
 info() { printf '  info   %s\n' "$1"; }
@@ -57,15 +59,15 @@ else
     ko "/etc/pyquest/env absent"
 fi
 if systemctl is-active --quiet pyquest 2>/dev/null; then
-    ok "service pyquest actif"
+    ok "service pyquest actif (port ${PORT})"
     # Un jeton au bon format interroge la base : 404 = base joignable, 500 = base en panne.
-    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -H 'Authorization: Bearer aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' http://127.0.0.1:8001/api/sync/)"
+    code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 -H 'Authorization: Bearer aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' http://127.0.0.1:${PORT}/api/sync/)"
     case "${code}" in
         404) ok "API répond et la base de données est joignable (404 attendu)" ;;
         500) ko "l'API répond 500 : base de données injoignable ? (journalctl -u pyquest)" ;;
         *) info "API répond ${code}" ;;
     esac
-    [[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:8001/api/auth/check/)" == 401 ]] && ok "contrôle d'accès de l'éditeur répond (401 sans session)" || ko "/api/auth/check/ ne répond pas 401"
+    [[ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:${PORT}/api/auth/check/)" == 401 ]] && ok "contrôle d'accès de l'éditeur répond (401 sans session)" || ko "/api/auth/check/ ne répond pas 401"
 else
     ko "service pyquest inactif (systemctl enable --now pyquest ; journalctl -u pyquest -n 50)"
 fi

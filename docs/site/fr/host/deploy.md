@@ -111,7 +111,7 @@ fonctionne entièrement sans lui.
    `PYQUEST_ORIGIN` (`https://ton-domaine.example`), `PYQUEST_DB_NAME`, `PYQUEST_DB_USER`, `PYQUEST_DB_PASSWORD` (**à
    remplir**), `PYQUEST_DB_HOST` (défaut `127.0.0.1`), `PYQUEST_DB_PORT` (défaut `3306`), `PYQUEST_STATIC_ROOT` (défaut
    `/var/www/pyquest/static`) et `DJANGO_SETTINGS_MODULE=pyquest_api.settings.production`.
-4. **Service systemd `pyquest`** (`deploy/pyquest.service.example`) : gunicorn sur `127.0.0.1:8001`, utilisateur système
+4. **Service systemd `pyquest`** (`deploy/pyquest.service.example`) : gunicorn sur `127.0.0.1:PYQUEST_PORT` (défaut 8001), utilisateur système
    `pyquest` ; au démarrage il applique les migrations et collecte les fichiers statiques de l'administration.
 5. **nginx** : `nginx/pyquest.conf.example` (vhost) et les extraits `pyquest-locations.conf` et
    `pyquest-author-headers.conf` dans `/etc/nginx/snippets/` ; `/api/` est relayé vers le service, **sur le même domaine**.

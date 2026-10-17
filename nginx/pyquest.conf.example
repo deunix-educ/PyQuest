@@ -1,6 +1,6 @@
 # Vhost PyQuest complet : application statique + backend Django (synchronisation et accès à l'éditeur de niveaux).
 # À adapter : domaine, chemins, certificat. Sans backend, utiliser pyquest-static.conf.example.
-# Contenu servi : le dossier « current » créé par scripts/server_update.sh. Django (gunicorn) écoute sur 127.0.0.1:8001.
+# Contenu servi : le dossier « current » créé par scripts/server_update.sh. Django (gunicorn) écoute sur 127.0.0.1:8001 (server_setup.sh adapte le port dans l'extrait installé si 8001 est pris).
 # Les en-têtes COOP/COEP/CORP sont indispensables à l'interruption des boucles infinies et à input()
 # (SharedArrayBuffer). Tout est servi depuis ce domaine, y compris Pyodide (COEP interdit les CDN).
 #

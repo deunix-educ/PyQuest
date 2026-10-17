@@ -42,12 +42,20 @@ l'utilisateur système `pyquest` et doit pouvoir lire le code).
 | Site publié (versions successives) | `/var/www/pyquest/releases/…`, lien `current` |
 | Fichiers statiques de l'administration | `/var/www/pyquest/static` |
 | Secrets et réglages | `/etc/pyquest/env` (droits 640, `root:pyquest`) |
-| Service | `pyquest.service` (gunicorn, `127.0.0.1:8001`, utilisateur système `pyquest`) |
+| Service | `pyquest.service` (gunicorn sur `127.0.0.1:PYQUEST_PORT`, utilisateur système `pyquest`) |
 | nginx | `/etc/nginx/sites-available/pyquest`, extraits dans `/etc/nginx/snippets/` |
 | Sauvegardes | `/var/backups/pyquest` |
 
 Les noms système (`pyquest` pour le service, l'utilisateur et `/etc/pyquest`) restent en minuscules, comme le veut la
 convention Linux ; seul le dossier du dépôt s'appelle `PyQuest`.
+
+### Port du backend déjà utilisé
+
+Le backend écoute en local (`127.0.0.1`) sur un port qui n'est jamais exposé à Internet (nginx s'y connecte). Par défaut
+`server_setup.sh` prend le **premier port libre à partir de 8001** et l'enregistre dans `/etc/pyquest/env`
+(`PYQUEST_PORT`) ; le service et nginx l'utilisent tous les deux. Pour en imposer un :
+`./deploy/server_setup.sh --domain … --port 8011` (relançable : il réécrit l'unité et l'extrait nginx, puis redémarre le
+service s'il tournait). Voir les ports utilisés : `ss -ltnp`.
 
 ## Exploitation courante (en root, dans `/opt/PyQuest`)
 
@@ -94,7 +102,8 @@ une expiration proche.
 | page de connexion : « Forbidden (CSRF) » | `PYQUEST_ORIGIN` incorrect | doit valoir exactement `https://domaine` |
 | administration sans style | statiques absents | `systemctl restart pyquest` (relance `collectstatic`) |
 | `input()` indisponible | en-têtes COOP/COEP absents | `./scripts/check_deploy.sh` ; vérifier les extraits nginx |
-| 502 sur `/api/` | service arrêté | `systemctl status pyquest` |
+| 502 sur `/api/` | service arrêté ou port différent | `systemctl status pyquest` ; relancer `server_setup.sh` (réaligne nginx et le service) |
+| le service ne démarre pas, « Address already in use » | port du backend pris | `./deploy/server_setup.sh --domain … --port 8011` |
 | 503 sur la connexion | limite de débit nginx dépassée | attendre une minute |
 | connexion refusée « Trop d'essais » | 5 échecs en 15 minutes | attendre 15 minutes |
 | `ERROR 1045 Access denied for user 'root'` | le compte `root` de MariaDB exige un mot de passe | `./deploy/db_setup.sh` le demande ; autre compte administrateur : `--admin-user nom` |

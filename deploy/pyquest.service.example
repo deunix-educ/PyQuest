@@ -19,7 +19,7 @@ WorkingDirectory=/opt/PyQuest/backend
 EnvironmentFile=/etc/pyquest/env
 ExecStartPre=/opt/PyQuest/.venv-prod/bin/python manage.py migrate --noinput
 ExecStartPre=/opt/PyQuest/.venv-prod/bin/python manage.py collectstatic --noinput --verbosity 0
-ExecStart=/opt/PyQuest/.venv-prod/bin/gunicorn pyquest_api.wsgi --bind 127.0.0.1:8001 --workers 3 --access-logfile - --error-logfile -
+ExecStart=/opt/PyQuest/.venv-prod/bin/gunicorn pyquest_api.wsgi --bind 127.0.0.1:${PYQUEST_PORT} --workers 3 --access-logfile - --error-logfile -
 Environment=PYTHONDONTWRITEBYTECODE=1
 Restart=on-failure
 RestartSec=3

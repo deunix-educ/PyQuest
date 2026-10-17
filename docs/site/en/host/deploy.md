@@ -107,7 +107,7 @@ level editor** (`author.html`) with a login. The learning application works enti
    `PYQUEST_ORIGIN` (`https://your-domain.example`), `PYQUEST_DB_NAME`, `PYQUEST_DB_USER`, `PYQUEST_DB_PASSWORD` (**to
    fill in**), `PYQUEST_DB_HOST` (default `127.0.0.1`), `PYQUEST_DB_PORT` (default `3306`), `PYQUEST_STATIC_ROOT`
    (default `/var/www/pyquest/static`) and `DJANGO_SETTINGS_MODULE=pyquest_api.settings.production`.
-4. **systemd service `pyquest`** (`deploy/pyquest.service.example`): gunicorn on `127.0.0.1:8001`, `pyquest` system
+4. **systemd service `pyquest`** (`deploy/pyquest.service.example`): gunicorn on `127.0.0.1:PYQUEST_PORT` (default 8001), `pyquest` system
    user; at startup it applies the migrations and collects the administration's static files.
 5. **nginx**: `nginx/pyquest.conf.example` (vhost) and the `pyquest-locations.conf` and `pyquest-author-headers.conf`
    snippets in `/etc/nginx/snippets/`; `/api/` is proxied to the service, **on the same domain**.

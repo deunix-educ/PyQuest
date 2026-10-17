@@ -42,12 +42,20 @@ system user and must be able to read the code).
 | Published site (successive versions) | `/var/www/pyquest/releases/…`, `current` link |
 | Administration static files | `/var/www/pyquest/static` |
 | Secrets and settings | `/etc/pyquest/env` (mode 640, `root:pyquest`) |
-| Service | `pyquest.service` (gunicorn, `127.0.0.1:8001`, `pyquest` system user) |
+| Service | `pyquest.service` (gunicorn on `127.0.0.1:PYQUEST_PORT`, `pyquest` system user) |
 | nginx | `/etc/nginx/sites-available/pyquest`, snippets in `/etc/nginx/snippets/` |
 | Backups | `/var/backups/pyquest` |
 
 System names (`pyquest` for the service, the user and `/etc/pyquest`) stay lowercase, as Linux convention wants; only the
 repository folder is called `PyQuest`.
+
+### Backend port already in use
+
+The backend listens locally (`127.0.0.1`) on a port that is never exposed to the Internet (nginx connects to it). By
+default `server_setup.sh` takes the **first free port from 8001** and records it in `/etc/pyquest/env`
+(`PYQUEST_PORT`); the service and nginx both use it. To force one:
+`./deploy/server_setup.sh --domain … --port 8011` (rerunnable: it rewrites the unit and the nginx snippet, then restarts the
+service if it was running). See the ports in use: `ss -ltnp`.
 
 ## Day-to-day operations (as root, in `/opt/PyQuest`)
 
@@ -93,7 +101,8 @@ restarts the service. The certificate renews itself (`certbot` timer); `vps_doct
 | login page: "Forbidden (CSRF)" | wrong `PYQUEST_ORIGIN` | must be exactly `https://domain` |
 | administration without styles | static files missing | `systemctl restart pyquest` (reruns `collectstatic`) |
 | `input()` unavailable | COOP/COEP headers missing | `./scripts/check_deploy.sh`; check the nginx snippets |
-| 502 on `/api/` | service stopped | `systemctl status pyquest` |
+| 502 on `/api/` | service stopped or different port | `systemctl status pyquest`; rerun `server_setup.sh` (realigns nginx and the service) |
+| the service does not start, "Address already in use" | backend port taken | `./deploy/server_setup.sh --domain … --port 8011` |
 | 503 on the login | nginx rate limit exceeded | wait a minute |
 | login refused "Too many attempts" | 5 failures in 15 minutes | wait 15 minutes |
 | `ERROR 1045 Access denied for user 'root'` | MariaDB's `root` account requires a password | `./deploy/db_setup.sh` asks for it; another administrator account: `--admin-user name` |

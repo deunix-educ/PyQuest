@@ -8,6 +8,7 @@ import { IndexedDbKeyValueStore, MemoryKeyValueStore } from './core/KeyValueStor
 import { ProgressStore } from './core/ProgressStore.js';
 import { PyodideWorkerClient } from './core/PyodideWorkerClient.js';
 import { SettingsStore } from './core/SettingsStore.js';
+import { OfflineVoices } from './core/OfflineVoices.js';
 import { SyncClient } from './core/SyncClient.js';
 import { ValidationEngine } from './core/ValidationEngine.js';
 import { VoiceEngine } from './core/VoiceEngine.js';
@@ -60,6 +61,8 @@ class App {
     #settings;
     #progress;
     #sync;
+    #offlineVoices;
+    #voicesDownload = null;
     #lessons;
     #audio;
     #voice;
@@ -94,6 +97,7 @@ class App {
         this.#sync = new SyncClient({ store, progress: this.#progress, endpoint: new URL('api/sync/', document.baseURI).href });
         await this.#sync.load();
         this.#lessons = new LessonEngine({ levelsUrl: new URL('/levels/', location.href).href });
+        this.#offlineVoices = new OfflineVoices({ levelsUrl: new URL('/levels/', location.href).href });
         this.#audio = new AudioEngine({ enabled: settings.soundEnabled, volume: settings.volume });
         this.#voice = new VoiceEngine({ enabled: settings.voiceEnabled, rate: settings.voiceRate });
 
@@ -131,6 +135,7 @@ class App {
         this.#panel.addEventListener('sync', (event) => this.#onSync(event.detail));
         this.#sync.addEventListener('change', (event) => this.#panel.setSync(event.detail));
         this.#sync.addEventListener('merged', () => this.#renderMap());
+        this.#panel.addEventListener('voices', () => this.#downloadVoices());
         this.#panel.addEventListener('export', () => this.#exportProgress());
         this.#panel.addEventListener('import', (event) => this.#importProgress(event.detail.file));
 
@@ -151,6 +156,7 @@ class App {
         // Retour après une pause (2 jours ou plus sans activité) : accueil bienveillant, sans reproche.
         await this.#openLevel(next, { greeting: this.#isReturning() ? 'welcome_back' : 'level_start' });
         this.#registerServiceWorker();
+        this.#refreshVoiceStatus();
         // Synchronisation (si activée) : au démarrage, au retour du réseau et quand l'onglet redevient visible.
         this.#sync.start();
         window.addEventListener('online', () => this.#sync.sync());
@@ -196,6 +202,7 @@ class App {
         const session = await this.#lessons.startLevel(id, this.#i18n.lang);
         this.#updateLevelNav(session.title);
         await this.#manager.start(session, { greeting });
+        this.#prefetchLevelVoices(id);
     }
 
     async #renderMap() {
@@ -284,6 +291,46 @@ class App {
             // Le niveau courant redémarre dans la nouvelle langue (les saisies en cours sont perdues).
             await this.#openLevel(this.#currentId);
         }
+    }
+
+    /** Nombre de narrations déjà disponibles hors ligne dans la langue courante (affiché dans les réglages). */
+    async #refreshVoiceStatus() {
+        const supported = this.#offlineVoices.supported && this.#voice.supported;
+        if (!supported) {
+            this.#panel.setVoices({ supported: false });
+            return;
+        }
+        const { total, cached } = await this.#offlineVoices.status(this.#levelIds, this.#i18n.lang);
+        this.#panel.setVoices({ supported: true, total, cached, running: false, message: '' });
+    }
+
+    /** Télécharge toutes les narrations de la langue courante pour une écoute hors ligne. */
+    async #downloadVoices() {
+        if (this.#voicesDownload) {
+            return;
+        }
+        const lang = this.#i18n.lang;
+        this.#voicesDownload = true;
+        this.#panel.setVoices({ running: true, done: 0, message: '' });
+        try {
+            const result = await this.#offlineVoices.download(this.#levelIds, lang, {
+                onProgress: (done, total) => this.#panel.setVoices({ running: true, done, total }),
+            });
+            const message = result.failed > 0 ? this.#i18n.t('voices.failed', { failed: result.failed }) : this.#i18n.t('voices.done');
+            await this.#refreshVoiceStatus();
+            this.#panel.setVoices({ message });
+        } finally {
+            this.#voicesDownload = null;
+        }
+    }
+
+    /** Précharge discrètement la narration du niveau ouvert : elle sera lisible hors ligne, sans action de l'apprenant. */
+    #prefetchLevelVoices(id) {
+        // Économie de données demandée par le navigateur : on ne télécharge rien sans clic.
+        if (navigator.connection?.saveData || !this.#offlineVoices.supported || !this.#voice.supported) {
+            return;
+        }
+        this.#offlineVoices.download([id], this.#i18n.lang).then(() => this.#refreshVoiceStatus()).catch(() => {});
     }
 
     async #onSync({ action, token }) {

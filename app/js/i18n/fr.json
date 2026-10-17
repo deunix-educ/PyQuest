@@ -138,5 +138,12 @@
     "drawing.color.blue": "bleu",
     "drawing.color.orange": "orange",
     "drawing.color.purple": "violet",
-    "drawing.color.gray": "gris"
+    "drawing.color.gray": "gris",
+    "voices.title": "Voix hors ligne",
+    "voices.help": "Les voix de qualité sont des fichiers à télécharger une fois. Sans cela, hors connexion, seule la voix (plus rudimentaire) de ton appareil peut lire les textes.",
+    "voices.status": "{cached} voix sur {total} disponibles hors ligne dans cette langue.",
+    "voices.download": "Télécharger les voix pour le hors ligne",
+    "voices.downloading": "Téléchargement : {done} sur {total}…",
+    "voices.done": "Voix téléchargées : elles seront lues même sans connexion.",
+    "voices.failed": "{failed} fichier(s) n'ont pas pu être téléchargés. Réessaie avec une connexion."
 }

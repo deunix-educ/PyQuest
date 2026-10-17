@@ -68,6 +68,8 @@ def main() -> int:
     precache = shell_files()
     worker = DIST / "service-worker.js"
     source = worker.read_text(encoding="utf-8")
+    pyodide_version = (pyodide / ".version").read_text(encoding="utf-8").strip() if (pyodide / ".version").exists() else "dev"
+    source = re.sub(r"const PYODIDE_CACHE = '[^']*';", f"const PYODIDE_CACHE = 'pyquest-pyodide-{pyodide_version}';", source)
     source, shell_count = re.subn(r"const SHELL = \[.*?\];", f"const SHELL = {json.dumps(precache)};", source, flags=re.S)
     source, version_count = re.subn(
         r"const CACHE_VERSION = '[^']*';", f"const CACHE_VERSION = 'pyquest-{content_hash(precache)}';", source

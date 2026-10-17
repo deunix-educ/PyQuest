@@ -4,6 +4,12 @@
 // Les en-têtes COOP/COEP du document viennent du serveur ; ce worker ne les fabrique pas.
 
 const CACHE_VERSION = 'pyquest-v5';
+// Caches à longue durée de vie : leur nom ne change pas à chaque déploiement.
+// - narration Piper : fichiers nommés d'après leur contenu, donc jamais périmés ; les télécharger une fois suffit
+//   (page : OfflineVoices) et ils survivent aux mises à jour de l'application ;
+// - Pyodide : versionné (le nom du cache change seulement si la version de Pyodide change, voir scripts/build.py).
+const AUDIO_CACHE = 'pyquest-audio';
+const PYODIDE_CACHE = 'pyquest-pyodide-dev';
 
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'css/themes.css', 'css/base.css', 'css/cells.css', 'css/guide.css', 'css/progress.css', 'icons/icon.svg', 'js/main.js'];
 
@@ -16,7 +22,7 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches
             .keys()
-            .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))))
+            .then((keys) => Promise.all(keys.filter((key) => ![CACHE_VERSION, AUDIO_CACHE, PYODIDE_CACHE].includes(key)).map((key) => caches.delete(key))))
             .then(() => self.clients.claim()),
     );
 });
@@ -32,18 +38,28 @@ self.addEventListener('fetch', (event) => {
     if (isAuthorTool(url.pathname)) {
         return;
     }
-    // Pyodide (versionné, immuable, lourd) : cache d'abord. Tout le reste (code, niveaux, audio) :
-    // réseau d'abord, cache en repli hors ligne — jamais de code périmé servi en ligne.
-    const immutable = url.pathname.startsWith('/vendor/pyodide/');
-    event.respondWith(immutable ? fromCache(request) : fromNetwork(request));
+    // Pyodide (versionné, immuable, lourd) et narration (nommée d'après son contenu) : cache d'abord, dans leurs
+    // caches durables. Tout le reste (code, niveaux) : réseau d'abord, cache en repli hors ligne — jamais de code
+    // périmé servi en ligne.
+    if (url.pathname.startsWith('/vendor/pyodide/')) {
+        event.respondWith(fromCache(request, PYODIDE_CACHE));
+    } else if (isNarration(url.pathname)) {
+        event.respondWith(fromCache(request, AUDIO_CACHE));
+    } else {
+        event.respondWith(fromNetwork(request));
+    }
 });
+
+function isNarration(pathname) {
+    return /^\/levels\/[^/]+\/audio\/[a-z]+\/[0-9a-f]+\.mp3$/.test(pathname) || /^\/assets\/voice\/[a-z]+\/[0-9a-f]+\.mp3$/.test(pathname);
+}
 
 function isAuthorTool(pathname) {
     return pathname === '/author.html' || pathname === '/css/author.css' || pathname.startsWith('/js/author/') || /^\/js\/i18n\/author\.[a-z]+\.json$/.test(pathname);
 }
 
-async function fromCache(request) {
-    const cache = await caches.open(CACHE_VERSION);
+async function fromCache(request, cacheName) {
+    const cache = await caches.open(cacheName);
     const cached = await cache.match(request);
     if (cached) {
         return cached;

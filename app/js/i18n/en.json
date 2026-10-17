@@ -138,5 +138,12 @@
     "drawing.color.blue": "blue",
     "drawing.color.orange": "orange",
     "drawing.color.purple": "purple",
-    "drawing.color.gray": "gray"
+    "drawing.color.gray": "gray",
+    "voices.title": "Offline voices",
+    "voices.help": "The quality voices are files to download once. Without them, offline, only your device's (more rudimentary) voice can read the texts.",
+    "voices.status": "{cached} of {total} voices available offline in this language.",
+    "voices.download": "Download the voices for offline use",
+    "voices.downloading": "Downloading: {done} of {total}…",
+    "voices.done": "Voices downloaded: they will be read even without a connection.",
+    "voices.failed": "{failed} file(s) could not be downloaded. Try again with a connection."
 }

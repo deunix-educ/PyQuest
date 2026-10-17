@@ -12,6 +12,7 @@ PyQuest vise le niveau **WCAG 2.2 AA**. Le bouton **Réglages** ouvre le panneau
 | Personnage-guide | affiche ou masque les bulles d'encouragement |
 | Effets sonores / Volume | sons de réussite et d'erreur, désactivables ; « Tester le son » |
 | Voix / Vitesse | bouton « Écouter » des explications, désactivable ; « Tester la voix » |
+| Voix hors ligne | télécharge les voix de qualité pour les entendre sans connexion (voir ci-dessous) |
 | Mode auteur | affiche le lien vers l'[éditeur de niveaux](../contribute/author-editor.md) |
 
 Le son et la voix ne démarrent **jamais** tout seuls. Aucune information n'est transmise uniquement par le son ou
@@ -44,3 +45,11 @@ progression et les badges ont leurs états en texte, le dessin du canvas a une d
 
 PyQuest est une application web installable (PWA). Après un premier chargement complet, elle fonctionne sans
 connexion ; le navigateur peut te proposer de l'installer.
+
+### Les voix hors ligne
+
+Les voix de qualité (Piper) sont des fichiers audio. Le niveau que tu ouvres est **préchargé automatiquement** ; pour tous
+les autres, ouvre **Réglages → Voix hors ligne → Télécharger les voix pour le hors ligne** (environ 4 Mo par langue, une
+seule fois). Sans cela, hors connexion, seuls les extraits déjà écoutés restent disponibles et le reste est lu par la
+voix de ton appareil, plus rudimentaire. Les voix téléchargées survivent aux mises à jour de l'application ; le
+téléchargement est à refaire pour l'autre langue si tu en changes.

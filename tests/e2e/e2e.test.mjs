@@ -206,6 +206,59 @@ test('narration : fichier Piper lu jusqu\'au bout (politique autoplay par défau
     assert.deepEqual(errors, []);
 });
 
+test('voix hors ligne : télécharger les narrations Piper puis les écouter sans connexion', { skip, timeout: 180000 }, async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.addInitScript(() => {
+        window.__audio = { ended: 0, errors: 0 };
+        const Original = window.Audio;
+        window.Audio = class extends Original {
+            constructor(...args) {
+                super(...args);
+                this.addEventListener('ended', () => {
+                    if (this.src.startsWith('blob:')) window.__audio.ended += 1; // lecture d'un fichier Piper (pas la voix système)
+                });
+                this.addEventListener('error', () => (window.__audio.errors += 1));
+            }
+        };
+        // La voix du système ne doit jamais servir ici : on compte ses lectures.
+        window.__systemVoice = 0;
+        const speak = window.speechSynthesis?.speak?.bind(window.speechSynthesis);
+        if (speak) window.speechSynthesis.speak = (...args) => ((window.__systemVoice += 1), speak(...args));
+    });
+    await page.goto(base);
+    await page.waitForSelector('.explain', { timeout: 60000 });
+    // Le service worker contrôle la page (condition pour servir le cache hors ligne).
+    await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 30000 });
+
+    // Réglages : télécharger toutes les voix de la langue.
+    await page.locator('#settings-toggle').click();
+    const group = page.locator('.settings .voices-group');
+    await group.getByRole('button', { name: 'Télécharger les voix pour le hors ligne' }).click();
+    await group.locator('.voices-message').getByText(/Voix téléchargées/).waitFor({ timeout: 90000 });
+    const status = await group.locator('.voices-status').textContent();
+    const [, cached, total] = status.match(/(\d+) voix sur (\d+)/) ?? [];
+    assert.ok(Number(total) > 40 && cached === total, `toutes les voix du français sont en cache : ${status}`);
+    assert.equal(await group.getByRole('button', { name: 'Télécharger les voix pour le hors ligne' }).isDisabled(), true);
+    await page.locator('.drawer-right .drawer-close').click();
+    await page.locator('.drawer-right.is-open').waitFor({ state: 'hidden' });
+
+    // Hors connexion : un niveau lointain se lit avec la voix Piper (fichier du cache), pas avec la synthèse système.
+    await context.setOffline(true);
+    await page.evaluate(() => (location.hash = '#/levels/09-dicts'));
+    await page.waitForFunction(() => document.querySelector('#level-current')?.textContent.includes('Niveau 10'), null, { timeout: 30000 });
+    const listen = page.locator('.explain .voice-button').first();
+    await listen.waitFor({ state: 'visible' });
+    await listen.click();
+    await page.waitForFunction(() => window.__audio.ended >= 1, null, { timeout: 30000 });
+    assert.equal(await page.evaluate(() => window.__systemVoice), 0, 'la voix du système ne doit pas avoir servi');
+    assert.equal(await page.evaluate(() => window.__audio.errors), 0);
+    assert.doesNotMatch(await page.textContent('.toast-region'), /Impossible de lire/);
+    assert.deepEqual(errors, []);
+});
+
 test('niveau 07 : boucle while avec plusieurs saisies successives dans l\'interface', { skip, timeout: 120000 }, async () => {
     const page = await (await browser.newContext()).newPage();
     const errors = [];

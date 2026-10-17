@@ -351,3 +351,11 @@ pre {
         transition: none !important;
     }
 }
+
+.voices-status:empty {
+    display: none;
+}
+
+.voices-message:empty {
+    display: none;
+}

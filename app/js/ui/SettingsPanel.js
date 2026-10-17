@@ -10,6 +10,8 @@ export class SettingsPanel extends EventTarget {
     #syncRoot = el('fieldset', { class: 'setting-group sync-group' });
     #syncState = { enabled: false, token: null, status: 'off', error: null, lastSync: null };
     #syncMessage = '';
+    #voicesRoot = el('fieldset', { class: 'setting-group voices-group' });
+    #voicesState = { supported: false, total: 0, cached: 0, running: false, done: 0, message: '' };
 
     /** @param {import('../i18n/i18n.js').I18n} i18n */
     constructor(i18n) {
@@ -43,6 +45,7 @@ export class SettingsPanel extends EventTarget {
             this.#field('settings.volume', 'range', { value: settings.volume, min: 0, max: 1, step: 0.1, key: 'volume', number: true }),
             this.#field('settings.voice', 'checkbox', { value: settings.voiceEnabled, key: 'voiceEnabled' }),
             this.#testButton('settings.testVoice', 'voice'),
+            this.#voicesRoot,
             this.#field('settings.voiceRate', 'range', { value: settings.voiceRate, min: 0.5, max: 2, step: 0.1, key: 'voiceRate', number: true }),
             this.#field('settings.author', 'checkbox', { value: settings.authorMode, key: 'authorMode' }),
             this.#backupSection(),
@@ -50,6 +53,13 @@ export class SettingsPanel extends EventTarget {
             settings.authorMode ? el('a', { class: 'btn author-link', href: 'author.html', text: t('settings.authorOpen') }) : null,
         );
         this.#renderSync();
+        this.#renderVoices();
+    }
+
+    /** Met à jour la section « Voix hors ligne » (état du téléchargement des narrations). */
+    setVoices(state) {
+        this.#voicesState = { ...this.#voicesState, ...state };
+        this.#renderVoices();
     }
 
     /** Met à jour la section de synchronisation (état du SyncClient ; `message` : résultat d'une action). */
@@ -90,6 +100,41 @@ export class SettingsPanel extends EventTarget {
             el('button', { type: 'button', class: 'btn', text: t('backup.import'), onclick: () => input.click() }),
             input,
         );
+    }
+
+    #renderVoices() {
+        const t = (key, params) => this.#i18n.t(key, params);
+        const state = this.#voicesState;
+        if (!state.supported) {
+            this.#voicesRoot.replaceChildren();
+            this.#voicesRoot.hidden = true;
+            return;
+        }
+        this.#voicesRoot.hidden = false;
+        const focused = this.#voicesRoot.contains(document.activeElement);
+        const status = state.running
+            ? t('voices.downloading', { done: state.done, total: state.total })
+            : t('voices.status', { cached: state.cached, total: state.total });
+        const button = el('button', {
+            type: 'button',
+            class: 'btn',
+            id: 'voices-download',
+            disabled: state.running || (state.total > 0 && state.cached >= state.total),
+            text: t('voices.download'),
+            onclick: () => this.dispatchEvent(new Event('voices')),
+        });
+        this.#voicesRoot.replaceChildren(
+            el('legend', { text: t('voices.title') }),
+            el('p', { class: 'hint', text: t('voices.help') }),
+            el('p', { class: 'voices-status', role: 'status', tabindex: '-1', text: status }),
+            button,
+            // Résultat du dernier téléchargement : annoncé aux lecteurs d'écran.
+            el('p', { class: 'voices-message', role: 'status', text: state.message }),
+        );
+        if (focused) {
+            // Le bouton se désactive quand tout est téléchargé : le focus passe alors à l'état, sans se perdre.
+            (button.disabled ? this.#voicesRoot.querySelector('.voices-status') : button)?.focus();
+        }
     }
 
     #renderSync() {

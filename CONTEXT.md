@@ -38,6 +38,7 @@ vrai navigateur (Chromium) avec 4 niveaux jouables.
 | Tooling | `Makefile`, `scripts/{dev_server,validate_levels,build}.py`, `scripts/vendor_pyodide.sh` |
 | Tests | `tests/js/*.test.mjs` (node:test), `tests/python/`, `backend/sync/tests.py`, `tests/e2e/` (Chromium) |
 | Backend | `backend/` Django : `GET/PUT/DELETE /api/sync/` avec jeton Bearer (haché côté serveur), concurrence optimiste (`base` → 409) |
+| Voix hors ligne | `core/OfflineVoices.js` (cache `pyquest-audio`, partagé avec le service worker : narration en cache-first, cache durable ; Pyodide aussi dans un cache versionné `pyquest-pyodide-<version>`), bouton dans les Réglages, préchargement du niveau ouvert ; e2e « voix hors ligne » |
 | Pile locale | `make dev-nginx` (`scripts/local_stack.py`) : vrai nginx + Django, mêmes blocs que la prod (`nginx/pyquest-locations.conf.example`) ; `tests/e2e/nginx.test.mjs` ; binaire via `PYQUEST_NGINX` (ne pas utiliser `NGINX`, lue par nginx) |
 | Accès éditeur | `backend/authors/` (login, `check` pour nginx `auth_request`, administration `/api/admin/` : groupe « Auteurs » / permission `use_editor`, `create_author`, anti force brute) ; nginx `pyquest.conf.example` ; prod = MariaDB |
 | Synchronisation | `core/SyncClient.js` + section Réglages ; export/import fichier ; voir `docs/design/09-sync.md` ; `make dev-sync` |

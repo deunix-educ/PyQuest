@@ -1,0 +1,106 @@
+# PyQuest sur un VPS public avec Docker : nginx (HTTPS Let's Encrypt), Django/gunicorn, MariaDB, renouvellement du
+# certificat et sauvegarde quotidienne. Prêt à l'emploi : lancer ./docker/setup.sh vps (génère les secrets dans
+# docker/.env.vps, construit, démarre, obtient le certificat). Détails : docs/site/fr/host/docker.md
+#
+#   docker compose -f docker/compose.vps.yaml --env-file docker/.env.vps up -d
+name: pyquest-vps
+
+x-backend-env: &backend-env
+    DJANGO_SETTINGS_MODULE: pyquest_api.settings.production
+    PYQUEST_SECRET_KEY: ${PYQUEST_SECRET_KEY:?lancer ./docker/setup.sh vps}
+    PYQUEST_ALLOWED_HOSTS: ${PYQUEST_DOMAIN:?}
+    PYQUEST_ORIGIN: https://${PYQUEST_DOMAIN}${PYQUEST_ORIGIN_PORT:-}
+    PYQUEST_DB_NAME: pyquest
+    PYQUEST_DB_USER: pyquest
+    PYQUEST_DB_PASSWORD: ${PYQUEST_DB_PASSWORD:?}
+    PYQUEST_DB_HOST: db
+    PYQUEST_STATIC_ROOT: /var/www/pyquest/static
+
+services:
+    db:
+        image: mariadb:11.4
+        restart: unless-stopped
+        environment:
+            MARIADB_DATABASE: pyquest
+            MARIADB_USER: pyquest
+            MARIADB_PASSWORD: ${PYQUEST_DB_PASSWORD:?}
+            MARIADB_RANDOM_ROOT_PASSWORD: "1"
+        command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+        volumes:
+            - db:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 30s
+
+    backend:
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
+            target: backend
+        image: pyquest/backend:local
+        restart: unless-stopped
+        init: true
+        environment: *backend-env
+        depends_on:
+            db:
+                condition: service_healthy
+        volumes:
+            - static:/var/www/pyquest/static
+
+    web:
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
+            target: web
+        image: pyquest/web:local
+        restart: unless-stopped
+        init: true
+        environment:
+            PYQUEST_MODE: vps
+            PYQUEST_DOMAIN: ${PYQUEST_DOMAIN:?}
+            PYQUEST_PUBLIC_HTTPS_PORT: ${PYQUEST_HTTPS_PORT:-443}
+        ports:
+            - "${PYQUEST_HTTP_PORT:-80}:80"
+            - "${PYQUEST_HTTPS_PORT:-443}:443"
+        depends_on:
+            backend:
+                condition: service_healthy
+        volumes:
+            - static:/var/www/pyquest/static:ro
+            - letsencrypt:/etc/letsencrypt:ro
+            - acme:/var/www/letsencrypt
+
+    # Renouvellement : vérifie deux fois par jour ; nginx recharge le nouveau certificat dans les 6 heures.
+    certbot:
+        image: certbot/certbot:latest
+        restart: unless-stopped
+        entrypoint: ["/bin/sh", "-c", "trap exit TERM; while :; do certbot renew --webroot -w /var/www/letsencrypt --quiet; sleep 12h & wait $${!}; done"]
+        depends_on:
+            - web
+        volumes:
+            - letsencrypt:/etc/letsencrypt
+            - acme:/var/www/letsencrypt
+
+    backup:
+        image: mariadb:11.4
+        restart: unless-stopped
+        entrypoint: ["/bin/sh", "/backup.sh"]
+        environment:
+            MARIADB_USER: pyquest
+            MARIADB_DATABASE: pyquest
+            MYSQL_PWD: ${PYQUEST_DB_PASSWORD:?}
+        depends_on:
+            db:
+                condition: service_healthy
+        volumes:
+            - ./backup/mariadb-backup.sh:/backup.sh:ro
+            - ${PYQUEST_BACKUP_DIR:-./backups}:/backups
+
+volumes:
+    db:
+    static:
+    letsencrypt:
+    acme:

@@ -38,3 +38,4 @@ build/
 !.vscode/extensions.json
 .DS_Store
 .local/
+docker/backups/

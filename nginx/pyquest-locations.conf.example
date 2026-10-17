@@ -7,6 +7,10 @@
 # en /etc/nginx/snippets/pyquest-author-headers.conf. Les zones de limitation (limit_req_zone : pyquest_sync, pyquest_login, pyquest_admin) sont dans le bloc http.
 # Host $http_host (et non $host) : conserve le port, que Django compare à l'en-tête Origin des formulaires.
 
+    # Redirections relatives (Location: /api/auth/login/…) : correctes derrière n'importe quel port ou proxy, sans que
+    # nginx reconstruise une adresse absolue à partir de ses propres ports.
+    absolute_redirect off;
+
     # Types MIME explicites : un bloc « types » dans server remplace la table par défaut, donc on
     # liste tout ce que l'application sert. Les scripts-modules exigent text/javascript.
     types {

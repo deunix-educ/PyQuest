@@ -68,6 +68,8 @@ Scripts testés d'installation, de mise à jour par versions atomiques, de diagn
 Installation en une commande : `./deploy/install_vps.sh --domain …` (VPS public, Let's Encrypt, MariaDB) ou
 `./deploy/install_intranet.sh --host …` (réseau de lycée : autorité de certification interne, SQLite), voir
 [docs/site/fr/host/installers.md](docs/site/fr/host/installers.md).
+Avec Docker : `./docker/setup.sh vps --domain …` ou `./docker/setup.sh intranet --host …`
+(compose prêts à l'emploi, voir [docs/site/fr/host/docker.md](docs/site/fr/host/docker.md)).
 Essai local fidèle à la production : `make dev-nginx`.
 
 ## Contribuer

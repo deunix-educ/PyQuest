@@ -1,0 +1,15 @@
+.git
+.local
+.venv*
+node_modules
+dist
+vendor
+site
+tests
+docs
+backend/db.sqlite3
+backend/staticfiles
+**/__pycache__
+*.pyc
+docker/.env*
+docker/backups

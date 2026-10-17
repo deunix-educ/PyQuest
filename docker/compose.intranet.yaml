@@ -1,0 +1,71 @@
+# PyQuest dans un réseau interne (lycée) avec Docker : nginx (HTTPS avec une autorité de certification interne),
+# Django/gunicorn, base SQLite, sauvegarde quotidienne. Prêt à l'emploi : lancer ./docker/setup.sh intranet (génère les
+# secrets dans docker/.env.intranet, construit, démarre). Détails : docs/site/fr/host/docker.md
+#
+#   docker compose -f docker/compose.intranet.yaml --env-file docker/.env.intranet up -d
+name: pyquest-intranet
+
+services:
+    backend:
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
+            target: backend
+        image: pyquest/backend:local
+        restart: unless-stopped
+        init: true
+        environment: &backend-env
+            DJANGO_SETTINGS_MODULE: pyquest_api.settings.production
+            PYQUEST_SECRET_KEY: ${PYQUEST_SECRET_KEY:?lancer ./docker/setup.sh intranet}
+            PYQUEST_ALLOWED_HOSTS: ${PYQUEST_HOSTS:?}
+            PYQUEST_ORIGIN: ${PYQUEST_ORIGINS:?}
+            PYQUEST_DB_ENGINE: sqlite
+            PYQUEST_DB_PATH: /var/lib/pyquest/db.sqlite3
+            PYQUEST_STATIC_ROOT: /var/www/pyquest/static
+        volumes:
+            - data:/var/lib/pyquest
+            - static:/var/www/pyquest/static
+
+    web:
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
+            target: web
+        image: pyquest/web:local
+        restart: unless-stopped
+        init: true
+        environment:
+            PYQUEST_MODE: intranet
+            PYQUEST_HOSTS: ${PYQUEST_HOSTS:?}
+            PYQUEST_PUBLIC_HTTPS_PORT: ${PYQUEST_HTTPS_PORT:-443}
+        ports:
+            - "${PYQUEST_HTTP_PORT:-80}:80"
+            - "${PYQUEST_HTTPS_PORT:-443}:443"
+        depends_on:
+            backend:
+                condition: service_healthy
+        volumes:
+            - static:/var/www/pyquest/static:ro
+            # Autorité de certification et certificat du serveur : à sauvegarder (ca.key surtout), voir la documentation.
+            - tls:/etc/pyquest/tls
+
+    backup:
+        image: pyquest/backend:local
+        restart: unless-stopped
+        entrypoint: ["/bin/sh", "/backup.sh"]
+        healthcheck:
+            disable: true
+        environment:
+            <<: *backend-env
+        depends_on:
+            backend:
+                condition: service_healthy
+        volumes:
+            - data:/var/lib/pyquest:ro
+            - ./backup/sqlite-backup.sh:/backup.sh:ro
+            - ${PYQUEST_BACKUP_DIR:-./backups}:/backups
+
+volumes:
+    data:
+    static:
+    tls:

@@ -5,7 +5,7 @@ VENV := .venv
 VENV_PY := $(VENV)/bin/python
 PORT ?= 8000
 
-.PHONY: help install vendor-pyodide dev validate-levels build dev-sync fetch-nginx dev-nginx dev-admin dev-author docs docs-serve vps-doctor check-deploy test-deploy test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
+.PHONY: help install vendor-pyodide dev validate-levels build dev-sync fetch-nginx dev-nginx dev-admin dev-author docs docs-serve vps-doctor check-deploy test-deploy test-docker test test-js test-python test-backend test-e2e typecheck icons voice check-voice ci ci-e2e clean
 
 help: ## Affiche cette aide
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -38,6 +38,9 @@ vps-doctor: ## Diagnostic en lecture seule du serveur (à lancer sur le VPS, dep
 test-deploy: ## Teste les scripts d'installation (VPS, intranet) et d'exploitation : dossiers temporaires, faux mariadb, vrai openssl et nginx
 	bash tests/deploy/test_server_scripts.sh
 	bash tests/deploy/test_intranet.sh
+
+test-docker: ## Essai réel des compose Docker (intranet et VPS) : construit, démarre, interroge, détruit (quelques minutes)
+	bash tests/deploy/test_docker.sh
 
 DOCS_VENV := .venv-docs
 

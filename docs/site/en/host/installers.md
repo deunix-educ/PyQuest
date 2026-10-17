@@ -1,5 +1,8 @@
 # The installers: VPS and intranet
 
+!!! tip "With Docker"
+    If you prefer containers, `./docker/setup.sh vps|intranet` does the same: see [Docker Compose](docker.md).
+
 Two scripts do, **in one command**, everything you would otherwise do by hand. Run them **as root on the server**, from a
 clone of the repository (outside `/root` and `/home`, e.g. `/opt/PyQuest`), on **Debian or Ubuntu**. They are
 **idempotent**: after an interruption, run the same command again. `--dry-run` prints everything that would be done

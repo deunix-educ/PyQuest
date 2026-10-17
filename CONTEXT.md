@@ -69,6 +69,7 @@ passe dans `/etc/pyquest/env`) → `systemctl enable --now pyquest` → `./scrip
 | `scripts/server_manage.sh` | `manage.py` de production (lit `/etc/pyquest/env` sans `source`) | faux Python |
 | `scripts/vps_doctor.sh` | diagnostic en lecture seule (reconnaît l'installation intranet) | exécution locale |
 | `deploy/install_vps.sh` | installateur VPS tout-en-un : contrôles, server_setup, MariaDB, service, admin, publication, cron | `--dry-run` + `tests/deploy/test_intranet.sh` |
+| `docker/setup.sh vps|intranet` + `docker/compose.{vps,intranet}.yaml` + `docker/Dockerfile` | variante Docker : images web (nginx + site construit dans l'image) et backend, certbot (VPS) ou autorité interne (intranet), sauvegardes ; secrets dans `docker/.env.<mode>` | `make test-docker` : piles réelles (hors Let's Encrypt réel) |
 | `deploy/install_intranet.sh` | installateur réseau interne (lycée) : autorité de certification interne (`scripts/intranet_cert.sh`), SQLite (`PYQUEST_DB_ENGINE=sqlite`), vhost `nginx/pyquest-intranet.conf.example`, page `/ca` (`deploy/intranet-ca.html`), cron certificat mensuel + sauvegarde | vrai openssl et vrai nginx (`tests/deploy/test_intranet.sh`) ; **jamais lancé sur un vrai serveur**. Décision utilisateur : postes partagés → un profil de navigateur (idéalement une session) par élève, voir docs host/installers |
 | `scripts/backup_db.sh` | sauvegarde MariaDB vérifiée + rotation | faux `mariadb-dump` |
 | `scripts/check_deploy.sh URL` | contrôle du site publié | serveur local et vrai nginx (`make dev-nginx`) |

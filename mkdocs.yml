@@ -70,6 +70,7 @@ plugins:
                     L'éditeur de niveaux: The level editor
                     Déploiement: Deployment
                     Les installateurs (VPS et intranet): The installers (VPS and intranet)
+                    Docker Compose (VPS et intranet): Docker Compose (VPS and intranet)
                     Mise en service et exploitation: Going live and operations
                     Architecture: Architecture
                     Tests de validation: Validation tests
@@ -89,6 +90,7 @@ nav:
     - Héberger:
           - Déploiement: host/deploy.md
           - Les installateurs (VPS et intranet): host/installers.md
+          - Docker Compose (VPS et intranet): host/docker.md
           - Mise en service et exploitation: host/operations.md
     - Référence:
           - Architecture: reference/architecture.md

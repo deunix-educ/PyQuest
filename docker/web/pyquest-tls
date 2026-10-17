@@ -1,0 +1,78 @@
+#!/bin/bash
+# Gestion du vhost et des certificats du conteneur web.
+#   pyquest-tls render   écrit /etc/nginx/conf.d/pyquest.conf selon PYQUEST_MODE (vps | intranet)
+#   pyquest-tls ensure   met en place les certificats (VPS : Let's Encrypt s'il existe, sinon provisoire ; intranet :
+#                        autorité et certificat internes, réémis si besoin)
+#   pyquest-tls reload   ensure + rechargement de nginx (après un renouvellement)
+#   pyquest-tls loop     reload toutes les 6 heures
+set -euo pipefail
+
+MODE="${PYQUEST_MODE:?PYQUEST_MODE doit valoir vps ou intranet}"
+TLS=/etc/nginx/tls
+INTRANET_TLS=/etc/pyquest/tls
+PUBLIC_HTTPS_PORT="${PYQUEST_PUBLIC_HTTPS_PORT:-443}"
+say() { printf '[pyquest-tls] %s\n' "$*"; }
+
+render() {
+    local conf=/etc/nginx/conf.d/pyquest.conf
+    # Le relais vers Django passe par le DNS de Docker (resolver) : voir l'extrait pyquest-locations.conf de l'image.
+    local upstream='    resolver 127.0.0.11 valid=10s ipv6=off;\n    set $pq_upstream backend:8000;'
+    case "${MODE}" in
+        vps)
+            local domain="${PYQUEST_DOMAIN:?PYQUEST_DOMAIN requis}"
+            sed -e "s#pyquest.example.org#${domain}#g" \
+                -e "s#/etc/letsencrypt/live/${domain}/fullchain.pem#${TLS}/fullchain.pem#" \
+                -e "s#/etc/letsencrypt/live/${domain}/privkey.pem#${TLS}/privkey.pem#" \
+                -e "s#/var/www/letsencrypt#/var/www/letsencrypt#" \
+                -e "/http2 on;/a\\${upstream}" \
+                /opt/pyquest/nginx/pyquest.conf.example > "${conf}"
+            ;;
+        intranet)
+            local hosts="${PYQUEST_HOSTS:?PYQUEST_HOSTS requis (noms ou adresses séparés par des virgules)}"
+            sed -e "s#__SERVER_NAMES__#${hosts//,/ }#" -e "s#__WEB_ROOT__#/var/www/pyquest#g" -e "s#__TLS_DIR__#${INTRANET_TLS}#g" \
+                -e "/http2 on;/a\\${upstream}" \
+                /opt/pyquest/nginx/pyquest-intranet.conf.example > "${conf}"
+            ;;
+        *) say "PYQUEST_MODE inconnu : ${MODE}"; exit 1 ;;
+    esac
+    # Port public de HTTPS différent de 443 (essais, port déjà pris) : la redirection doit l'indiquer.
+    if [[ "${PUBLIC_HTTPS_PORT}" != 443 ]]; then
+        sed -i "s#https://\$host\$request_uri#https://\$host:${PUBLIC_HTTPS_PORT}\$request_uri#" "${conf}"
+    fi
+    say "vhost écrit pour le mode ${MODE}"
+}
+
+ensure() {
+    mkdir -p "${TLS}"
+    case "${MODE}" in
+        vps)
+            local live="/etc/letsencrypt/live/${PYQUEST_DOMAIN}"
+            if [[ -r "${live}/fullchain.pem" && -r "${live}/privkey.pem" ]]; then
+                ln -sfn "${live}/fullchain.pem" "${TLS}/fullchain.pem"
+                ln -sfn "${live}/privkey.pem" "${TLS}/privkey.pem"
+            else
+                # nginx doit démarrer avant d'obtenir le certificat (le défi Let's Encrypt passe par lui) : certificat provisoire.
+                if [[ ! -s "${TLS}/placeholder.crt" ]]; then
+                    openssl req -x509 -nodes -newkey ec -pkeyopt ec_paramgen_curve:prime256v1 -days 30 \
+                        -keyout "${TLS}/placeholder.key" -out "${TLS}/placeholder.crt" -subj "/CN=${PYQUEST_DOMAIN}" 2>/dev/null
+                fi
+                ln -sfn "${TLS}/placeholder.crt" "${TLS}/fullchain.pem"
+                ln -sfn "${TLS}/placeholder.key" "${TLS}/privkey.pem"
+                say "pas encore de certificat Let's Encrypt pour ${PYQUEST_DOMAIN} : certificat provisoire (voir la documentation)"
+            fi
+            ;;
+        intranet)
+            intranet_cert.sh --hosts "${PYQUEST_HOSTS}" --dir "${INTRANET_TLS}" --if-needed | grep -v '^RELOAD_NEEDED$' || true
+            install -m 644 "${INTRANET_TLS}/ca.crt" /var/www/pyquest/ca/pyquest-ca.crt
+            install -m 644 /opt/pyquest/intranet-ca.html /var/www/pyquest/ca/index.html
+            ;;
+    esac
+}
+
+case "${1:-}" in
+    render) render ;;
+    ensure) ensure ;;
+    reload) ensure; nginx -t 2>/dev/null && nginx -s reload && say "nginx rechargé" ;;
+    loop) while sleep 6h; do "$0" reload || say "rechargement en échec"; done ;;
+    *) sed -n '2,7p' "$0"; exit 2 ;;
+esac

@@ -68,6 +68,8 @@ Tested scripts for installation, atomic-release deployment, diagnostics and back
 One-command installation: `./deploy/install_vps.sh --domain …` (public VPS, Let's Encrypt, MariaDB) or
 `./deploy/install_intranet.sh --host …` (school network: internal certificate authority, SQLite), see
 [docs/site/en/host/installers.md](docs/site/en/host/installers.md).
+With Docker: `./docker/setup.sh vps --domain …` or `./docker/setup.sh intranet --host …`
+(ready-to-use compose files, see [docs/site/en/host/docker.md](docs/site/en/host/docker.md)).
 Production-faithful local test: `make dev-nginx`.
 
 ## Contributing

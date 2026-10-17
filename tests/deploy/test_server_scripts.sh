@@ -178,6 +178,11 @@ PYQUEST_ENV_FILE="${WORK}/env3" "${DBSETUP}" >/dev/null 2>&1 && fail "une base d
 sed -i "s/^PYQUEST_DB_NAME=.*/PYQUEST_DB_NAME=x; DROP DATABASE y/; s/^PYQUEST_DB_HOST=.*/PYQUEST_DB_HOST=127.0.0.1/" "${WORK}/env3"
 PYQUEST_ENV_FILE="${WORK}/env3" "${DBSETUP}" >/dev/null 2>&1 && fail "un nom de base dangereux doit être refusé"
 
+# ---- docker/firewall : script du pare-feu de l'hôte (syntaxe ; il ne s'applique qu'avec Docker et root) ----------------
+sh -n "${ROOT}/docker/firewall/docker-user-rules.sh" || fail "docker-user-rules.sh : erreur de syntaxe"
+grep -q "ExecStartPost=-" "${ROOT}/docker/firewall/docker-user-rules.sh" || fail "le « - » de ExecStartPost doit être documenté (Docker ne doit jamais dépendre du script)"
+if grep -qE '^iptables -I' "${ROOT}/docker/firewall/docker-user-rules.sh"; then fail "docker-user-rules.sh : pas de -I (l'ordre des règles serait inversé)"; fi
+
 # ---- vps_doctor.sh : s'exécute en lecture seule et signale ce qui manque -----------------------------------------
 doctor="$("${ROOT}/scripts/vps_doctor.sh" 2>&1 || true)"
 echo "${doctor}" | grep -q "^Système" || fail "le diagnostic doit s'exécuter"
